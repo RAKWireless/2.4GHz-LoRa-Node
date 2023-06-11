@@ -1,0 +1,247 @@
+
+**********************************************************************************************
+ 
+Apollo3 Blue / Apollo3 Blue Plus Release on Dec 17 2021 (revision release_sdk_3_0_0-742e5ac27c)
+ 
+**********************************************************************************************
+----------------------------------------------------------------------------------------------
+Summary of Changes and Customer Impacts
+----------------------------------------------------------------------------------------------
+*   Supports Apollo3, Apollo3 Blue, and Apollo3 Blue Plus
+*   Supports Apollo3 Blue Plus Secure SKU
+        SBL Update to support Secure SKU feature
+        Example customer secondary bootloader (apollo3_sec_bl_secure)
+        HW Entropy HAL and example
+*   Updated BLE patches for BLE Controller resolves several known defects.
+*   BLE AMOTA profile improvements.
+*   BLE added support for -5.0dBm TX power level
+*   Fixed I2C ARB error handling in IOM
+*   Fixed power save/restore defects in IOM and MSPI
+*   Defect fixes to MSPI Flash and PSRAM drivers.
+*   Fixed defect in PWRCTRL HAL for handling disable when multiple peripherals in same power domain were active.
+*   Fixed issue with Brownout when MCU is woken immediately after entry to deepsleep. 
+
+----------------------------------------------------------------------------------------------
+Software Known Issues, Updates, and Defect Fixes
+----------------------------------------------------------------------------------------------
+General Change:
+
+1) Updates to remove internal comments.
+2) Updates to fix some warnings.
+3) Removed support for SecureFault_Handler which is not implemented in the Cortex-M4F architecture.
+4) Introduced a new apollo3_sec_bl_secure example with full reference implementation for secure SKU secondary bootloader.
+
+Specific Changes:
+
+\ambiq_ble\apps\adv_ext\adv_ext_main.c
+\ambiq_ble\apps\amota\amota_main.c
+\ambiq_ble\apps\ancs\ancs_main.c
+*    Added support for Apollo4.
+*    Print the status and TX/RX Phy mode of DM_PHY_UPDATE_IND event.
+
+\ambiq_ble\apps\amdtpc\amdtp_main.c
+\ambiq_ble\profiles\amdtpc\amdtpc_api.h
+\ambiq_ble\profiles\amdtpc\amdtpc_main.c
+\ambiq_ble\profiles\amdtpcommon\amdtp_common.c
+*    Added support for Apollo4.
+*    Optimize amdtps/amdtpc example to stop data throughput calculation when issuing stop command from PC serial tool.
+
+\ambiq_ble\apps\dtm_module\dtm_main.c
+*    Fixes to support Apollo4 Blue DTM testing.
+
+\ambiq_ble\profiles\amota\amotas_api.h
+*    Added support for Apollo4.
+
+\ambiq_ble\profiles\amota\amotas_main.c
+*    Add amotaMetadataInfo_t struct definition for Apollo3 Blue and Apollo3 Blue Plus.
+*    Added support for Apollo4.
+*    Perform SWPOR to replace SWPOI after SBL OTA finish to avoid waiting for the reset complete response from controller.
+*    Added cacluation of the CRC in firmware downloading process.
+
+\ambiq_ble\profile_appl\txpower_ctrl\appl_txpower_ctrl.c
+*    Added support for -5.0dBm BLE TX power level.
+
+\ambiq_ble\services\svc_throughput.*
+*    Add a Charateristics(UUID 0x5403) under thrpoughput SVC to initiate connection update request， the Charateristics supporting Read/Write/notify
+
+\ambiq_ble\services\svc_amotas.h
+\ambiq_ble\services\svc_cust.h
+*    Adjust the handle of all defined services in stack to avoid handle conflict for different GATT database group.
+
+\boards\apollo3_evb\examples\apollo3_sec_bl\src\apollo3_secbl.c
+\boards\apollo3p_evb\examples\apollo3_sec_bl\src\apollo3_secbl.c
+*    Original secondary bootloader template example.
+*    This example is a template which can be used by developers as a starting point for their implementation. It provides a reference for nonsecure boot and nonsecure OTA. 
+*    Fix: Some SBL versions have a bug which always assert the PROTLOCK on exit - so rely on Infospace instead.
+
+\boards\apollo3p_evb\examples\apollo3_sec_bl_secure
+*    A new example, with reference implementation for secondary bootloader for secure SKU devices - including secureboot, secure OTA and security policy enforcement
+
+\boards\apollo3p_evb\examples\ble_freertos_fcc_test\src\ble_freertos_fcc_test.c
+*    Added button number check to avoid compiling error of Apollo3 Blue / Apollo3 Blue Plus BLE examples on EB board.
+
+\boards\apollo3_evb\examples\ble_freertos_throughput\src\throughput_main.c
+*    Optimize throughput example codes to fix phone application abnormal exit for internal testing.
+
+\boards\apollo3_evb\examples\ble_freertos_txpower_ctrl\src\radio_task.c
+\boards\apollo3p_evb\examples\ble_freertos_txpower_ctrl\src\radio_task.c
+*    Optimized tx power level setting interface
+*    Added button number check to avoid compiling error of Apollo3 Blue / Apollo3 Blue Plus BLE examples on EB board.
+
+\boards\apollo3_evb\examples\hello_world_uart\src\hello_world_uart.c
+\boards\apollo3p_evb\examples\hello_world_uart\src\hello_world_uart.c
+*    Added code and updated use of UART HAL API to allow modification of base clock for uart hardware.
+
+\boards\apollo3_evb\examples\hw_entropy
+\boards\apollo3p_evb\examples\hw_entropy
+*    New example to demonstrate the use of the new Entropy HAL.
+
+\boards\apollo3p_evb\examples\uart_ble_bridge\src\uart_ble_bridge.c
+*    Added support for Apollo4.
+*    Re-write the HCI command/data parsing logic to adapt to different data format cases from UART.
+*    Modified Apollo3 bridge DTM code logic to disable CW/CM mode when receiving
+     reset/DTM test end command when previously entering DTM mode.
+
+\boards\apollo3_evb\examples\uart_boot_host\src\uart_boot_host.c
+*    Clean up some of the default settings in uart_boot_host to make it more easily adapatable to a customer's board/device. Also beef up the comments.
+
+\bootloader\am_multi_boot.c
+*    Added support for Apollo4.
+
+\devices\am_devices_button.c
+*    Added support for Apollo4.
+
+\devices\am_devices_led.c
+*    Added support for Apollo4.
+
+\devices\am_devices_mspi_atxp032.*
+*    Fixed issue with am_device_deinit_flash to add Write Enable command to return part to default configuration.
+*    Added DDR and DQS support for Apollo4.
+*    Added timing scan functionality for Apollo4
+
+\devices\am_devices_mspi_psram_aps6404l.*
+*    Added DDR and DQS support for Apollo4.
+*    Added timing scan functionality for Apollo4
+
+\devices\am_devices_mspi_rm69330.c
+*    Added support for Apollo4.
+
+\devices\am_devices_mb85rc256v.c
+*    Added support for Apollo4.
+
+\devices\am_devices_mb85rs1mt.c
+*    Added support for Apollo4.
+
+\mcu\apollo3\hal\am_hal_adc.c
+\mcu\apollo3p\hal\am_hal_adc.c
+*    Updated (fixed) temperature computation to improve accuracy.
+
+\mcu\apollo3\hal\am_hal_ble_patch_b0.c
+\mcu\apollo3p\hal\am_hal_ble_patch_b0.c
+*    Improved the hci send data(slave->host) process.
+*    Improved DHKey generation procedure.
+*    Improved connection parameter request procedure.
+*    Optimize process for LLCP packet with invalid length.
+*    Optimize process when receiving invalid parameter of LL_LEN_REQ.
+*    Fixed no GATT response message during pairing issue
+*    Fixed master mode connection issue  
+*    Fixed no response to LL_ENC_REQ issue
+*    Optimize process when receiving invalid parameter of LL_LEN_REQ.
+*    Fixed  RF sync error issue on some channels when doing DTM test  
+
+\mcu\apollo3\hal\am_hal_entropy.*
+\mcu\apollo3p\hal\am_hal_entropy.*
+\mcu\apollo3\hal\am_hal_sysctrl.*
+\mcu\apollo3p\hal\am_hal_sysctrl.*
+*    Initial implementation of entropy source HAL for Apollo3 Blue and Apollo3 Blue Plus.
+
+\mcu\apollo3\hal\am_hal_flash.*
+\mcu\apollo3p\hal\am_hal_flash.*
+*    Updated the am_hal_flash_recovery function to leave an indication to SBL that a genuine recovery was initiated by the application.
+
+\mcu\apollo3\hal\am_hal_iom.c
+\mcu\apollo3p\hal\am_hal_iom.c
+*    Update to handle cleanup when encountering ARB error.
+*    Fixed a defect in the am_hal_iom_power_ctrl function during restore with the disable of command queue.
+
+\mcu\apollo3\hal\am_hal_ios.c
+*    Removed redundant power control call for ios
+
+\mcu\apollo3\hal\am_hal_mspi.c
+\mcu\apollo3p\hal\am_hal_mspi.c
+*    Fixed a defect in the am_hal_mspi_power_control function with the saving and restoring of MSPI registers and enable/disable of command queue.
+*    Updated declaration of g_MSPIState data structure as 'static' to reduce the memory for certain toolchains and examples (especially the power examples).
+
+\mcu\apollo3\hal\am_hal_pwrctrl.c
+\mcu\apollo3p\hal\am_hal_pwrctrl.c
+*    Fixed a defect in the am_hal_pwrctrl_periph_disable funtion which caused a false error return if multiple devices in the same power domain were enabled.
+
+\mcu\apollo3\hal\am_hal_security.*
+\mcu\apollo3p\hal\am_hal_security.*
+\mcu\apollo3\hal\am_hal_flash.h
+\mcu\apollo3p\hal\am_hal_flash.h
+*    Updated the HAL CRC implementation for both Apollo3 Blue and Apollo3 Blue Plus to better handle CRC computations on external memory.
+
+\mcu\apollo3\hal\am_hal_sysctrl.c
+\mcu\apollo3p\hal\am_hal_sysctrl.c
+*    Added SW workaround to Apollo3 Family SDK to workaround VDDC/VDDF Brownout when MCU is woken immediately after entry to deepsleep.
+
+\mcu\apollo3p\hal\am_hal_stimer.c
+*    Updated am_hal_stimer_compare_delta_set() to allow returning failure.
+*    Also using triple read for STTMR in the function.
+
+\mcu\apollo3\hal\am_hal_uart.*
+\mcu\apollo3p\hal\am_hal_uart.*
+*    Fix to clear the UART->CR register during sleep to save power.
+*    Updated code in function am_hal_uart_control between Apollo3 Blue (apollo3) and Apollo3 Blue Plus (apollo3p) HAL.
+
+\mcu\apollo3\regs\am_mcu_apollo3_info0.h
+\mcu\apollo3p\regs\am_mcu_apollo3p_info0.h
+*    Included the INFO0 register definition files for both Apollo3 Blue and Apollo3 Blue Plus.
+
+\third_party\cordio\ble-host\include\hci_cmd.h
+\third_party\cordio\ble-host\sources\hci\ambiq\hci_cmd.c
+*    Added support for Apollo4.
+*    Fixed the DmDevReset flow bug when hciCmdTimeout
+
+\third_party\cordio\ble-host\sources\hci\ambiq\hci_core.c
+*    Added support for Apollo4.
+
+\third_party\cordio\ble-host\sources\hci\ambiq\hci_cmd.c
+*    Fixed defect.  Free buffer after storing the opcode of the command.
+
+\third_party\cordio\ble-host\include\hci_core.h
+*    Updated the return values (TRUE/FALSE) for a few functions.
+
+\third_party\cordio\ble-host\sources\hci\ambiq\hci_tr.*
+*    Added support for Apollo4.
+*    Discard the HCI received packet with wrong type or memory allocation failure. Set the HCI RX state back to IDLE.
+
+\third_party\cordio\ble-host\sources\hci\ambiq\apollo3\hci_drv_apollo3.*
+*    Used explicit TX_POWER_LEVEL defines.
+
+\third_party\cordio\ble-host\sources\stack\att\atts_read.c
+*    Fix the compiling issue causing service discovery failure in IAR with high optimization option.
+
+\third_party\cordio\ble-profiles\sources\apps\app\app_master.c
+*    Send the HCI cmd of reading remote feature after readRemoteFeatTimer expires to avoid hciCmdTimeout of HCI_OPCODE_LE_READ_REMOTE_FEAT(0x2016).
+*    Fix BLESA vulenarability when device working as master role.
+
+\third_party\cordio\ble-profiles\sources\apps\app\app_main.*
+*    Send the HCI cmd of reading remote feature after readRemoteFeatTimer expires to avoid hciCmdTimeout of HCI_OPCODE_LE_READ_REMOTE_FEAT(0x2016).
+
+\tools\apollo3_scripts\create_cust_wireupdate_blob.py
+*    Updated the script to avoid padding for already aligned block. It may cause issues with older SBLs if there is a trailing block of effective size of 0.
+*    Update the script to handle the case where the image is padded for encryption.
+
+\utils\am_util_delay.c
+*    Added support for Apollo4.
+
+\utils\am_util_faultisr.c
+*    Added support for Apollo4.
+
+\utils\am_util_id.*
+*    Added support for Apollo4.
+
+\utils\am_util_stdio.*
+*    Added support for Apollo4.

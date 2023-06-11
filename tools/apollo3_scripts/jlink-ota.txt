@@ -1,0 +1,26 @@
+//connect to device
+// NEED to specify -device AMA3B2KK-KBR (for Apollo3P) or -device AMA3B1KK-KBR/KCR (for Apollo3) from command line
+si SWD
+speed 1000
+r
+sleep 10
+
+// Load OTA image at a temp location in flash
+// download image to 0x80000 - **** Change this based on device flashmap ****
+loadbin ota_img.bin          0x80000
+// Set up OTA Descriptor at any flash page
+// Using 0xFE000 - last page in flash
+// **** Change this based on device flashmap ****
+w4 0xFE000 0x80003
+w4 0xFE004 0xFFFFFFFF
+// Set up OTAPointer
+w4 0x40020264 0xFE001
+// Reset
+w4 0x40000004 0x1B
+// Give it time to process the OTA
+sleep 2000
+connect
+// Check the OTA status - last 2 bits 0 implies successful OTA
+mem32 0xFE000, 1
+// quit
+qc
