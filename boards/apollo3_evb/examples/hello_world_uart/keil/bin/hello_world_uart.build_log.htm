@@ -21,20 +21,362 @@ Target DLL:      Segger\JL2CM3.dll V2.99.38.0
 Dialog DLL:      TCM.DLL V1.42.0.0
  
 <h2>Project:</h2>
-G:\2.4G Lora\Apollo3_Blue_public\AmbiqSuite_R3.0.0 - ¸±±¾\boards\apollo3_evb\examples\hello_world_uart\keil\hello_world_uart.uvprojx
-Project File Date:  06/10/2023
+G:\2.4G Lora\Apollo3_Blue_public\AmbiqSuite_R3.0.0 - RAK3183\boards\apollo3_evb\examples\hello_world_uart\keil\hello_world_uart.uvprojx
+Project File Date:  06/19/2023
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'F:\KEIL5\ARM\ARMCC\Bin'
-Build target 'hello_world_uart'
-compiling startup_keil.s...
-compiling smtc_hal_spi.c...
+Rebuild target 'hello_world_uart'
+compiling smtc_hal_rng.c...
+compiling am_util_stdio.c...
 compiling smtc_hal_rtc.c...
+..\src\smtc_hal_rtc.c(63): warning:  #223-D: function "hal_gpio_init_out" declared implicitly
+  	 hal_gpio_init_out(44 ,0);
+..\src\smtc_hal_rtc.c: 1 warning, 0 errors
+compiling startup_keil.s...
+compiling smtc_hal_lp_timer.c...
+compiling smtc_hal_trace.c...
+compiling ral_sx128x_bsp.c...
+compiling smtc_hal_flash.c...
+..\src\smtc_hal_flash.c(101): warning:  #223-D: function "am_util_stdio_printf" declared implicitly
+  			am_util_stdio_printf("hal_flash_erase_page error!\n");
+..\src\smtc_hal_flash.c(146): warning:  #223-D: function "am_util_stdio_printf" declared implicitly
+  						am_util_stdio_printf("hal_flash_write_buffer error!\n");
+..\src\smtc_hal_flash.c(178): warning:  #223-D: function "am_util_stdio_printf" declared implicitly
+  	am_util_stdio_printf("ARB_PAGE_ADDRESS %08X ",ARB_PAGE_ADDRESS);
+..\src\smtc_hal_flash.c: 3 warnings, 0 errors
+compiling am_util_faultisr.c...
+compiling smtc_hal_spi.c...
+..\src\smtc_hal_spi.c(182): warning:  #223-D: function "hal_mcu_disable_irq" declared implicitly
+  	  hal_mcu_disable_irq();
+..\src\smtc_hal_spi.c(209): warning:  #223-D: function "hal_mcu_enable_irq" declared implicitly
+  		hal_mcu_enable_irq();
+..\src\smtc_hal_spi.c: 2 warnings, 0 errors
+compiling am_util_delay.c...
+compiling main.c...
+..\src\main.c(277): warning:  #223-D: function "test_radio" declared implicitly
+  		test_radio();
+..\src\main.c(284): warning:  #223-D: function "smtc_modem_run_engine" declared implicitly
+  			  smtc_modem_run_engine( );
+..\src\main.c: 2 warnings, 0 errors
+compiling smtc_hal_mcu.c...
+compiling am_util_id.c...
+compiling smtc_hal_gpio.c...
+..\src\smtc_hal_gpio.c(89): warning:  #111-D: statement is unreachable
+  		   	AM_GPIO.eIntDir = AM_HAL_GPIO_PIN_INTDIR_NONE;
+..\src\smtc_hal_gpio.c: 1 warning, 0 errors
+compiling tx_rx_test.c...
+..\src\tx_rx_test.h(6): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\src\tx_rx_test.c(198): warning:  #223-D: function "hal_spi_init" declared implicitly
+    	hal_spi_init(1,1,1,0);
+..\src\tx_rx_test.c(200): warning:  #223-D: function "hal_rtc_init" declared implicitly
+  	  hal_rtc_init(  );
+..\src\tx_rx_test.c(202): warning:  #223-D: function "hal_lp_timer_init" declared implicitly
+  	  hal_lp_timer_init();
+..\src\tx_rx_test.c(283): warning:  #1-D: last line of file ends without a newline
+  //}
+..\src\tx_rx_test.c: 5 warnings, 0 errors
+compiling ralf_sx128x.c...
+compiling lorawan_api.c...
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_d2d.h(117): warning:  #1-D: last line of file ends without a newline
+  #endif  //  __SMTC_D2D_H__
+..\smtc_modem_core\device_management\modem_context.h(121): warning:  #1295-D: Deprecated declaration modem_context_init - give arg types
+  void modem_context_init( );
+..\smtc_modem_core\lorawan_api\lorawan_api.c: 2 warnings, 0 errors
+compiling cmac.c...
+compiling sx128x.c...
+compiling dm_downlink.c...
+..\smtc_modem_core\device_management\modem_context.h(121): warning:  #1295-D: Deprecated declaration modem_context_init - give arg types
+  void modem_context_init( );
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_d2d.h(117): warning:  #1-D: last line of file ends without a newline
+  #endif  //  __SMTC_D2D_H__
+..\smtc_modem_core\device_management\dm_downlink.c(559): warning:  #1-D: last line of file ends without a newline
+  }
+..\smtc_modem_core\device_management\dm_downlink.c: 3 warnings, 0 errors
+compiling region_ww2g4.c...
+..\smtc_modem_core\modem_config\smtc_modem_hal_dbg_trace.h(168): warning:  #47-D: incompatible redefinition of macro "SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG"  (declared at line 54 of "..\smtc_modem_core\lr1mac\src\lr1mac_utilities.h")
+      #define SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( ... )            SMTC_MODEM_HAL_TRACE_PRINTF(__VA_ARGS__)
+..\smtc_modem_core\lr1mac\src\smtc_real\src\region_ww2g4.c(320): warning:  #188-D: enumerated type mixed with another type
+          *out_bw = datarates_to_bandwidths_ww2g4[in_dr];
+..\smtc_modem_core\lr1mac\src\smtc_real\src\region_ww2g4.c: 2 warnings, 0 errors
+compiling soft_se.c...
+compiling sx128x_hal.c...
+compiling smtc_modem_hal.c...
+..\smtc_modem_hal\smtc_modem_hal.c(197): warning:  #223-D: function "am_util_stdio_printf" declared implicitly
+          mcu_panic( );
+..\smtc_modem_hal\smtc_modem_hal.c(197): warning:  #223-D: function "am_util_stdio_printf" declared implicitly
+          mcu_panic( );
+..\smtc_modem_hal\smtc_modem_hal.c(223): warning:  #223-D: function "am_util_stdio_printf" declared implicitly
+          mcu_panic( );
+..\smtc_modem_hal\smtc_modem_hal.c(223): warning:  #223-D: function "am_util_stdio_printf" declared implicitly
+          mcu_panic( );
+..\smtc_modem_hal\smtc_modem_hal.c: 4 warnings, 0 errors
+compiling modem_context.c...
+..\smtc_modem_core\device_management\modem_context.h(121): warning:  #1295-D: Deprecated declaration modem_context_init - give arg types
+  void modem_context_init( );
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_d2d.h(117): warning:  #1-D: last line of file ends without a newline
+  #endif  //  __SMTC_D2D_H__
+..\smtc_modem_core\lr1mac\src\lr1mac_utilities.h(54): warning:  #47-D: incompatible redefinition of macro "SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG"  (declared at line 168 of "..\smtc_modem_core\modem_config\smtc_modem_hal_dbg_trace.h")
+  #define SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( ... )  //@todo push it to the modem layer
+..\smtc_modem_core\device_management\modem_context.c(1313): warning:  #68-D: integer conversion resulted in a change of sign
+                      *p_tmp = -128;
+..\smtc_modem_core\device_management\modem_context.c(1478): warning:  #188-D: enumerated type mixed with another type
+      return ( ( is_modem_suspend == MODEM_SUSPEND ) ? true : false );
+..\smtc_modem_core\device_management\modem_context.c(1594): warning:  #111-D: statement is unreachable
+      break;
+..\smtc_modem_core\device_management\modem_context.c(1896): warning:  #188-D: enumerated type mixed with another type
+      rp_radio_params_t fake_radio_params = { 0 };
+..\smtc_modem_core\device_management\modem_context.c(1928): warning:  #188-D: enumerated type mixed with another type
+      rp_radio_params_t fake_radio_params = { 0 };
+..\smtc_modem_core\device_management\modem_context.c(140): warning:  #550-D: variable "is_modem_charge_loaded"  was set but never used
+  static bool                         is_modem_charge_loaded      = false;
+..\smtc_modem_core\device_management\modem_context.c(147): warning:  #550-D: variable "crc_fw"  was set but never used
+  static uint32_t                     crc_fw;
+..\smtc_modem_core\device_management\modem_context.c: 10 warnings, 0 errors
+compiling smtc_modem_test.c...
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_d2d.h(117): warning:  #1-D: last line of file ends without a newline
+  #endif  //  __SMTC_D2D_H__
+..\smtc_modem_core\device_management\modem_context.h(121): warning:  #1295-D: Deprecated declaration modem_context_init - give arg types
+  void modem_context_init( );
+..\smtc_modem_core\modem_core\smtc_modem_test.c(298): warning:  #188-D: enumerated type mixed with another type
+      rp_radio_params_t rp_radio_params = { 0 };
+..\smtc_modem_core\modem_core\smtc_modem_test.c(444): warning:  #188-D: enumerated type mixed with another type
+      rp_radio_params_t radio_params = { 0 };
+..\smtc_modem_core\modem_core\smtc_modem_test.c(497): warning:  #188-D: enumerated type mixed with another type
+      rp_radio_params_t rp_radio_params = { 0 };
+..\smtc_modem_core\modem_core\smtc_modem_test.c: 5 warnings, 0 errors
+compiling modem_utilities.c...
+..\smtc_modem_core\modem_services\modem_utilities.c(61): warning:  #1-D: last line of file ends without a newline
+  }
+..\smtc_modem_core\modem_services\modem_utilities.c: 1 warning, 0 errors
+compiling smtc_modem.c...
+..\smtc_modem_core\device_management\modem_context.h(121): warning:  #1295-D: Deprecated declaration modem_context_init - give arg types
+  void modem_context_init( );
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_d2d.h(117): warning:  #1-D: last line of file ends without a newline
+  #endif  //  __SMTC_D2D_H__
+..\smtc_modem_core\modem_core\smtc_modem.c(227): warning:  #1295-D: Deprecated declaration is_modem_connected - give arg types
+  static bool is_modem_connected( );
+..\smtc_modem_core\modem_core\smtc_modem.c(391): warning:  #188-D: enumerated type mixed with another type
+              event->event_data.time.status = get_modem_event_status( event->event_type );
+..\smtc_modem_core\modem_core\smtc_modem.c(1034): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_core\smtc_modem.c(1361): warning:  #188-D: enumerated type mixed with another type
+      *region                              = get_modem_region( );
+..\smtc_modem_core\modem_core\smtc_modem.c(2186): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_core\smtc_modem.c(2199): warning:  #188-D: enumerated type mixed with another type
+      rp_radio_params_t fake_radio_params = { 0 };
+..\smtc_modem_core\modem_core\smtc_modem.c(2217): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_core\smtc_modem.c(145): warning:  #177-D: variable "upload_pdata"  was declared but never referenced
+  static uint32_t* upload_pdata;
+..\smtc_modem_core\modem_core\smtc_modem.c(146): warning:  #177-D: variable "upload_size"  was declared but never referenced
+  static uint32_t  upload_size;
+..\smtc_modem_core\modem_core\smtc_modem.c(2898): warning:  #177-D: function "modem_port_reserved"  was declared but never referenced
+  static bool modem_port_reserved( uint8_t f_port )
+..\smtc_modem_core\modem_core\smtc_modem.c: 12 warnings, 0 errors
+compiling aes.c...
+compiling smtc_modem_services_hal.c...
+..\smtc_modem_core\device_management\modem_context.h(121): warning:  #1295-D: Deprecated declaration modem_context_init - give arg types
+  void modem_context_init( );
+..\smtc_modem_core\modem_services\smtc_modem_services_hal.c: 1 warning, 0 errors
+compiling lorawan_certification.c...
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_d2d.h(117): warning:  #1-D: last line of file ends without a newline
+  #endif  //  __SMTC_D2D_H__
+..\smtc_modem_core\device_management\modem_context.h(121): warning:  #1295-D: Deprecated declaration modem_context_init - give arg types
+  void modem_context_init( );
+..\smtc_modem_core\modem_services\lorawan_certification.c(173): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(187): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(203): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(227): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(249): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(269): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(283): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(303): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(327): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(344): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(357): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(371): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(384): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(398): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(458): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c(473): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_services\lorawan_certification.c: 18 warnings, 0 errors
+compiling modem_supervisor.c...
+..\smtc_modem_core\device_management\modem_context.h(121): warning:  #1295-D: Deprecated declaration modem_context_init - give arg types
+  void modem_context_init( );
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_d2d.h(117): warning:  #1-D: last line of file ends without a newline
+  #endif  //  __SMTC_D2D_H__
+..\smtc_modem_core\modem_supervisor\modem_supervisor.c(964): warning:  #188-D: enumerated type mixed with another type
+      for( task_id_t i = 0; i < NUMBER_OF_TASKS; i++ )
+..\smtc_modem_core\modem_supervisor\modem_supervisor.c(983): warning:  #188-D: enumerated type mixed with another type
+          for( task_id_t i = 0; i < NUMBER_OF_TASKS; i++ )
+..\smtc_modem_core\modem_supervisor\modem_supervisor.c(1380): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\modem_supervisor\modem_supervisor.c(1587): warning:  #1-D: last line of file ends without a newline
+  }
+..\smtc_modem_core\modem_supervisor\modem_supervisor.c: 6 warnings, 0 errors
+compiling fifo_ctrl.c...
+compiling lr1mac_utilities.c...
+..\smtc_modem_core\modem_config\smtc_modem_hal_dbg_trace.h(168): warning:  #47-D: incompatible redefinition of macro "SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG"  (declared at line 54 of "..\smtc_modem_core\lr1mac\src\lr1mac_utilities.h")
+      #define SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( ... )            SMTC_MODEM_HAL_TRACE_PRINTF(__VA_ARGS__)
+..\smtc_modem_core\lr1mac\src\lr1mac_utilities.c(107): warning:  #111-D: statement is unreachable
+              break;
+..\smtc_modem_core\lr1mac\src\lr1mac_utilities.c(127): warning:  #111-D: statement is unreachable
+              break;
+..\smtc_modem_core\lr1mac\src\lr1mac_utilities.c(306): warning:  #1-D: last line of file ends without a newline
+  }
+..\smtc_modem_core\lr1mac\src\lr1mac_utilities.c: 4 warnings, 0 errors
+compiling lr1_stack_mac_layer.c...
+..\smtc_modem_core\lr1mac\src\lr1mac_utilities.h(54): warning:  #47-D: incompatible redefinition of macro "SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG"  (declared at line 168 of "..\smtc_modem_core\modem_config\smtc_modem_hal_dbg_trace.h")
+  #define SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( ... )  //@todo push it to the modem layer
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_d2d.h(117): warning:  #1-D: last line of file ends without a newline
+  #endif  //  __SMTC_D2D_H__
+..\smtc_modem_core\lr1mac\src\lr1_stack_mac_layer.c(355): warning:  #188-D: enumerated type mixed with another type
+      rp_radio_params_t radio_params = { 0 };
+..\smtc_modem_core\lr1mac\src\lr1_stack_mac_layer.c(505): warning:  #188-D: enumerated type mixed with another type
+      rp_radio_params_t radio_params = { 0 };
+..\smtc_modem_core\lr1mac\src\lr1_stack_mac_layer.c(1003): warning:  #188-D: enumerated type mixed with another type
+          lr1_mac->rx_ftype   = rx_ftype;
+..\smtc_modem_core\lr1mac\src\lr1_stack_mac_layer.c: 5 warnings, 0 errors
+compiling lr1mac_core.c...
+..\smtc_modem_core\lr1mac\src\lr1mac_utilities.h(54): warning:  #47-D: incompatible redefinition of macro "SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG"  (declared at line 168 of "..\smtc_modem_core\modem_config\smtc_modem_hal_dbg_trace.h")
+  #define SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( ... )  //@todo push it to the modem layer
+..\smtc_modem_core\lr1mac\src\lr1mac_core.c(226): warning:  #546-D: transfer of control bypasses initialization of:
+            variable "tx_modulation_type"  (declared at line 233)
+          switch( lr1_mac_obj->radio_process_state )
+          ^
+..\smtc_modem_core\lr1mac\src\lr1mac_core.c(513): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\lr1mac\src\lr1mac_core.c(586): warning:  #188-D: enumerated type mixed with another type
+      lr1_mac_obj->tx_mtype            = packet_type;
+..\smtc_modem_core\lr1mac\src\lr1mac_core.c: 4 warnings, 0 errors
+compiling smtc_duty_cycle.c...
+compiling smtc_real.c...
+..\smtc_modem_core\modem_config\smtc_modem_hal_dbg_trace.h(168): warning:  #47-D: incompatible redefinition of macro "SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG"  (declared at line 54 of "..\smtc_modem_core\lr1mac\src\lr1mac_utilities.h")
+      #define SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( ... )            SMTC_MODEM_HAL_TRACE_PRINTF(__VA_ARGS__)
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(206): warning:  #188-D: enumerated type mixed with another type
+      smtc_duty_cycle_enable_set( lr1_mac->dtc_obj, const_dtc_supported );
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(483): warning:  #188-D: enumerated type mixed with another type
+      cf_list_type_t   cf_list_type = lr1_mac->cf_list[15];
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(639): warning:  #68-D: integer conversion resulted in a change of sign
+      return ERRORLORAWAN;  // never reach => avoid warning
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(1639): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(1832): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(1862): warning:  #68-D: integer conversion resulted in a change of sign
+      return ERRORLORAWAN;  // never reach => avoid warning
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(1899): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(1929): warning:  #68-D: integer conversion resulted in a change of sign
+      return ERRORLORAWAN;  // never reach => avoid warning
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(2029): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(2034): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(2095): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(2162): warning:  #188-D: enumerated type mixed with another type
+      return 0;  // never reach => avoid warning
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(2327): warning:  #188-D: enumerated type mixed with another type
+      return 0;
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(2356): warning:  #188-D: enumerated type mixed with another type
+      return -1;  // never reach => avoid warning
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(2356): warning:  #68-D: integer conversion resulted in a change of sign
+      return -1;  // never reach => avoid warning
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(2415): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(2654): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(2720): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c(2892): warning:  #1-D: last line of file ends without a newline
+  }
+..\smtc_modem_core\lr1mac\src\smtc_real\src\smtc_real.c: 20 warnings, 0 errors
+compiling lr1mac_class_c.c...
+..\smtc_modem_core\lr1mac\src\lr1mac_utilities.h(54): warning:  #47-D: incompatible redefinition of macro "SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG"  (declared at line 168 of "..\smtc_modem_core\modem_config\smtc_modem_hal_dbg_trace.h")
+  #define SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( ... )  //@todo push it to the modem layer
+..\smtc_modem_core\lr1mac\src\lr1mac_class_c\lr1mac_class_c.c(125): warning:  #186-D: pointless comparison of unsigned integer with zero
+          for( uint8_t i = 0; i < LR1MAC_MC_NUMBER_OF_SESSION; i++ )
+..\smtc_modem_core\lr1mac\src\lr1mac_class_c\lr1mac_class_c.c(187): warning:  #188-D: enumerated type mixed with another type
+      for( rx_session_type_t i = 0; i < LR1MAC_NUMBER_OF_RXC_SESSION; i++ )
+..\smtc_modem_core\lr1mac\src\lr1mac_class_c\lr1mac_class_c.c(201): warning:  #188-D: enumerated type mixed with another type
+      rp_radio_params_t rp_radio_params = { 0 };
+..\smtc_modem_core\lr1mac\src\lr1mac_class_c\lr1mac_class_c.c(366): warning:  #188-D: enumerated type mixed with another type
+                  class_c_obj->rx_metadata.rx_window = RECEIVE_ON_RXC + ( uint8_t ) class_c_obj->rx_session_index;
+..\smtc_modem_core\lr1mac\src\lr1mac_class_c\lr1mac_class_c.c(581): warning:  #188-D: enumerated type mixed with another type
+          for( rx_session_type_t i = 0; i < LR1MAC_NUMBER_OF_RXC_SESSION; i++ )
+..\smtc_modem_core\lr1mac\src\lr1mac_class_c\lr1mac_class_c.c(595): warning:  #188-D: enumerated type mixed with another type
+              for( rx_session_type_t i = 0; i < LR1MAC_NUMBER_OF_RXC_SESSION; i++ )
+..\smtc_modem_core\lr1mac\src\lr1mac_class_c\lr1mac_class_c.c: 7 warnings, 0 errors
+compiling smtc_lbt.c...
+..\smtc_modem_core\lr1mac\src\services\smtc_lbt.c(226): warning:  #1-D: last line of file ends without a newline
+  }
+..\smtc_modem_core\lr1mac\src\services\smtc_lbt.c: 1 warning, 0 errors
+compiling smtc_modem_crypto.c...
+compiling smtc_ping_slot.c...
+..\smtc_modem_core\lr1mac\src\lr1mac_utilities.h(54): warning:  #47-D: incompatible redefinition of macro "SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG"  (declared at line 168 of "..\smtc_modem_core\modem_config\smtc_modem_hal_dbg_trace.h")
+  #define SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( ... )  //@todo push it to the modem layer
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_ping_slot.c(177): warning:  #186-D: pointless comparison of unsigned integer with zero
+          for( uint8_t i = 0; i < LR1MAC_MC_NUMBER_OF_SESSION; i++ )
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_ping_slot.c(213): warning:  #188-D: enumerated type mixed with another type
+      for( rx_session_type_t i = 0; i < LR1MAC_NUMBER_OF_CLASS_B_SESSION; i++ )
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_ping_slot.c(271): warning:  #188-D: enumerated type mixed with another type
+      rp_radio_params_t rp_radio_params = { 0 };
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_ping_slot.c(542): warning:  #188-D: enumerated type mixed with another type
+                  ping_slot_obj->rx_metadata.rx_window = RECEIVE_ON_RXB + ( uint8_t ) ping_slot_obj->rx_session_index;
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_ping_slot.c(731): warning:  #188-D: enumerated type mixed with another type
+      for( rx_session_type_t i = 0; i < LR1MAC_NUMBER_OF_CLASS_B_SESSION; i++ )
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_ping_slot.c(755): warning:  #188-D: enumerated type mixed with another type
+      for( rx_session_type_t i = 0; i < LR1MAC_NUMBER_OF_CLASS_B_SESSION; i++ )
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_ping_slot.c: 7 warnings, 0 errors
+compiling smtc_beacon_sniff.c...
+..\smtc_modem_core\lr1mac\src\lr1mac_utilities.h(54): warning:  #47-D: incompatible redefinition of macro "SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG"  (declared at line 168 of "..\smtc_modem_core\modem_config\smtc_modem_hal_dbg_trace.h")
+  #define SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( ... )  //@todo push it to the modem layer
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_beacon_sniff.c(330): warning:  #188-D: enumerated type mixed with another type
+      rp_radio_params_t rp_radio_params      = { 0 };
+..\smtc_modem_core\lr1mac\src\lr1mac_class_b\smtc_beacon_sniff.c: 2 warnings, 0 errors
+compiling radio_planner.c...
+compiling radio_planner_hal.c...
+compiling ral_sx128x.c...
+..\smtc_modem_core\smtc_ral\src\ral_sx128x.c(662): warning:  #188-D: enumerated type mixed with another type
+      sx128x_mod_params_gfsk_t radio_mod_params = { 0 };
+..\smtc_modem_core\smtc_ral\src\ral_sx128x.c(676): warning:  #188-D: enumerated type mixed with another type
+      sx128x_pkt_params_gfsk_t radio_pkt_params = { 0 };
+..\smtc_modem_core\smtc_ral\src\ral_sx128x.c(729): warning:  #188-D: enumerated type mixed with another type
+      sx128x_mod_params_flrc_t radio_mod_params = { 0 };
+..\smtc_modem_core\smtc_ral\src\ral_sx128x.c(743): warning:  #188-D: enumerated type mixed with another type
+      sx128x_pkt_params_flrc_t radio_pkt_params = { 0 };
+..\smtc_modem_core\smtc_ral\src\ral_sx128x.c(1082): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\smtc_ral\src\ral_sx128x.c(1117): warning:  #111-D: statement is unreachable
+          break;
+..\smtc_modem_core\smtc_ral\src\ral_sx128x.c(1367): warning:  #188-D: enumerated type mixed with another type
+      sx128x_gfsk_ble_mod_ind_t mod_ind = 0;
+..\smtc_modem_core\smtc_ral\src\ral_sx128x.c: 7 warnings, 0 errors
 linking...
-Program Size: Code=14376 RO-data=1552 RW-data=52 ZI-data=19836  
+Program Size: Code=120552 RO-data=12724 RW-data=520 ZI-data=28784  
 After Build - User command #1: fromelf --bin --output bin\hello_world_uart.bin bin\hello_world_uart.axf
 After Build - User command #2: fromelf -cedrst --output bin\hello_world_uart.txt bin\hello_world_uart.axf
-".\bin\hello_world_uart.axf" - 0 Error(s), 0 Warning(s).
+".\bin\hello_world_uart.axf" - 0 Error(s), 135 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -48,7 +390,7 @@ Package Vendor: AmbiqMicro
   F:\PACK_KEIL5\AmbiqMicro\Apollo_DFP\1.3.0\Device\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:07
 </pre>
 </body>
 </html>

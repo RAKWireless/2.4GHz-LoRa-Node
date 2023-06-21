@@ -123,6 +123,8 @@ void lr1mac_core_init( lr1_stack_mac_t* lr1_mac_obj, smtc_real_t* real, smtc_lbt
         // Possible update of nvm organisation --> try to recover
         try_recover_nvm( lr1_mac_obj );
         status = lr1mac_core_context_load( lr1_mac_obj );
+			
+			  //status = ERRORLORAWAN;  //DANIEL
     }
 
     if( status == OKLORAWAN )
@@ -1248,7 +1250,7 @@ static void load_devnonce_reset( lr1_stack_mac_t* lr1_mac_obj )
     {
         lr1_mac_obj->dev_nonce   = ctx.devnonce;
         lr1_mac_obj->nb_of_reset = ctx.nb_reset;
-        memcpy( lr1_mac_obj->join_nonce, ctx.join_nonce, sizeof( lr1_mac_obj->join_nonce ) );
+        memcpy( lr1_mac_obj->join_nonce, ctx.join_nonce, sizeof( lr1_mac_obj->join_nonce ) );   //daniel
     }
     else
     {
@@ -1259,7 +1261,7 @@ static void load_devnonce_reset( lr1_stack_mac_t* lr1_mac_obj )
 static void try_recover_nvm( lr1_stack_mac_t* lr1_mac_obj )
 {
     SMTC_MODEM_HAL_TRACE_PRINTF( "Lr1mac context : Try recover NVM\n" );
-
+	
     typedef struct mac_context_010007_s
     {
         uint8_t  joineui[8];

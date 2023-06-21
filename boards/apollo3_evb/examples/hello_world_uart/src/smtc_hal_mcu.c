@@ -146,9 +146,12 @@ void hal_mcu_enable_irq( void )
 void hal_mcu_init( void )
 {
 		hal_gpio_init_out( RADIO_NSS, 1 );
-	  hal_gpio_init_in( RADIO_BUSY_PIN, BSP_GPIO_PULL_MODE_NONE, BSP_GPIO_IRQ_MODE_OFF, NULL );
+	  //hal_gpio_init_in( RADIO_BUSY_PIN, BSP_GPIO_PULL_MODE_NONE, BSP_GPIO_IRQ_MODE_OFF, NULL );
 	  hal_gpio_init_in( RADIO_DIOX, BSP_GPIO_PULL_MODE_DOWN, BSP_GPIO_IRQ_MODE_RISING, NULL );
 	  hal_gpio_init_out( RADIO_NRST, 1 ); 
+	
+		//TCXO
+	  hal_gpio_init_out(TXCO_POWER,1);
 }
 
 void hal_mcu_reset( void )

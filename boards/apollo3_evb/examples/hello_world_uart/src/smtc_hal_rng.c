@@ -81,6 +81,7 @@
 
 uint32_t hal_rng_get_random( void )    //这里是一个假随机
 {
+	  
 	  uint32_t rand_nb = rand();
     return rand_nb;
 }

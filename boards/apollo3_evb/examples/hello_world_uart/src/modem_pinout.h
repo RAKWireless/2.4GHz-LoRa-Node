@@ -69,18 +69,18 @@ extern "C" {
 #define RADIO_SPI_MISO          PA_6
 #define RADIO_SPI_SCLK          PA_5
 
-#define RADIO_NSS               11            //NSS 还是有作用的
+#define RADIO_NSS               11      //NSS 还是有作用的
 
 
 #define RADIO_NRST              17     //复位脚
 
-#define RADIO_DIOX              14
+#define RADIO_DIOX              15      //查到代码 应该是DIO1
 
-#define RADIO_BUSY_PIN          16    //busy 脚  16
+#define RADIO_BUSY_PIN          16      //busy 脚  16
 
 #define RADIO_SPI_ID            1      //这个也是传入无效值  底层是写的一个SPI
 
-
+#define TXCO_POWER              2
 
 #if defined (SX128X)                       //其实是没有用到天线开关的   这里可以不用处理
 // For sx128x eval board with 2 antennas

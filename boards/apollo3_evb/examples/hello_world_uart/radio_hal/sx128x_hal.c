@@ -152,6 +152,7 @@ sx128x_hal_status_t sx128x_hal_reset( const void* context )
 {
     hal_gpio_set_value( RADIO_NRST, 0 );
     hal_mcu_wait_us( 5000 );
+	  
     hal_gpio_set_value( RADIO_NRST, 1 );
     hal_mcu_wait_us( 5000 );
     radio_mode = RADIO_AWAKE;
@@ -173,7 +174,11 @@ static void sx128x_hal_wait_on_busy( void )
 {
     while( hal_gpio_get_value( RADIO_BUSY_PIN ) == 1 )
     {
+	
+			hal_gpio_init_out(44 ,1 );
     }
+		
+		hal_gpio_init_out(44 ,0 );
 }
 
 static void sx128x_hal_check_device_ready( void )

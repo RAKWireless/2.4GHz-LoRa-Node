@@ -268,9 +268,11 @@ void smtc_modem_init( const ralf_t* radio, void ( *callback_event )( void ) )
 
     // init radio planner and attach corresponding radio irq
     rp_init( &modem_radio_planner, radio );
-
+	  //SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG("rp_init finish.\r\n");
+  
 #if !defined( LR1110_MODEM_E )
     smtc_modem_hal_irq_config_radio_irq( rp_radio_irq_callback, &modem_radio_planner );
+	  //SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG("smtc_modem_hal_irq_config_radio_irq finish.\r\n");
 #endif
 
     // init modem supervisor
@@ -291,7 +293,9 @@ void smtc_modem_init( const ralf_t* radio, void ( *callback_event )( void ) )
                   ( void ( * )( void* ) )( callback_rp_user_radio_access_2 ), &modem_radio_planner );
 #endif  // !LR1110_MODEM_E
     modem_supervisor_init( callback_event, &modem_radio_planner, &smtc_modem_services_ctx );
+		//SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG("modem_supervisor_init finish.\r\n");
     smtc_secure_element_init( );
+		//SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG("smtc_secure_element_init finish.\r\n");
 }
 
 uint32_t smtc_modem_run_engine( void )

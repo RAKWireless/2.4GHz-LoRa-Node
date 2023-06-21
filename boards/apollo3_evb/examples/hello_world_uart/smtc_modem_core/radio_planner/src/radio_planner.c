@@ -599,7 +599,7 @@ static void rp_task_arbiter( radio_planner_t* rp, const char* caller_func_name )
     else
     {  // No more tasks in the radio planner
         rp_task_call_aborted( rp );
-        SMTC_MODEM_HAL_RP_TRACE_PRINTF( " RP: No more active tasks\n" );
+        SMTC_MODEM_HAL_RP_TRACE_PRINTF( " RP: No more active tasks  %d\n",now );
     }
 }
 

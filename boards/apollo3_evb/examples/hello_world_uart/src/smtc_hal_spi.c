@@ -179,6 +179,7 @@ void hal_spi_de_init( const uint32_t id )
 //这个id 没有做处理
 uint16_t hal_spi_in_out( const uint32_t id, const uint16_t out_data )
 {
+	  hal_mcu_disable_irq();
     uint8_t rxData = 0;
 	
 		uint32_t TxBuffer;
@@ -205,7 +206,7 @@ uint16_t hal_spi_in_out( const uint32_t id, const uint16_t out_data )
 				 am_util_stdio_printf("spi fullduplex error!\r\n");
 		}
 		rxData = (uint8_t)RxBuffer;
-		
+		hal_mcu_enable_irq();
     return( rxData );
 }
 

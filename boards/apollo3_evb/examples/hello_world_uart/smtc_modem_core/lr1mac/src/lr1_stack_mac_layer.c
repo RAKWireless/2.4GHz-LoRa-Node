@@ -240,14 +240,29 @@ void lr1_stack_mac_tx_lora_launch_callback_for_rp( void* rp_void )
     smtc_modem_hal_assert( ral_set_pkt_payload( &( rp->radio->ral ), rp->payload[id], rp->payload_size[id] ) ==
                            RAL_STATUS_OK );
     // Wait the exact expected time (ie target - tcxo startup delay)
-    while( ( int32_t )( rp->tasks[id].start_time_ms - smtc_modem_hal_get_time_in_ms( ) ) > 0 )
-    {
-        // Do nothing
-    }
+//    while( ( int32_t )( rp->tasks[id].start_time_ms - smtc_modem_hal_get_time_in_ms( ) ) > 0 )
+//    {
+//			  
+//				SMTC_MODEM_HAL_TRACE_PRINTF("rp->tasks[id].start_time_ms %d smtc_modem_hal_get_time_in_ms %d\r\n",rp->tasks[id].start_time_ms,smtc_modem_hal_get_time_in_ms( )); //daniel time
+//				
+//				am_util_delay_ms(1000);
+//        // Do nothing
+//    }
+	
+	
+//	  int32_t old= smtc_modem_hal_get_time_in_ms( );
+//	  while( ( int32_t )( rp->tasks[id].start_time_ms - old ) > 0 )
+//    {
+//				old++;
+//				am_util_delay_ms(1);
+//        // Do nothing
+//    }
+	  
+	
     // At this time only tcxo startup delay is remaining
     smtc_modem_hal_start_radio_tcxo( );
     smtc_modem_hal_assert( ral_set_tx( &( rp->radio->ral ) ) == RAL_STATUS_OK );
-    rp_stats_set_tx_timestamp( &rp->stats, smtc_modem_hal_get_time_in_ms( ) );
+    rp_stats_set_tx_timestamp( &rp->stats, smtc_modem_hal_get_time_in_ms( )); //daniel    需要加上损耗的时间
 }
 
 void lr1_stack_mac_tx_gfsk_launch_callback_for_rp( void* rp_void )
@@ -259,7 +274,7 @@ void lr1_stack_mac_tx_gfsk_launch_callback_for_rp( void* rp_void )
     smtc_modem_hal_assert( ral_set_dio_irq_params( &( rp->radio->ral ), RAL_IRQ_TX_DONE ) == RAL_STATUS_OK );
     smtc_modem_hal_assert( ral_set_pkt_payload( &( rp->radio->ral ), rp->payload[id], rp->payload_size[id] ) ==
                            RAL_STATUS_OK );
-    // Wait the exact expected time (ie target - tcxo startup delay)
+    // Wait the exact expected time (ie target - tcxo startup delay)   // daniel  这里应该执行不到
     while( ( int32_t )( rp->tasks[id].start_time_ms - smtc_modem_hal_get_time_in_ms( ) ) > 0 )
     {
     }
@@ -288,7 +303,7 @@ void lr1_stack_mac_tx_lr_fhss_launch_callback_for_rp( void* rp_void )
                                                     rp->radio_params[id].tx.lr_fhss.hop_sequence_id, rp->payload[id],
                                                     rp->payload_size[id] ) == RAL_STATUS_OK );
     // Wait the exact expected time (ie target - tcxo startup delay)
-    while( ( int32_t )( rp->tasks[id].start_time_ms - smtc_modem_hal_get_time_in_ms( ) ) > 0 )
+    while( ( int32_t )( rp->tasks[id].start_time_ms - smtc_modem_hal_get_time_in_ms( ) ) > 0 )    // daniel 这里应该也执行不到
     {
         // Do nothing
     }
@@ -308,16 +323,16 @@ void lr1_stack_mac_rx_lora_launch_callback_for_rp( void* rp_void )
                                                                             RAL_IRQ_RX_HDR_ERROR |
                                                                             RAL_IRQ_RX_CRC_ERROR ) == RAL_STATUS_OK );
     // Wait the exact expected time (ie target - tcxo startup delay)
-    while( ( int32_t )( rp->tasks[id].start_time_ms - smtc_modem_hal_get_time_in_ms( ) ) > 0 )
-    {
-    }
+//    while( ( int32_t )( rp->tasks[id].start_time_ms - smtc_modem_hal_get_time_in_ms( ) ) > 0 )     //daniel 这里应该会执行到
+//    {
+//    }
     // At this time only tcxo startup delay is remaining
     smtc_modem_hal_start_radio_tcxo( );
     smtc_modem_hal_assert( ral_set_rx( &( rp->radio->ral ), rp->radio_params[id].rx.timeout_in_ms ) == RAL_STATUS_OK );
     rp_stats_set_rx_timestamp( &rp->stats, smtc_modem_hal_get_time_in_ms( ) );
 }
 
-void lr1_stack_mac_rx_gfsk_launch_callback_for_rp( void* rp_void )
+void lr1_stack_mac_rx_gfsk_launch_callback_for_rp( void* rp_void )     //daniel 这里应该执行不到
 {
     radio_planner_t* rp = ( radio_planner_t* ) rp_void;
     uint8_t          id = rp->radio_task_id;

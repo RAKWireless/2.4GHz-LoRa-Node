@@ -64,7 +64,6 @@
 .\bin\tx_rx_test.o: ../../../../../utils/am_util_string.h
 .\bin\tx_rx_test.o: ../../../../../utils/am_util_time.h
 .\bin\tx_rx_test.o: ../../../../../utils/am_util_ble.h
-.\bin\tx_rx_test.o: ..\smtc_modem_api\smtc_modem_test_api.h
 .\bin\tx_rx_test.o: ..\smtc_modem_api\smtc_modem_api.h
 .\bin\tx_rx_test.o: ..\smtc_modem_api\smtc_modem_utilities.h
 .\bin\tx_rx_test.o: ..\smtc_modem_core\smtc_ralf\src\ralf.h
@@ -74,3 +73,13 @@
 .\bin\tx_rx_test.o: ..\smtc_modem_core\smtc_ral\src\ral_drv.h
 .\bin\tx_rx_test.o: ..\smtc_modem_core\smtc_ralf\src\ralf_defs.h
 .\bin\tx_rx_test.o: ..\smtc_modem_core\smtc_ralf\src\ralf_drv.h
+.\bin\tx_rx_test.o: ..\smtc_modem_hal\smtc_modem_hal.h
+.\bin\tx_rx_test.o: ..\src\smtc_hal_dbg_trace.h
+.\bin\tx_rx_test.o: ..\src\smtc_hal_trace.h
+.\bin\tx_rx_test.o: F:\KEIL5\ARM\ARMCC\Bin\..\include\stdio.h
+.\bin\tx_rx_test.o: ..\smtc_modem_core\smtc_ralf\src\ralf_sx128x.h
+.\bin\tx_rx_test.o: ..\smtc_modem_core\smtc_ral\src\ral_sx128x.h
+.\bin\tx_rx_test.o: ..\src\smtc_hal_mcu.h
+.\bin\tx_rx_test.o: ..\src\smtc_hal_gpio.h
+.\bin\tx_rx_test.o: ..\src\smtc_hal_gpio_pin_names.h
+.\bin\tx_rx_test.o: ..\smtc_modem_api\smtc_modem_test_api.h

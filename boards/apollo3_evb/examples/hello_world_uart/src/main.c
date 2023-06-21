@@ -92,7 +92,7 @@ error_handler(uint32_t ui32ErrorStatus)
 // UART buffers.
 //
 //*****************************************************************************
-uint8_t g_pui8TxBuffer[256];
+uint8_t g_pui8TxBuffer[1024];
 uint8_t g_pui8RxBuffer[2];
 
 //*****************************************************************************
@@ -105,7 +105,7 @@ const am_hal_uart_config_t g_sUartConfig =
     //
     // Standard UART settings: 115200-8-N-1
     //
-    .ui32BaudRate = 115200,
+    .ui32BaudRate = AM_HAL_TPIU_BAUD_460800,
     .ui32DataBits = AM_HAL_UART_DATA_BITS_8,
     .ui32Parity = AM_HAL_UART_PARITY_NONE,
     .ui32StopBits = AM_HAL_UART_ONE_STOP_BIT,
@@ -114,8 +114,8 @@ const am_hal_uart_config_t g_sUartConfig =
     //
     // Set TX and RX FIFOs to interrupt at half-full.
     //
-    .ui32FifoLevels = (AM_HAL_UART_TX_FIFO_1_2 |
-                       AM_HAL_UART_RX_FIFO_1_2),
+    .ui32FifoLevels = (AM_HAL_UART_TX_FIFO_7_8 |
+                       AM_HAL_UART_TX_FIFO_7_8),
 
     //
     // Buffers
@@ -170,7 +170,7 @@ uart_print(char *pcStr)
         .ui32Direction = AM_HAL_UART_WRITE,
         .pui8Data = (uint8_t *) pcStr,
         .ui32NumBytes = ui32StrLen,
-        .ui32TimeoutMs = 0,
+        .ui32TimeoutMs = AM_HAL_UART_WAIT_FOREVER,
         .pui32BytesTransferred = &ui32BytesWritten,
     };
 
@@ -194,8 +194,8 @@ void init_rak3183_led()
 //		am_hal_gpio_state_write(LED1,AM_HAL_GPIO_OUTPUT_SET);   //rx
 //		am_hal_gpio_state_write(LED2,AM_HAL_GPIO_OUTPUT_SET);		//tx
 	
-	    hal_gpio_init_out(LED1 ,1 );
-	    hal_gpio_init_out(LED2 ,1 );
+	    hal_gpio_init_out(LED1 ,0 );
+	    hal_gpio_init_out(LED2 ,0 );
 }
 
 //*****************************************************************************
@@ -255,6 +255,7 @@ main(void)
     //
     // Enable interrupts.
     //
+		NVIC_SetPriority(UART0_IRQn, 7);
     NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn ));
     am_hal_interrupt_master_enable();
 
@@ -275,11 +276,12 @@ main(void)
 		
 		test_radio();
 	  	
-		
+		//am_ctimer_test();
 
  
     while (1)
     {
+			  smtc_modem_run_engine( );
         //
         // Go to Deep Sleep.
         //

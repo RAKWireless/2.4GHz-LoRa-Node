@@ -60,10 +60,11 @@ static volatile bool wut_timer_irq_happened = false;
 
 void timer1_callback(void)
 {
+	 hal_gpio_init_out(44 ,0);
 	 milliseconds_div_10++;
 	 if(milliseconds_div_10 == 10000)
 	 {
-		 am_util_stdio_printf("second %d",seconds);
+		 //am_util_stdio_printf("second %d",seconds);
 		 seconds++;
 		 milliseconds_div_10 = 0;
 	 }
@@ -80,11 +81,13 @@ void hal_rtc_init( void )
                                  AM_HAL_CTIMER_INT_ENABLE);
  
   am_hal_ctimer_int_enable(AM_HAL_CTIMER_INT_TIMERA0C0);
+	
+	NVIC_SetPriority(UART0_IRQn,6);
   NVIC_EnableIRQ(CTIMER_IRQn); 
 	
 	float milliseconds = 0.1 ;  //定义一个100us 的定时器
   uint32_t period =  ((float )milliseconds/1000) * 3000000;
-	am_util_stdio_printf("period %d\r\n",period);
+	//am_util_stdio_printf("period %d\r\n",period);
 	am_hal_ctimer_period_set(1, AM_HAL_CTIMER_BOTH,period - 1 , 0);
   am_hal_ctimer_int_register(AM_HAL_CTIMER_INT_TIMERA1,(am_hal_ctimer_handler_t)timer1_callback);
 	

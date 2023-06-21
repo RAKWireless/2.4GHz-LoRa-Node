@@ -555,6 +555,9 @@ sx128x_status_t sx128x_set_dio_irq_params( const void* context, const uint16_t i
     };
 
     return ( sx128x_status_t ) sx128x_hal_write( context, buf, SX128X_SIZE_SET_DIO_IRQ_PARAMS, 0, 0 );
+		
+		//sx128x_hal_status_t sx128x_hal_write( const void* context, const uint8_t* command, const uint16_t command_length,
+                                      //const uint8_t* data, const uint16_t data_length )
 }
 
 sx128x_status_t sx128x_get_irq_status( const void* context, sx128x_irq_mask_t* irq )

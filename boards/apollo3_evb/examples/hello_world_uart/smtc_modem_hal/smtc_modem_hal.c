@@ -73,10 +73,10 @@
  * --- PRIVATE CONSTANTS -------------------------------------------------------
  */
 
-#define ADDR_FLASH_LORAWAN_CONTEXT ADDR_FLASH_PAGE_254
-#define ADDR_FLASH_MODEM_CONTEXT ADDR_FLASH_PAGE_255
-#define ADDR_FLASH_DEVNONCE_CONTEXT ADDR_FLASH_PAGE_253
-#define ADDR_FLASH_SECURE_ELEMENT_CONTEXT ADDR_FLASH_PAGE_252
+#define ADDR_FLASH_LORAWAN_CONTEXT           ADDR_FLASH_LORAWAN_CONTEXT_APOLLO3
+#define ADDR_FLASH_MODEM_CONTEXT             ADDR_FLASH_MODEM_CONTEXT_APOLLO3
+#define ADDR_FLASH_DEVNONCE_CONTEXT 				 ADDR_FLASH_DEVNONCE_CONTEXT_APOLLO3				
+#define ADDR_FLASH_SECURE_ELEMENT_CONTEXT    ADDR_FLASH_SECURE_ELEMENT_CONTEXT_APOLLO3
 
 /*
  * -----------------------------------------------------------------------------
@@ -194,7 +194,7 @@ void smtc_modem_hal_context_restore( const modem_context_type_t ctx_type, uint8_
         hal_flash_read_buffer( ADDR_FLASH_SECURE_ELEMENT_CONTEXT, buffer, size );
         break;
     default:
-        //mcu_panic( );
+        mcu_panic( );
         break;
     }
 }
@@ -220,7 +220,7 @@ void smtc_modem_hal_context_store( const modem_context_type_t ctx_type, const ui
         hal_flash_write_buffer( ADDR_FLASH_SECURE_ELEMENT_CONTEXT, buffer, size );
         break;
     default:
-        //mcu_panic( );
+        mcu_panic( );
         break;
     }
 }
@@ -296,13 +296,13 @@ void smtc_modem_hal_radio_irq_clear_pending( void )
 
 void smtc_modem_hal_start_radio_tcxo( void )
 {
-		 hal_gpio_init_out(2,1);
+		hal_gpio_init_out(TXCO_POWER,1);
     // put here the code that will start the tcxo if needed
 }
 
 void smtc_modem_hal_stop_radio_tcxo( void )
 {
-		 hal_gpio_init_out(2,0);
+		// hal_gpio_init_out(2,0);
     // put here the code that will stop the tcxo if needed
 }
 
