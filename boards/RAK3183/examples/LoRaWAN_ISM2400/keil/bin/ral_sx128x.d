@@ -1,0 +1,9 @@
+.\bin\ral_sx128x.o: ..\smtc_modem_core\smtc_ral\src\ral_sx128x.c
+.\bin\ral_sx128x.o: F:\KEIL5\ARM\ARMCC\Bin\..\include\string.h
+.\bin\ral_sx128x.o: F:\KEIL5\ARM\ARMCC\Bin\..\include\stdint.h
+.\bin\ral_sx128x.o: F:\KEIL5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\bin\ral_sx128x.o: ..\smtc_modem_core\radio_drivers\sx128x_driver\src\sx128x.h
+.\bin\ral_sx128x.o: ..\smtc_modem_core\smtc_ral\src\ral_sx128x.h
+.\bin\ral_sx128x.o: ..\smtc_modem_core\smtc_ral\src\ral_defs.h
+.\bin\ral_sx128x.o: ..\smtc_modem_core\smtc_ral\src\lr_fhss_v1_base_types.h
+.\bin\ral_sx128x.o: ..\smtc_modem_core\smtc_ral\src\ral_sx128x_bsp.h

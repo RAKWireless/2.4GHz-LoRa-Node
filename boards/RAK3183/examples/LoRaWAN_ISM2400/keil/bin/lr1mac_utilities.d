@@ -1,0 +1,14 @@
+.\bin\lr1mac_utilities.o: ..\smtc_modem_core\lr1mac\src\lr1mac_utilities.c
+.\bin\lr1mac_utilities.o: F:\KEIL5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\bin\lr1mac_utilities.o: F:\KEIL5\ARM\ARMCC\Bin\..\include\stdio.h
+.\bin\lr1mac_utilities.o: F:\KEIL5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\bin\lr1mac_utilities.o: ..\smtc_modem_core\lr1mac\src\lr1mac_utilities.h
+.\bin\lr1mac_utilities.o: F:\KEIL5\ARM\ARMCC\Bin\..\include\stdint.h
+.\bin\lr1mac_utilities.o: F:\KEIL5\ARM\ARMCC\Bin\..\include\math.h
+.\bin\lr1mac_utilities.o: ..\smtc_modem_core\smtc_ral\src\ral_defs.h
+.\bin\lr1mac_utilities.o: ..\smtc_modem_core\smtc_ral\src\lr_fhss_v1_base_types.h
+.\bin\lr1mac_utilities.o: ..\smtc_modem_core\lr1mac\src\lr1mac_defs.h
+.\bin\lr1mac_utilities.o: F:\KEIL5\ARM\ARMCC\Bin\..\include\string.h
+.\bin\lr1mac_utilities.o: ..\smtc_modem_core\smtc_modem_crypto\smtc_secure_element\smtc_secure_element.h
+.\bin\lr1mac_utilities.o: ..\smtc_modem_hal\smtc_modem_hal.h
+.\bin\lr1mac_utilities.o: ..\smtc_modem_core\modem_config\smtc_modem_hal_dbg_trace.h
