@@ -46,57 +46,16 @@
 #include "am_util.h"
 
 
-/* 为了传参 定义一个数组 50个GPIO */
-static hal_gpio_irq_t const* gpio_irq[50];
-//
-// MCU input pin Handling
-//
 
-//const am_hal_gpio_pincfg_t g_AM_HAL_GPIO_INPUT =
-//{
-//    .uFuncSel       = 3,
-//    .eGPOutcfg      = AM_HAL_GPIO_PIN_OUTCFG_DISABLE,
-//    .eGPInput       = AM_HAL_GPIO_PIN_INPUT_ENABLE,
-//    .eGPRdZero      = AM_HAL_GPIO_PIN_RDZERO_READPIN
-//};
+static hal_gpio_irq_t const* gpio_irq[50];
+
 
 
 void hal_gpio_init_in( const hal_gpio_pin_names_t pin, const hal_gpio_pull_mode_t pull_mode,
                        const hal_gpio_irq_mode_t irq_mode, hal_gpio_irq_t* irq )
 												 
 {
-	
-			if(0 )
-			{
-//				const am_hal_gpio_pincfg_t g_AM_BSP_DIO1 =
-//				{
-//				.uFuncSel            = 3,   //
-//				.eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA,
-//				.eGPInput            = AM_HAL_GPIO_PIN_INPUT_ENABLE,
-//				.eIntDir	           = AM_HAL_GPIO_PIN_INTDIR_LO2HI
-//				};
-//		
-//				//am_hal_gpio_interrupt_register(DIO1,sx1262_dio1);
-//			 am_hal_gpio_pinconfig(15, g_AM_BSP_DIO1);
-//	
-//       AM_HAL_GPIO_MASKCREATE(GpioIntMask0);
-//		   am_hal_gpio_interrupt_clear(AM_HAL_GPIO_MASKBIT(pGpioIntMask0, 15));
-//		   am_hal_gpio_interrupt_enable(AM_HAL_GPIO_MASKBIT(pGpioIntMask0, 15));
-//			
-//			 NVIC_SetPriority(GPIO_IRQn, 1);	
-//			 NVIC_EnableIRQ(GPIO_IRQn);
-//				
-//			 if(irq != NULL)
-//			 hal_gpio_irq_attach(irq);
- 
-    
-			}
-			else
-			{
-	    /*  为了简便 这里不分层 没有实现gpio_init的功能 */
-
-			/*  g_AM_HAL_GPIO_INPUT_PULLUP 是一个弱上拉 apollo3的上拉电阻是可以选择的*/
-			am_hal_gpio_pincfg_t AM_GPIO =
+	  	am_hal_gpio_pincfg_t AM_GPIO =
 		  {
 					.uFuncSel       = 3,
           .eGPOutcfg      = AM_HAL_GPIO_PIN_OUTCFG_DISABLE,
@@ -107,7 +66,7 @@ void hal_gpio_init_in( const hal_gpio_pin_names_t pin, const hal_gpio_pull_mode_
 			{
 				AM_GPIO.ePullup = AM_HAL_GPIO_PIN_PULLUP_6K;
 			} else if (pull_mode == BSP_GPIO_PULL_MODE_DOWN) {
-				//AM_GPIO.ePullup = AM_HAL_GPIO_PIN_PULLDOWN;    //居然是下拉的问题  下拉之后 中断没有上升沿了
+			
 			} else 
 			{
 				AM_GPIO.ePullup = AM_HAL_GPIO_PIN_PULLUP_NONE;
@@ -130,7 +89,7 @@ void hal_gpio_init_in( const hal_gpio_pin_names_t pin, const hal_gpio_pull_mode_
 					AM_GPIO .eGPRdZero = AM_HAL_GPIO_PIN_RDZERO_READPIN;;break;
 			}
 			
-			//因为这不是一个静态函数 所以要独立出去
+			
 			if(irq != NULL)
 			hal_gpio_irq_attach(irq);
 	
@@ -138,14 +97,14 @@ void hal_gpio_init_in( const hal_gpio_pin_names_t pin, const hal_gpio_pull_mode_
 			
 			if(irq_mode != BSP_GPIO_IRQ_MODE_OFF)
 			{
-			AM_HAL_GPIO_MASKCREATE(GpioIntMask0);
-			am_hal_gpio_interrupt_clear(AM_HAL_GPIO_MASKBIT(pGpioIntMask0, pin));
-			am_hal_gpio_interrupt_enable(AM_HAL_GPIO_MASKBIT(pGpioIntMask0, pin));
+			  AM_HAL_GPIO_MASKCREATE(GpioIntMask0);
+			  am_hal_gpio_interrupt_clear(AM_HAL_GPIO_MASKBIT(pGpioIntMask0, pin));
+			  am_hal_gpio_interrupt_enable(AM_HAL_GPIO_MASKBIT(pGpioIntMask0, pin));
 			
-			NVIC_SetPriority(GPIO_IRQn, 1);  //这里的中断优先级 建议使用宏定义	
-			NVIC_EnableIRQ(GPIO_IRQn);
+			  NVIC_SetPriority(GPIO_IRQn, 1);  
+			  NVIC_EnableIRQ(GPIO_IRQn);
 			}
-      }
+      
 }
 
 void hal_gpio_init_out( const hal_gpio_pin_names_t pin, const uint32_t value )
@@ -158,9 +117,7 @@ void hal_gpio_irq_attach( const hal_gpio_irq_t* irq )
 {
     if( ( irq != NULL ) && ( irq->callback != NULL ) )
     {
-					//am_util_stdio_printf("irq->context!= NULL  PIN %d\n",irq->pin);
 				  gpio_irq[( irq->pin )] = irq;
-        	//am_hal_gpio_interrupt_register(irq->pin,(am_hal_gpio_handler_t)irq->callback);
     }
 }
 
@@ -213,7 +170,6 @@ void hal_gpio_clear_pending_irq( const hal_gpio_pin_names_t pin )
 
 
 
-//15 是DIOX
 void am_gpio_isr(void)
 {
     uint64_t ui64Status;
@@ -229,35 +185,9 @@ void am_gpio_isr(void)
     }
 		hal_gpio_init_out(45 ,0);
 	}
-    //am_hal_gpio_interrupt_service(ui64Status);
+    
 }
 
-//void am_gpio_isr(void)
-//{
-//    uint64_t ui64Status;
-
-//    // 获取所有GPIO引脚的中断状态
-//    am_hal_gpio_interrupt_status_get(false, &ui64Status);
-
-//    // 清除所有GPIO引脚的中断
-//    am_hal_gpio_interrupt_clear(ui64Status);
-
-//    // 处理每个GPIO引脚的中断
-//    for (int i = 0; i < AM_HAL_GPIO_MAX_PADS; i++)
-//    {
-//        if (ui64Status & (1ULL << i))
-//        {
-//            // 处理GPIO引脚i的中断
-//            am_hal_gpio_interrupt_service(1ULL << i);
-
-//            // 调用回调函数处理GPIO引脚i的中断
-//            if (gpio_irq[i] != NULL && gpio_irq[i]->callback != NULL)
-//            {
-//                gpio_irq[i]->callback(gpio_irq[i]->context);
-//            }
-//        }
-//    }
-//}
 
 
 /* --- EOF ------------------------------------------------------------------ */

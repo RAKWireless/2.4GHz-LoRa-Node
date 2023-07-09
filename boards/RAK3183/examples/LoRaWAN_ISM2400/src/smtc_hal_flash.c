@@ -91,8 +91,8 @@
 
 uint8_t hal_flash_erase_page( uint32_t addr, uint8_t nb_page )
 {
-	 int32_t i32ReturnCode;
-		//apollo3 内部flash 分两个实例    数据我们都放在实例1      通过宏来换算page
+	  int32_t i32ReturnCode;
+		
     uint32_t ui32FlashInst = AM_HAL_FLASH_ADDR2INST(addr);
     i32ReturnCode = am_hal_flash_page_erase(AM_HAL_FLASH_PROGRAM_KEY, ui32FlashInst,AM_HAL_FLASH_ADDR2PAGE(addr));
 	
@@ -114,7 +114,7 @@ uint32_t hal_flash_write_buffer( uint32_t addr, const uint8_t* buffer, uint32_t 
 	
 		int32_t i32ReturnCode;
 	
-		if( ( size % 4 ) != 0 )   // 为了4的倍数
+		if( ( size % 4 ) != 0 )   
     {
         real_size = size + ( 4 - ( size % 4 ) );
     }
@@ -153,7 +153,6 @@ uint32_t hal_flash_write_buffer( uint32_t addr, const uint8_t* buffer, uint32_t 
     }
 		
 	  return 0;
-    //am_hal_flash_program_main(AM_HAL_FLASH_PROGRAM_KEY,    buffer  ,pui32Dst) 
 }
 
 void hal_flash_read_buffer( uint32_t addr, uint8_t* buffer, uint32_t size )

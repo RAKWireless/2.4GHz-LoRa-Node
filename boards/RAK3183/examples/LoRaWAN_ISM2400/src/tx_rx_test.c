@@ -14,23 +14,21 @@
 #include "smtc_hal_gpio.h"
 
 #include "hal/am_hal_gpio.h"
-//#include "smtc_board.h"
-//#include "smtc_hal.h"
-//#include "apps_modem_common.h"
-//#include "apps_modem_event.h"
 #include "smtc_modem_test_api.h"
-//#include "smtc_board_ralf.h"
-//#include "apps_utilities.h"
 #include "smtc_modem_utilities.h"
+#include "smtc_hal_flash.h"
+
+
+#define ADDR_FLASH_AT_PARAM_CONTEXT   (AM_HAL_FLASH_INSTANCE_SIZE + (4 * AM_HAL_FLASH_PAGE_SIZE))
 
 
 /**
  * @brief LoRaWAN User credentials
  */
-#define USER_LORAWAN_DEVICE_EUI     { 0x00, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77 , 0x88}
-#define USER_LORAWAN_JOIN_EUI       { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77 , 0x88}
-#define USER_LORAWAN_APP_KEY         { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77 , 0x88, \
-                                       0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77 , 0x88}
+#define USER_LORAWAN_DEVICE_EUI     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 , 0x00}
+#define USER_LORAWAN_JOIN_EUI       { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 , 0x00}
+#define USER_LORAWAN_APP_KEY        { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 , 0x00, \
+                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 , 0x00}
                                       
 #define MODEM_EXAMPLE_REGION    SMTC_MODEM_REGION_WW2G4
 
@@ -42,10 +40,19 @@
 /**
  * @brief Stack credentials
  */
-static const uint8_t user_dev_eui[8]  = USER_LORAWAN_DEVICE_EUI;
-static const uint8_t user_join_eui[8] = USER_LORAWAN_JOIN_EUI;
-static const uint8_t user_app_key[16] = USER_LORAWAN_APP_KEY;
 
+
+
+LoRaWAN_Params lora_params = {
+    .dev_eui = USER_LORAWAN_DEVICE_EUI,
+    .join_eui = USER_LORAWAN_JOIN_EUI,
+    .app_key = USER_LORAWAN_APP_KEY,
+};
+						
+																			
+uint8_t	rx_payload_size;
+uint8_t rx_payload[256];														
+																			
 #if defined( SX128X )
 const ralf_t modem_radio = RALF_SX128X_INSTANTIATE( NULL );
 #elif defined( SX126X )
@@ -57,23 +64,25 @@ const ralf_t modem_radio = RALF_LR11XX_INSTANTIATE( NULL );
 #endif
 
 
-#define RADIO_NSS               11      //NSS 还是有作用的
+void save_lora_params(void) {
+	
+     hal_flash_erase_page( ADDR_FLASH_AT_PARAM_CONTEXT, 1 );
+		 hal_flash_write_buffer(ADDR_FLASH_AT_PARAM_CONTEXT , (uint8_t *)&lora_params,sizeof(lora_params)); 
+	
+	uint8_t            stack_id = STACK_ID;
+	
+		smtc_modem_set_deveui( stack_id, lora_params.dev_eui );
+     smtc_modem_set_joineui( stack_id, lora_params.join_eui );
+    smtc_modem_set_nwkkey( stack_id, lora_params.app_key );
+}
 
+void load_lora_params(void) {
+    hal_flash_read_buffer(ADDR_FLASH_AT_PARAM_CONTEXT,(uint8_t *)&lora_params,sizeof(lora_params));
+}
 
-#define RADIO_NRST              17     //复位脚
-
-#define RADIO_DIOX              15      //查到代码 应该是DIO1
-
-#define RADIO_BUSY_PIN          16      //busy 脚  16
-
-#define RADIO_SPI_ID            1      //这个也是传入无效值  底层是写的一个SPI
-
-#define TXCO_POWER              2
 
 static void get_event( void )
 {
-    //SMTC_HAL_TRACE_MSG_COLOR( "get_event () callback\n", HAL_DBG_TRACE_COLOR_BLUE );
-
     smtc_modem_event_t current_event;
     uint8_t            event_pending_count;
     uint8_t            stack_id = STACK_ID;
@@ -88,15 +97,16 @@ static void get_event( void )
         {
         case SMTC_MODEM_EVENT_RESET:
             SMTC_HAL_TRACE_INFO( "Event received: RESET\n" );
+						load_lora_params();
 
             // Set user credentials
-            smtc_modem_set_deveui( stack_id, user_dev_eui );
-            smtc_modem_set_joineui( stack_id, user_join_eui );
-            smtc_modem_set_nwkkey( stack_id, user_app_key );
+            smtc_modem_set_deveui( stack_id, lora_params.dev_eui );
+            smtc_modem_set_joineui( stack_id, lora_params.join_eui );
+            smtc_modem_set_nwkkey( stack_id, lora_params.app_key );
             // Set user region
             smtc_modem_set_region( stack_id, MODEM_EXAMPLE_REGION );
             // Schedule a Join LoRaWAN network
-            smtc_modem_join_network( stack_id );
+            //smtc_modem_join_network( stack_id );
             break;
 
         case SMTC_MODEM_EVENT_ALARM:
@@ -116,10 +126,10 @@ static void get_event( void )
 
         case SMTC_MODEM_EVENT_DOWNDATA:
             SMTC_HAL_TRACE_INFO( "Event received: DOWNDATA\n" );
-//            rx_payload_size = ( uint8_t ) current_event.event_data.downdata.length;
-//            memcpy( rx_payload, current_event.event_data.downdata.data, rx_payload_size );
-//            SMTC_HAL_TRACE_PRINTF( "Data received on port %u\n", current_event.event_data.downdata.fport );
-//            SMTC_HAL_TRACE_ARRAY( "Received payload", rx_payload, rx_payload_size );
+            rx_payload_size = ( uint8_t ) current_event.event_data.downdata.length;
+            memcpy( rx_payload, current_event.event_data.downdata.data, rx_payload_size );
+            SMTC_HAL_TRACE_PRINTF( "Data received on port %u\n", current_event.event_data.downdata.fport );
+            SMTC_HAL_TRACE_ARRAY( "Received payload", rx_payload, rx_payload_size );
             break;
 
         case SMTC_MODEM_EVENT_UPLOADDONE:
@@ -186,98 +196,15 @@ static void get_event( void )
     } while( event_pending_count > 0 );
 }
 
-void test_radio()
+void lorawan_init()
 {
-//	uint8_t buffer;
-//	
-//	hal_mcu_init();
-//	
-//	void *context;
-//	sx128x_hal_reset( context );    //SPI 读测试通了     //写测试有问题
-//	
+		SMTC_HAL_TRACE_INFO( "RAK LoRaWAN ISM2400 Example\n" );
   	hal_spi_init(1,1,1,0);
-	
 	  hal_rtc_init(  );
-	
 	  hal_lp_timer_init();
-//	sx128x_read_register(context,0x0891,&buffer,1);
-//	am_util_stdio_printf("buffer  %02X\r\n",buffer);
-//	
-//	sx128x_read_register(context,0x089F,&buffer,1);
-//	am_util_stdio_printf("buffer  %02X\r\n",buffer);
-//	
-//	buffer = 0x55;
-//	
-//	sx128x_write_register(context,0x0891,&buffer,1);
-//	sx128x_read_register(context,0x0891,&buffer,1);
-//	am_util_stdio_printf("buffer  %02X",buffer);
-	
-//	smtc_board_initialise_and_get_ralf
-
-		 hal_mcu_disable_irq( );   //这里没有关中断
-
-		 hal_mcu_init( ); 
-		 //am_hal_gpio_pinconfig(RADIO_BUSY_PIN, g_AM_HAL_GPIO_INPUT);
-		 smtc_modem_init( &modem_radio, &get_event );
-		  
-		 hal_mcu_enable_irq( );
-		 
-		 
-		 
-//		 while(1)
-//		 {
-//			  hal_gpio_set_value( RADIO_NRST, 0 );
-//			  hal_mcu_wait_us( 5000 );
-//			 
-//			if( hal_gpio_get_value( RADIO_BUSY_PIN ) == 1 )
-//			{
-//					am_util_stdio_printf("sx128x_hal_wait_on_busy\n");
-//					hal_gpio_init_out(44 ,1 );
-//			}
-//			 am_util_delay_ms( 10 );
-//	
-//			 hal_gpio_set_value( RADIO_NRST, 1 );
-//			 am_util_delay_ms( 1000 );
-//			  
-//		   //sx128x_hal_reset();
-//		 }
-//     SMTC_HAL_TRACE_INFO( "EXTI example is starting.\n");
-     //SMTC_HAL_TRACE_INFO( "EXTI example is starting. hal_rng_get_random %d\n",hal_rng_get_random() );
-		 
-		 //am_util_delay_ms(1000);
-		 
-	   //test();
-		 
-		 //smtc_modem_hal_reset_mcu();
-	
+		hal_mcu_disable_irq( );   
+		hal_mcu_init( ); 
+		smtc_modem_init( &modem_radio, &get_event );
+		hal_mcu_enable_irq( );
 }
 
-
-//void hal_spi_init( const uint32_t id, const hal_gpio_pin_names_t mosi, const hal_gpio_pin_names_t miso,
-//                   const hal_gpio_pin_names_t sclk )
-
-
-//sx128x_status_t sx128x_read_register( const void* context, const uint16_t address, uint8_t* buffer,
-//                                      const uint16_t size )
-//{
-//    const uint8_t buf[SX128X_SIZE_READ_REGISTER] = {
-//        SX128X_READ_REGISTER,
-//        ( uint8_t )( address >> 8 ),
-//        ( uint8_t )( address >> 0 ),
-//        SX128X_NOP,
-//    };
-
-//    return ( sx128x_status_t ) sx128x_hal_read( context, buf, SX128X_SIZE_READ_REGISTER, buffer, size );
-//}
-
-//sx128x_status_t sx128x_write_register( const void* context, const uint16_t address, const uint8_t* buffer,
-//                                       const uint16_t size )
-//{
-//    const uint8_t buf[SX128X_SIZE_WRITE_REGISTER] = {
-//        SX128X_WRITE_REGISTER,
-//        ( uint8_t )( address >> 8 ),
-//        ( uint8_t )( address >> 0 ),
-//    };
-
-//    return ( sx128x_status_t ) sx128x_hal_write( context, buf, SX128X_SIZE_WRITE_REGISTER, buffer, size );
-//}

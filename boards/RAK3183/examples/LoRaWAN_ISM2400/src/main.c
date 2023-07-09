@@ -57,20 +57,21 @@
 #include "smtc_hal_lp_timer.h"
 #include "smtc_hal_mcu.h"
 
-#define LED1  44
-#define LED2	45
+#define LED1 44
+#define LED2 45
 
 //*****************************************************************************
 //
 // UART handle.
 //
 //*****************************************************************************
+char uart_input(void);
 void *phUART;
 
-#define CHECK_ERRORS(x)                                                       \
-    if ((x) != AM_HAL_STATUS_SUCCESS)                                         \
-    {                                                                         \
-        error_handler(x);                                                     \
+#define CHECK_ERRORS(x)               \
+    if ((x) != AM_HAL_STATUS_SUCCESS) \
+    {                                 \
+        error_handler(x);             \
     }
 volatile uint32_t ui32LastError;
 
@@ -79,12 +80,12 @@ volatile uint32_t ui32LastError;
 // Catch HAL errors.
 //
 //*****************************************************************************
-void
-error_handler(uint32_t ui32ErrorStatus)
+void error_handler(uint32_t ui32ErrorStatus)
 {
     ui32LastError = ui32ErrorStatus;
 
-    while (1);
+    while (1)
+        ;
 }
 
 //*****************************************************************************
@@ -101,29 +102,29 @@ uint8_t g_pui8RxBuffer[2];
 //
 //*****************************************************************************
 const am_hal_uart_config_t g_sUartConfig =
-{
-    //
-    // Standard UART settings: 115200-8-N-1
-    //
-    .ui32BaudRate = 115200,
-    .ui32DataBits = AM_HAL_UART_DATA_BITS_8,
-    .ui32Parity = AM_HAL_UART_PARITY_NONE,
-    .ui32StopBits = AM_HAL_UART_ONE_STOP_BIT,
-    .ui32FlowControl = AM_HAL_UART_FLOW_CTRL_NONE,
+    {
+        //
+        // Standard UART settings: 115200-8-N-1
+        //
+        .ui32BaudRate = 115200,
+        .ui32DataBits = AM_HAL_UART_DATA_BITS_8,
+        .ui32Parity = AM_HAL_UART_PARITY_NONE,
+        .ui32StopBits = AM_HAL_UART_ONE_STOP_BIT,
+        .ui32FlowControl = AM_HAL_UART_FLOW_CTRL_NONE,
 
-    //
-    // Set TX and RX FIFOs to interrupt at half-full.
-    //
-    .ui32FifoLevels = (AM_HAL_UART_TX_FIFO_7_8 |
-                       AM_HAL_UART_TX_FIFO_7_8),
+        //
+        // Set TX and RX FIFOs to interrupt at half-full.
+        //
+        .ui32FifoLevels = (AM_HAL_UART_TX_FIFO_7_8 |
+                           AM_HAL_UART_TX_FIFO_7_8),
 
-    //
-    // Buffers
-    //
-    .pui8TxBuffer = g_pui8TxBuffer,
-    .ui32TxBufferSize = sizeof(g_pui8TxBuffer),
-    .pui8RxBuffer = g_pui8RxBuffer,
-    .ui32RxBufferSize = sizeof(g_pui8RxBuffer),
+        //
+        // Buffers
+        //
+        .pui8TxBuffer = g_pui8TxBuffer,
+        .ui32TxBufferSize = sizeof(g_pui8TxBuffer),
+        .pui8RxBuffer = g_pui8RxBuffer,
+        .ui32RxBufferSize = sizeof(g_pui8RxBuffer),
 };
 
 //*****************************************************************************
@@ -131,8 +132,7 @@ const am_hal_uart_config_t g_sUartConfig =
 // UART0 interrupt handler.
 //
 //*****************************************************************************
-void
-am_uart_isr(void)
+void am_uart_isr(void)
 {
     //
     // Service the FIFOs as necessary, and clear the interrupts.
@@ -141,15 +141,16 @@ am_uart_isr(void)
     am_hal_uart_interrupt_status_get(phUART, &ui32Status, true);
     am_hal_uart_interrupt_clear(phUART, ui32Status);
     am_hal_uart_interrupt_service(phUART, ui32Status, &ui32Idle);
+
+    am_hal_gpio_state_write(LED1, AM_HAL_GPIO_OUTPUT_TOGGLE);
 }
 
 //*****************************************************************************
 //
-// UART print string
+// UART print string0
 //
 //*****************************************************************************
-void
-uart_print(char *pcStr)
+void uart_print(char *pcStr)
 {
     uint32_t ui32StrLen = 0;
     uint32_t ui32BytesWritten = 0;
@@ -166,13 +167,13 @@ uart_print(char *pcStr)
     // Print the string via the UART.
     //
     const am_hal_uart_transfer_t sUartWrite =
-    {
-        .ui32Direction = AM_HAL_UART_WRITE,
-        .pui8Data = (uint8_t *) pcStr,
-        .ui32NumBytes = ui32StrLen,
-        .ui32TimeoutMs = AM_HAL_UART_WAIT_FOREVER,
-        .pui32BytesTransferred = &ui32BytesWritten,
-    };
+        {
+            .ui32Direction = AM_HAL_UART_WRITE,
+            .pui8Data = (uint8_t *)pcStr,
+            .ui32NumBytes = ui32StrLen,
+            .ui32TimeoutMs = AM_HAL_UART_WAIT_FOREVER,
+            .pui32BytesTransferred = &ui32BytesWritten,
+        };
 
     CHECK_ERRORS(am_hal_uart_transfer(phUART, &sUartWrite));
 
@@ -181,21 +182,15 @@ uart_print(char *pcStr)
         //
         // Couldn't send the whole string!!
         //
-        while(1);
+        while (1)
+            ;
     }
 }
 
-
 void init_rak3183_led()
 {
-//		am_hal_gpio_pinconfig(LED1, g_AM_HAL_GPIO_OUTPUT);
-//		am_hal_gpio_pinconfig(LED2, g_AM_HAL_GPIO_OUTPUT);
-//	
-//		am_hal_gpio_state_write(LED1,AM_HAL_GPIO_OUTPUT_SET);   //rx
-//		am_hal_gpio_state_write(LED2,AM_HAL_GPIO_OUTPUT_SET);		//tx
-	
-	    hal_gpio_init_out(LED1 ,0 );
-	    hal_gpio_init_out(LED2 ,0 );
+    hal_gpio_init_out(LED1, 0);
+    hal_gpio_init_out(LED2, 0);
 }
 
 //*****************************************************************************
@@ -203,8 +198,7 @@ void init_rak3183_led()
 // Main
 //
 //*****************************************************************************
-int
-main(void)
+int main(void)
 {
     //
     // Set the clock frequency.
@@ -220,19 +214,16 @@ main(void)
     //
     // Configure the board for low power operation.
     //
-    //am_bsp_low_power_init();
+    // am_bsp_low_power_init();
 
     //
     // Initialize the printf interface for UART output.
     //
     CHECK_ERRORS(am_hal_uart_initialize(0, &phUART));
 
-
-
     CHECK_ERRORS(am_hal_uart_power_control(phUART, AM_HAL_SYSCTRL_WAKE, false));
 
-
-    am_hal_uart_clock_speed_e eUartClockSpeed = eUART_CLK_SPEED_DEFAULT ;
+    am_hal_uart_clock_speed_e eUartClockSpeed = eUART_CLK_SPEED_DEFAULT;
     CHECK_ERRORS(am_hal_uart_control(phUART, AM_HAL_UART_CONTROL_CLKSEL, &eUartClockSpeed));
     CHECK_ERRORS(am_hal_uart_configure(phUART, &g_sUartConfig));
 
@@ -240,14 +231,13 @@ main(void)
     // Enable the UART pins.
     //
     const am_hal_gpio_pincfg_t g_AM_BSP_GPIO_COM_UART_TX0 =
-		{
-			.uFuncSel            = AM_HAL_PIN_39_UART0TX,
-		};
-	
-		const am_hal_gpio_pincfg_t g_AM_BSP_GPIO_COM_UART_RX0 =
-		{
-			.uFuncSel            = AM_HAL_PIN_40_UART0RX
-		};
+        {
+            .uFuncSel = AM_HAL_PIN_39_UART0TX,
+        };
+
+    const am_hal_gpio_pincfg_t g_AM_BSP_GPIO_COM_UART_RX0 =
+        {
+            .uFuncSel = AM_HAL_PIN_40_UART0RX};
     //
     am_hal_gpio_pinconfig(39, g_AM_BSP_GPIO_COM_UART_TX0);
     am_hal_gpio_pinconfig(40, g_AM_BSP_GPIO_COM_UART_RX0);
@@ -255,8 +245,8 @@ main(void)
     //
     // Enable interrupts.
     //
-		NVIC_SetPriority(UART0_IRQn, 7);
-    NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn ));
+    NVIC_SetPriority(UART0_IRQn, 7);
+    NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn));
     am_hal_interrupt_master_enable();
 
     //
@@ -268,23 +258,62 @@ main(void)
     // Print the banner.
     //
     am_util_stdio_terminal_clear();
-    am_util_stdio_printf("Hello World!\n");
-		
-		init_rak3183_led();
-		
-		//hal_rtc_init();
-		
-		test_radio();
-	  	
-		//am_ctimer_test();
 
- 
+    init_rak3183_led();
+
+    lorawan_init();
+
+    char character = 0;
+
     while (1)
     {
-			  smtc_modem_run_engine( );
+        smtc_modem_run_engine();
+
+        character = uart_input();
+        if (character)
+        {
+            am_hal_gpio_state_write(LED2, AM_HAL_GPIO_OUTPUT_TOGGLE);
+            process_serial_input(character);
+        }
         //
         // Go to Deep Sleep.
         //
         // am_hal_sysctrl_sleep(AM_HAL_SYSCTRL_SLEEP_DEEP);
+    }
+}
+
+char uart_input(void)
+{
+    static char pcStr;
+    uint32_t ui32BytesRread = 0;
+    const am_hal_uart_transfer_t sUartRead =
+        {
+            .ui32Direction = AM_HAL_UART_READ,
+            .pui8Data = (uint8_t *)&pcStr,
+            .ui32NumBytes = 1,
+            .ui32TimeoutMs = 0,
+            .pui32BytesTransferred = &ui32BytesRread,
+        };
+
+    CHECK_ERRORS(am_hal_uart_transfer(phUART, &sUartRead));
+    if (ui32BytesRread == 1)
+    {
+        // echo test
+        const am_hal_uart_transfer_t sUartWrite =
+            {
+                .ui32Direction = AM_HAL_UART_WRITE,
+                .pui8Data = (uint8_t *)&pcStr,
+                .ui32NumBytes = 1,
+                .ui32TimeoutMs = 0,
+                .pui32BytesTransferred = &ui32BytesRread,
+            };
+
+        CHECK_ERRORS(am_hal_uart_transfer(phUART, &sUartWrite));
+
+        return pcStr;
+    }
+    else
+    {
+        return 0;
     }
 }

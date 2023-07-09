@@ -86,7 +86,6 @@ void test_timer0()
 	 {
 			my_tmr_irq.callback(my_tmr_irq.context);
 	 }
-	 //am_util_stdio_printf("hal_lp_timer_start \r\n");
 }	 
 
 
@@ -99,7 +98,7 @@ void hal_lp_timer_init( void )
  
   am_hal_ctimer_int_enable(AM_HAL_CTIMER_INT_TIMERA0C0);
  
-  am_hal_interrupt_master_enable();  //需要查一下这个中断的含义
+  am_hal_interrupt_master_enable(); 
 
  
 }
@@ -109,7 +108,7 @@ void hal_lp_timer_start( const uint32_t milliseconds, const hal_lp_timer_irq_t* 
 	  if(tmr_irq != NULL)
 			my_tmr_irq = *tmr_irq;
 	 
-	  /* 定时时间  mill/1000 = 1/3000000 * Period  */
+	 
 	  uint32_t period =  ((float )milliseconds/1000) * 3000000;
 
 	  am_hal_ctimer_period_set(0, AM_HAL_CTIMER_BOTH,period - 1 , 0);
@@ -128,54 +127,34 @@ void hal_lp_timer_stop( void )
 
 void hal_lp_timer_irq_enable( void )
 {
-	   //am_hal_interrupt_priority_set(AM_HAL_INTERRUPT_CTIMER, configKERNEL_INTERRUPT_PRIORITY);
+	   
      NVIC_EnableIRQ(CTIMER_IRQn);  
 }
 
 void hal_lp_timer_irq_disable( void )
 {
-    //NVIC_DisableIRQ(CTIMER_IRQn);  
+    NVIC_DisableIRQ(CTIMER_IRQn);  
 }
 
-void am_ctimer_isr(void)  //问题可能就出现这这里了   1只清1  0只清0 的中断  
+void am_ctimer_isr(void)  
 {
 	
   // Clear TimerA0 Interrupt.
   uint32_t status = am_hal_ctimer_int_status_get(true);
 	if(status & AM_HAL_CTIMER_INT_TIMERA1)
 	{
-		//hal_gpio_init_out(LED1 ,1);
 		am_hal_ctimer_int_clear(AM_HAL_CTIMER_INT_TIMERA1);
 		am_hal_ctimer_int_service(status & AM_HAL_CTIMER_INT_TIMERA1);
 	}
 	
 	if(status & AM_HAL_CTIMER_INT_TIMERA0)
 	{
-		 //hal_gpio_init_out(LED2 ,1);
 		 am_hal_ctimer_int_clear(AM_HAL_CTIMER_INT_TIMERA0);
 		 am_hal_ctimer_int_service(status & AM_HAL_CTIMER_INT_TIMERA0);
 	}
  
 }
 
-void test_callback(void *contex)
-{
-	 am_util_stdio_printf("123\r\n");
-}
-
-
-
-void am_ctimer_test(void)
-{
-	hal_lp_timer_irq_t tmr_irq = {NULL,test_callback};
-	
-	hal_lp_timer_init();
-	
-	hal_lp_timer_irq_enable();
-		
-	hal_lp_timer_start(50,&tmr_irq);
-	
-}
 /*
  * -----------------------------------------------------------------------------
  * --- PRIVATE FUNCTIONS DEFINITION --------------------------------------------

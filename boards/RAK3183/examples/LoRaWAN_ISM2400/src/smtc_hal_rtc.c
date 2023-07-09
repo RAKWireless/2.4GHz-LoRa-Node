@@ -40,9 +40,6 @@
 #include <time.h>
 #include "smtc_hal_rtc.h"
 
-//#include "stm32l4xx_hal.h"
-//#include "stm32l4xx_ll_rtc.h"
-//#include "smtc_hal_mcu.h"
 #include "am_mcu_apollo.h"
 #include "am_util.h"
 
@@ -54,13 +51,12 @@
  * --- PRIVATE TYPES -----------------------------------------------------------
  */
 
-static uint32_t seconds = 0;   //溢出的话 只有这个32位满了才会溢出   理论上几百年
-static uint32_t milliseconds_div_10 = 0;    //单位100us 
+static uint32_t seconds = 0;   
+static uint32_t milliseconds_div_10 = 0;    
 static volatile bool wut_timer_irq_happened = false;
 
 void timer1_callback(void)
 {
-	 hal_gpio_init_out(44 ,0);
 	 milliseconds_div_10++;
 	 if(milliseconds_div_10 == 10000)
 	 {
@@ -72,7 +68,6 @@ void timer1_callback(void)
 
 
 
-/*注意相关的定时器 都要改为定时器1*/
 void hal_rtc_init( void )
 {
   am_hal_ctimer_config_single(1, AM_HAL_CTIMER_BOTH,
@@ -85,9 +80,8 @@ void hal_rtc_init( void )
 	NVIC_SetPriority(UART0_IRQn,6);
   NVIC_EnableIRQ(CTIMER_IRQn); 
 	
-	float milliseconds = 0.1 ;  //定义一个100us 的定时器
+	float milliseconds = 0.1 ;  //100us
   uint32_t period =  ((float )milliseconds/1000) * 3000000;
-	//am_util_stdio_printf("period %d\r\n",period);
 	am_hal_ctimer_period_set(1, AM_HAL_CTIMER_BOTH,period - 1 , 0);
   am_hal_ctimer_int_register(AM_HAL_CTIMER_INT_TIMERA1,(am_hal_ctimer_handler_t)timer1_callback);
 	
@@ -112,28 +106,7 @@ uint32_t hal_rtc_get_time_ms( void )
 }
 
 
-//这个定时器是用来设置低功耗唤醒用的  这里可以不实现   下面3个API都和低功耗相关
-//void hal_rtc_wakeup_timer_set_ms( const int32_t milliseconds )
-//{
-//    uint32_t delay_ms_2_tick = rtc_ms_2_wakeup_timer_tick( milliseconds );
 
-//    HAL_RTCEx_DeactivateWakeUpTimer( &bsp_rtc.handle );
-//    // reset irq status
-//    wut_timer_irq_happened = false;
-//    HAL_RTCEx_SetWakeUpTimer_IT( &bsp_rtc.handle, delay_ms_2_tick, RTC_WAKEUPCLOCK_RTCCLK_DIV16 );
-//}
-
-//void hal_rtc_wakeup_timer_stop( void )
-//{
-//    am_hal_ctimer_stop(1, AM_HAL_CTIMER_BOTH); 
-//}
-
-
-//
-//bool hal_rtc_has_wut_irq_happened( void )
-//{
-//    return wut_timer_irq_happened;
-//}
 
 
 

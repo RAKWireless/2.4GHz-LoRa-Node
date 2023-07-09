@@ -79,7 +79,7 @@
  * --- PUBLIC FUNCTIONS DEFINITION ---------------------------------------------
  */
 
-uint32_t hal_rng_get_random( void )    //这里是一个假随机
+uint32_t hal_rng_get_random( void )    
 {
 	  
 	  uint32_t rand_nb = rand();
@@ -114,32 +114,7 @@ int32_t hal_rng_get_signed_random_in_range( const int32_t val_1, const int32_t v
     }
 }
 
-//void HAL_RNG_MspInit( RNG_HandleTypeDef* hrng )
-//{
-//    RCC_PeriphCLKInitTypeDef periph_clk_init = { 0 };
 
-//    // must reconfigure PLLSAI1 for RNG
-//    HAL_RCCEx_GetPeriphCLKConfig( &periph_clk_init );
-//    periph_clk_init.PeriphClockSelection = RCC_PERIPHCLK_RNG;
-//    if( HAL_RCCEx_PeriphCLKConfig( &periph_clk_init ) != HAL_OK )
-//    {
-//        mcu_panic( );  // Initialization Error
-//    }
-
-//    // RNG Peripheral clock enable
-//    __HAL_RCC_RNG_CLK_ENABLE( );
-//}
-
-//void HAL_RNG_MspDeInit( RNG_HandleTypeDef* hrng )
-//{
-//    // Enable RNG reset state
-//    __HAL_RCC_RNG_FORCE_RESET( );
-
-//    // Release RNG from reset state
-//    __RNG_RELEASE_RESET( );
-
-//    __HAL_RCC_RNG_CLK_DISABLE( );
-//}
 
 /*
  * -----------------------------------------------------------------------------

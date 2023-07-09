@@ -70,7 +70,7 @@ extern "C" {
 #endif
 
 #ifndef MODEM_HAL_DEEP_DBG_TRACE
-#define MODEM_HAL_DEEP_DBG_TRACE                          MODEM_HAL_FEATURE_ON
+#define MODEM_HAL_DEEP_DBG_TRACE                          MODEM_HAL_FEATURE_OFF
 #endif
 // clang-format on
 

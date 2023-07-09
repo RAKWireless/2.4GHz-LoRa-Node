@@ -104,18 +104,7 @@ static volatile low_power_mode_t lp_current_mode = LOW_POWER_ENABLE;
  * -----------------------------------------------------------------------------
  * --- PRIVATE FUNCTIONS DECLARATION -------------------------------------------
  */
-//static void system_clock_config( void );
-//static void mcu_gpio_init( void );
 
-//#if( LOW_POWER_MODE == 1 )
-//static void lpm_mcu_deinit( void );
-//static void lpm_mcu_reinit( void );
-//static void lpm_enter_stop_mode( void );
-//static void lpm_exit_stop_mode( void );
-//static void lpm_handler( void );
-//#else
-//static bool no_low_power_wait( const int32_t milliseconds );
-//#endif
 
 /*
  * -----------------------------------------------------------------------------

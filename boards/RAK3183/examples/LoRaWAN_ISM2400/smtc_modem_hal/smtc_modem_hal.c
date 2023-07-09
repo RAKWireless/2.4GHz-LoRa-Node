@@ -175,7 +175,7 @@ void smtc_modem_hal_enable_modem_irq( void )
     hal_lp_timer_irq_enable( );
 }
 
-/* ------------ Context saving management ------------*/   //flash 这里的底层都没实现
+/* ------------ Context saving management ------------*/   //flash 
 
 void smtc_modem_hal_context_restore( const modem_context_type_t ctx_type, uint8_t* buffer, const uint32_t size )
 {

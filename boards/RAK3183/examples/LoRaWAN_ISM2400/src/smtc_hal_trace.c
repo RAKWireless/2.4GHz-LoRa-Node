@@ -78,14 +78,7 @@
  * --- PUBLIC FUNCTIONS DEFINITION ---------------------------------------------
  */
  
-//主要是这个函数
-//void hal_trace_print_var( const char* fmt, ... )
-//{
-//    va_list args;
-//    va_start( args, fmt );
-//    hal_trace_print( fmt, args );
-//    va_end( args );
-//}
+
 
 extern void
 uart_print(char *pcStr);

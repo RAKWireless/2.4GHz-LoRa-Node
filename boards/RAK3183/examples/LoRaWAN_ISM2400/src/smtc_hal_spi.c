@@ -42,11 +42,6 @@
 
 /*===============================modify=======================================*/
 #include "smtc_hal_spi.h"
-//#include "stm32l4xx_hal.h"
-//#include "stm32l4xx_ll_spi.h"
-
-//#include "modem_pinout.h"
-//#include "smtc_hal_mcu.h"
 #include "am_mcu_apollo.h"
 #include "am_util.h"
 
@@ -68,37 +63,6 @@
  */
 
 
-// 这些都是为了实现ID 先不做处理
-//typedef struct spi_s
-//{
-//	SPI_TypeDef*      interface;
-//	SPI_HandleTypeDef handle;
-//	struct
-//	{
-//			hal_gpio_pin_names_t mosi;
-//			hal_gpio_pin_names_t miso;
-//			hal_gpio_pin_names_t sclk;
-//	} pins;
-//} spi_t;
-
-/*
- * -----------------------------------------------------------------------------
- * --- PRIVATE VARIABLES -------------------------------------------------------
- */  
-//static spi_t spi_periph[] = {
-//    [0] =
-//        {
-//            .interface = SPI1,
-//            .handle    = {0},
-//            .pins =
-//                {
-//                    .mosi = NC,
-//                    .miso = NC,
-//                    .sclk = NC,
-//                },
-//        },
-//}
-//;
 
 /*
  * -----------------------------------------------------------------------------
@@ -128,7 +92,6 @@ am_hal_iom_config_t IOM0Config=
 
 
  
-// 这个ID可以先不做处理
 void hal_spi_init( const uint32_t id, const hal_gpio_pin_names_t mosi, const hal_gpio_pin_names_t miso,
                    const hal_gpio_pin_names_t sclk )
 {
@@ -176,7 +139,6 @@ void hal_spi_de_init( const uint32_t id )
 }
 
 
-//这个id 没有做处理
 uint16_t hal_spi_in_out( const uint32_t id, const uint16_t out_data )
 {
 	  hal_mcu_disable_irq();
