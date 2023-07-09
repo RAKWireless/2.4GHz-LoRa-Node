@@ -57,11 +57,11 @@ extern "C" {
 
 // Sensible default values. Change in Makefile if needed
 #ifndef HAL_DBG_TRACE
-#define HAL_DBG_TRACE                               HAL_FEATURE_OFF
+#define HAL_DBG_TRACE                               HAL_FEATURE_ON
 #endif
 
 #ifndef HAL_DBG_TRACE_COLOR
-#define HAL_DBG_TRACE_COLOR                         HAL_FEATURE_OFF
+#define HAL_DBG_TRACE_COLOR                         HAL_FEATURE_ON
 #endif
 
 #ifndef HAL_DBG_TRACE_RP
