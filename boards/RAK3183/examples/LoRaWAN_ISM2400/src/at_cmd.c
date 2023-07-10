@@ -1,7 +1,7 @@
 #include "at_cmd.h"
 #include <stdio.h>
 #include <string.h>
-#include "tx_rx_test.h"
+#include "lorawan_app.h"
 #include "am_mcu_apollo.h"
 #include "am_util.h"
 
@@ -21,8 +21,8 @@
 #include "smtc_modem_utilities.h"
 
 #define STACK_ID 0
-#define MAX_CMD_LEN 40   // 最大AT指令长度
-#define MAX_PARAM_LEN 40 // 最大AT指令参数长度
+#define MAX_CMD_LEN 40   
+#define MAX_PARAM_LEN 40 
 
 static bool is_joined(void)
 {
@@ -57,14 +57,14 @@ int hex_string_to_bytes(const char *str, uint8_t *bytes, size_t len)
     return 0;
 }
 
-// AT指令结构体，包括指令和参数
+
 typedef struct
 {
-    char cmd[MAX_CMD_LEN + 1];      // 存储AT指令的字符数组
-    char params[MAX_PARAM_LEN + 1]; // 存储AT指令的参数
+    char cmd[MAX_CMD_LEN + 1];     
+    char params[MAX_PARAM_LEN + 1]; 
 } AT_Command;
 
-// AT指令处理函数，根据需要实现不同的处理函数
+
 void handle_version(const AT_Command *cmd)
 {
     am_util_stdio_printf("Version: 1.0.0\n");
@@ -74,14 +74,14 @@ void handle_reset(const AT_Command *cmd)
 {
     am_util_stdio_printf("Resetting...\n");
     NVIC_SystemReset();
-    // 执行重启操作
+    
 }
 
 void handle_deveui(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0)
     {
-        // 输出当前设备的 DevEUI
+        
         int i;
         for (i = 0; i < 8; i++)
         {
@@ -91,7 +91,7 @@ void handle_deveui(const AT_Command *cmd)
     }
     else if (strlen(cmd->params) == 16)
     {
-        // 将参数解析为十六进制数，并保存到 user_dev_eui 数组中
+        
         uint8_t bytes[8] = {0};
         if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
         {
@@ -118,7 +118,7 @@ void handle_joineui(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0)
     {
-        // 输出当前设备的 DevEUI
+        
         int i;
         for (i = 0; i < 8; i++)
         {
@@ -128,7 +128,7 @@ void handle_joineui(const AT_Command *cmd)
     }
     else if (strlen(cmd->params) == 16)
     {
-        // 将参数解析为十六进制数，并保存到 user_dev_eui 数组中
+        
         uint8_t bytes[8] = {0};
         if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
         {
@@ -155,7 +155,7 @@ void handle_appkey(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0)
     {
-        // 输出当前设备的 DevEUI
+        
         int i;
         for (i = 0; i < 16; i++)
         {
@@ -165,7 +165,7 @@ void handle_appkey(const AT_Command *cmd)
     }
     else if (strlen(cmd->params) == 32)
     {
-        // 将参数解析为十六进制数，并保存到 user_dev_eui 数组中
+        
         uint8_t bytes[16] = {0};
         if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
         {
@@ -228,7 +228,7 @@ void handle_send(const AT_Command *cmd)
         am_util_stdio_printf("%02x ", hex_data[i]);
     }
     am_util_stdio_printf("\n");
-    // 将 hex_data 发送出去的操作
+    
 
     if (is_joined() == true)
     {
@@ -251,18 +251,18 @@ void handle_join(const AT_Command *cmd)
     smtc_modem_join_network(STACK_ID);
 }
 
-// AT指令处理函数指针类型
+
 typedef void (*AT_Handler)(const AT_Command *);
 
-// AT指令处理函数表，包括指令和对应的处理函数
+
 typedef struct
 {
-    const char *cmd;    // AT指令
-    AT_Handler handler; // 对应的处理函数
-    const char *help;   // 新增帮助信息字段
+    const char *cmd;    
+    AT_Handler handler; 
+    const char *help;   
 } AT_HandlerTable;
 
-// AT指令处理函数表，可根据需要添加其他处理函数
+
 AT_HandlerTable handler_table[] = {
     {"AT+VERSION", handle_version, "Get firmware version"},
     {"AT+RESET", handle_reset, "Reset device"},
@@ -293,7 +293,7 @@ AT_Command parse_AT_Command(const char *input)
     return cmd;
 }
 
-// 查找匹配的处理函数并执行
+
 void process_AT_Command(const char *input)
 {
     AT_Command cmd = parse_AT_Command(input);
@@ -302,11 +302,11 @@ void process_AT_Command(const char *input)
     {
         if (strcasecmp(cmd.cmd, handler_table[i].cmd) == 0)
         {
-            handler_table[i].handler(&cmd); // 执行匹配的处理函数
+            handler_table[i].handler(&cmd);
             return;
         }
     }
-    am_util_stdio_printf("ERROR: Unknown command\n"); // 没有找到匹配的处理函数
+    am_util_stdio_printf("ERROR: Unknown command\n"); 
 }
 
 void get_all_commands()
@@ -321,32 +321,32 @@ void get_all_commands()
 
 void process_serial_input(char c)
 {
-    static char input[MAX_CMD_LEN + MAX_PARAM_LEN + 3]; // 存储输入的AT指令和参数（包括换行符）
+    static char input[MAX_CMD_LEN + MAX_PARAM_LEN + 3]; 
     static int i = 0;
 
     if (c == '\b')
     {
-        // 如果读到了退格符，就删除上一个字符
+        
         if (i > 0)
         {
             i--;
-            am_util_stdio_printf(" \b"); // 输出退格符和空格符以删除上一个字符
+            am_util_stdio_printf(" \b"); 
         }
         return;
     }
 
     if (i >= MAX_CMD_LEN + MAX_PARAM_LEN + 2)
     {
-        // 输入缓冲区已满，忽略后续字符
+       
         i = 0;
         am_util_stdio_printf("ERROR: Input buffer overflow\n");
         return;
     }
 
-    // 如果读到了换行符或回车符，就认为是一个AT指令
+   
     if (c == '\n' || c == '\r')
     {
-        input[i] = '\0'; // 加上字符串结束符
+        input[i] = '\0'; 
         if (strcasecmp(input, "AT?") == 0 || strcasecmp(input, "AT+HELP") == 0)
         {
             get_all_commands();
@@ -355,10 +355,10 @@ void process_serial_input(char c)
         {
             process_AT_Command(input);
         }
-        i = 0; // 重置计数器
+        i = 0; 
     }
     else
-    { // 如果还没达到最大长度，就将字符存入输入缓冲区
+    { 
         input[i] = c;
         i++;
     }

@@ -1,4 +1,4 @@
-#include "tx_rx_test.h"
+#include "lorawan_app.h"
 #include "am_mcu_apollo.h"
 #include "am_util.h"
 

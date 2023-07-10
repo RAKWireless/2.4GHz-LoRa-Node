@@ -582,14 +582,14 @@
               <FilePath>..\src\smtc_hal_mcu.c</FilePath>
             </File>
             <File>
-              <FileName>tx_rx_test.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\tx_rx_test.c</FilePath>
-            </File>
-            <File>
               <FileName>at_cmd.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\at_cmd.c</FilePath>
+            </File>
+            <File>
+              <FileName>lorawan_app.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\lorawan_app.c</FilePath>
             </File>
           </Files>
         </Group>
