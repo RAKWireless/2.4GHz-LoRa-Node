@@ -47,6 +47,8 @@ LoRaWAN_Params lora_params = {
     .dev_eui = USER_LORAWAN_DEVICE_EUI,
     .join_eui = USER_LORAWAN_JOIN_EUI,
     .app_key = USER_LORAWAN_APP_KEY,
+	  .class = 0,
+		.dr    = 0
 };
 						
 																			
@@ -69,15 +71,21 @@ void save_lora_params(void) {
      hal_flash_erase_page( ADDR_FLASH_AT_PARAM_CONTEXT, 1 );
 		 hal_flash_write_buffer(ADDR_FLASH_AT_PARAM_CONTEXT , (uint8_t *)&lora_params,sizeof(lora_params)); 
 	
-	uint8_t            stack_id = STACK_ID;
+	   uint8_t stack_id = STACK_ID;
 	
 		smtc_modem_set_deveui( stack_id, lora_params.dev_eui );
-     smtc_modem_set_joineui( stack_id, lora_params.join_eui );
+    smtc_modem_set_joineui( stack_id, lora_params.join_eui );
     smtc_modem_set_nwkkey( stack_id, lora_params.app_key );
 }
 
 void load_lora_params(void) {
     hal_flash_read_buffer(ADDR_FLASH_AT_PARAM_CONTEXT,(uint8_t *)&lora_params,sizeof(lora_params));
+	
+		if(lora_params.class == 255)
+		{
+			lora_params.class = 0;
+			lora_params.dr = 0;  
+		}
 }
 
 
@@ -100,11 +108,28 @@ static void get_event( void )
 						load_lora_params();
 
             // Set user credentials
-            smtc_modem_set_deveui( stack_id, lora_params.dev_eui );
-            smtc_modem_set_joineui( stack_id, lora_params.join_eui );
-            smtc_modem_set_nwkkey( stack_id, lora_params.app_key );
+       
             // Set user region
             smtc_modem_set_region( stack_id, MODEM_EXAMPLE_REGION );
+				
+//						if( modem_get_test_mode_status( ) == true )
+//						{
+//			         break;
+//						}
+//						
+						smtc_modem_set_deveui( stack_id, lora_params.dev_eui );
+            smtc_modem_set_joineui( stack_id, lora_params.join_eui );
+            smtc_modem_set_nwkkey( stack_id, lora_params.app_key );
+						
+//				    uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
+//				    memset(custom_datarate,lora_params.dr,SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
+//	          smtc_modem_adr_set_profile( STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate );
+//						
+//						uint8_t rc = smtc_modem_set_class( stack_id, lora_params.class );
+//						if( rc != SMTC_MODEM_RC_OK )
+//						{
+//								SMTC_HAL_TRACE_WARNING( "smtc_modem_set_class failed: rc=(%d)\n", rc );
+//						}
             // Schedule a Join LoRaWAN network
             //smtc_modem_join_network( stack_id );
             break;
@@ -206,5 +231,8 @@ void lorawan_init()
 		hal_mcu_init( ); 
 		smtc_modem_init( &modem_radio, &get_event );
 		hal_mcu_enable_irq( );
+		smtc_modem_set_region( STACK_ID, MODEM_EXAMPLE_REGION );
+	  smtc_modem_set_tx_power_offset_db( STACK_ID, 0 );
+
 }
 

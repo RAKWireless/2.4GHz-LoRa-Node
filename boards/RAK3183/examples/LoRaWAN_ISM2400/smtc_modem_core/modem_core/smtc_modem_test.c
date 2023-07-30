@@ -358,10 +358,14 @@ smtc_modem_return_code_t smtc_modem_test_tx( uint8_t* payload, uint8_t payload_l
         rp_radio_params.pkt_type = RAL_PKT_TYPE_LORA;
         rp_radio_params.tx.lora  = lora_param;
 
-        SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Tx - Freq:%u, Power:%d, sf:%u, bw:%u, cr:%u, length:%u\n", frequency_hz,
+  
+/* Remove printing so that the user cannot understand the conversion parameter */	
+       SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Tx - Freq:%u, Power:%d, sf:%u, bw:%u, cr:%u, length:%u\n", frequency_hz,
                                      tx_power_dbm, rp_radio_params.tx.lora.mod_params.sf, lora_param.mod_params.bw,
                                      lora_param.mod_params.cr, payload_length );
 
+//        SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Tx - Freq:%u\n", frequency_hz);
+   
         rp_task.type                  = RP_TASK_TYPE_TX_LORA;
         rp_task.launch_task_callbacks = lr1_stack_mac_tx_lora_launch_callback_for_rp;
         rp_task.duration_time_ms      = ral_get_lora_time_on_air_in_ms( &( modem_test_context.rp->radio->ral ),
@@ -543,12 +547,12 @@ smtc_modem_return_code_t smtc_modem_test_rx_continuous( uint32_t frequency_hz, s
         lora_param.sync_word       = smtc_real_get_sync_word( modem_test_context.lr1_mac_obj );
         lora_param.symb_nb_timeout = 0;
 
-        lora_param.pkt_params.preamble_len_in_symb =
+        lora_param.pkt_params.preamble_len_in_symb =   //daniel
             smtc_real_get_preamble_len( modem_test_context.lr1_mac_obj, modem_test_sf_convert[sf] );
         lora_param.pkt_params.header_type      = RAL_LORA_PKT_EXPLICIT;
         lora_param.pkt_params.pld_len_in_bytes = 255;
         lora_param.pkt_params.crc_is_on        = false;
-        lora_param.pkt_params.invert_iq_is_on  = true;
+        lora_param.pkt_params.invert_iq_is_on  = false;    //daniel
 
         lora_param.mod_params.sf   = ( ral_lora_sf_t ) modem_test_sf_convert[sf];
         lora_param.mod_params.bw   = ( ral_lora_bw_t ) modem_test_bw_convert[bw];
@@ -559,7 +563,9 @@ smtc_modem_return_code_t smtc_modem_test_rx_continuous( uint32_t frequency_hz, s
         rp_radio_params.rx.lora  = lora_param;
 
         SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Rx - Freq:%u, sf:%u, bw:%u, cr:%u\n", frequency_hz,
-                                     rp_radio_params.rx.lora.mod_params.sf, bw, cr );
+                                     rp_radio_params.rx.lora.mod_params.sf, rp_radio_params.rx.lora.mod_params.bw, rp_radio_params.rx.lora.mod_params.cr );
+//         SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Rx - Freq:%u\n",frequency_hz );
+        
 
         // Radio planner task config
         rp_task.type                  = RP_TASK_TYPE_RX_LORA;

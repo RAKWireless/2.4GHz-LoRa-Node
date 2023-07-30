@@ -251,14 +251,26 @@ bool smtc_modem_hal_get_crashlog_status( void )
 
 void smtc_modem_hal_assert_fail( uint8_t* func, uint32_t line )
 {
-    smtc_modem_hal_store_crashlog( ( uint8_t* ) func );
-    smtc_modem_hal_set_crashlog_status( true );
+//    smtc_modem_hal_store_crashlog( ( uint8_t* ) func );
+//    smtc_modem_hal_set_crashlog_status( true );
+//    smtc_modem_hal_print_trace(
+//        "\x1B[0;31m"  // red color
+//        "crash log :%s:%u\n"
+//        "\x1B[0m",  // revert default color
+//        func, line );
+//	  am_util_delay_ms(1000);
+
+   
     smtc_modem_hal_print_trace(
         "\x1B[0;31m"  // red color
-        "crash log :%s:%u\n"
+        "crash log :%s:%d\n"
         "\x1B[0m",  // revert default color
         func, line );
-    smtc_modem_hal_reset_mcu( );
+	  am_util_delay_ms(1000);	
+
+	
+    //smtc_modem_hal_reset_mcu( );
+	  while(1);
 }
 
 /* ------------ Random management ------------*/
