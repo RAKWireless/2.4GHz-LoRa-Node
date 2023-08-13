@@ -1033,7 +1033,6 @@ smtc_modem_return_code_t smtc_modem_set_class( uint8_t stack_id, smtc_modem_clas
         return SMTC_MODEM_RC_INVALID;
         break;
     }
-    set_modem_class( lorawan_class );
     return SMTC_MODEM_RC_OK;
 }
 

@@ -77,7 +77,7 @@ void hal_rtc_init( void )
  
   am_hal_ctimer_int_enable(AM_HAL_CTIMER_INT_TIMERA0C0);
 	
-	NVIC_SetPriority(UART0_IRQn,6);
+	NVIC_SetPriority(CTIMER_IRQn,0);
   NVIC_EnableIRQ(CTIMER_IRQn); 
 	
 	float milliseconds = 0.1 ;  //100us

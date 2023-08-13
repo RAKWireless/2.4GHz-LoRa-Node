@@ -103,21 +103,36 @@ void hal_lp_timer_init( void )
  
 }
 
-void hal_lp_timer_start( const uint32_t milliseconds, const hal_lp_timer_irq_t* tmr_irq )
+//void hal_lp_timer_start( const uint32_t milliseconds, const hal_lp_timer_irq_t* tmr_irq )
+//{
+//	  if(tmr_irq != NULL)
+//			my_tmr_irq = *tmr_irq;
+//	 
+//	 
+//	  uint32_t period =  ((float )milliseconds/1000) * 3000000;
+
+//	  am_hal_ctimer_period_set(0, AM_HAL_CTIMER_BOTH,period - 1 , 0);
+
+//    am_hal_ctimer_int_register(AM_HAL_CTIMER_INT_TIMERA0C0,test_timer0);
+//	
+//		NVIC_EnableIRQ(CTIMER_IRQn); 
+//	
+//	  am_hal_ctimer_start(0, AM_HAL_CTIMER_BOTH);
+//}
+
+void hal_lp_timer_start(const uint32_t milliseconds, const hal_lp_timer_irq_t* tmr_irq)
 {
-	  if(tmr_irq != NULL)
-			my_tmr_irq = *tmr_irq;
-	 
-	 
-	  uint32_t period =  ((float )milliseconds/1000) * 3000000;
+    if (tmr_irq != NULL)
+        my_tmr_irq = *tmr_irq;
 
-	  am_hal_ctimer_period_set(0, AM_HAL_CTIMER_BOTH,period - 1 , 0);
+    uint32_t period = (milliseconds * 3000) / 10 - 1;
 
-    am_hal_ctimer_int_register(AM_HAL_CTIMER_INT_TIMERA0C0,test_timer0);
-	
-		NVIC_EnableIRQ(CTIMER_IRQn); 
-	
-	  am_hal_ctimer_start(0, AM_HAL_CTIMER_BOTH);
+    am_hal_ctimer_int_register(AM_HAL_CTIMER_INT_TIMERA0C0, test_timer0);
+    NVIC_EnableIRQ(CTIMER_IRQn);
+
+    am_hal_ctimer_period_set(0, AM_HAL_CTIMER_BOTH, period, 0);
+
+    am_hal_ctimer_start(0, AM_HAL_CTIMER_BOTH);
 }
 
 void hal_lp_timer_stop( void )
@@ -141,17 +156,19 @@ void am_ctimer_isr(void)
 	
   // Clear TimerA0 Interrupt.
   uint32_t status = am_hal_ctimer_int_status_get(true);
-	if(status & AM_HAL_CTIMER_INT_TIMERA1)
-	{
-		am_hal_ctimer_int_clear(AM_HAL_CTIMER_INT_TIMERA1);
-		am_hal_ctimer_int_service(status & AM_HAL_CTIMER_INT_TIMERA1);
-	}
 	
 	if(status & AM_HAL_CTIMER_INT_TIMERA0)
 	{
 		 am_hal_ctimer_int_clear(AM_HAL_CTIMER_INT_TIMERA0);
 		 am_hal_ctimer_int_service(status & AM_HAL_CTIMER_INT_TIMERA0);
 	}
+	
+	if(status & AM_HAL_CTIMER_INT_TIMERA1)
+	{
+		am_hal_ctimer_int_clear(AM_HAL_CTIMER_INT_TIMERA1);
+		am_hal_ctimer_int_service(status & AM_HAL_CTIMER_INT_TIMERA1);
+	}
+
  
 }
 

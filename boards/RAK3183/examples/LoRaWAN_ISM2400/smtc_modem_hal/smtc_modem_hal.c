@@ -354,10 +354,10 @@ uint8_t smtc_modem_hal_get_voltage( void )
     return ( uint8_t )( measure_vref_mv / 20 );
 }
 
-int8_t smtc_modem_hal_get_board_delay_ms( void )
+int8_t smtc_modem_hal_get_board_delay_ms( void )   //daniel
 {
-    return 1;
-}
+    return (-20);   //This is an actual test value  £¬ very important
+} 
 
 /* ------------ Trace management ------------*/
 

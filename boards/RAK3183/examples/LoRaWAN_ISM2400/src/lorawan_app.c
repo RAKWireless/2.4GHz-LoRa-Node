@@ -72,10 +72,6 @@ void save_lora_params(void) {
 		 hal_flash_write_buffer(ADDR_FLASH_AT_PARAM_CONTEXT , (uint8_t *)&lora_params,sizeof(lora_params)); 
 	
 	   uint8_t stack_id = STACK_ID;
-	
-		smtc_modem_set_deveui( stack_id, lora_params.dev_eui );
-    smtc_modem_set_joineui( stack_id, lora_params.join_eui );
-    smtc_modem_set_nwkkey( stack_id, lora_params.app_key );
 }
 
 void load_lora_params(void) {
@@ -112,6 +108,7 @@ static void get_event( void )
             // Set user region
             smtc_modem_set_region( stack_id, MODEM_EXAMPLE_REGION );
 				
+						/* Not here, for unknown reasons */
 //						if( modem_get_test_mode_status( ) == true )
 //						{
 //			         break;
@@ -121,7 +118,8 @@ static void get_event( void )
             smtc_modem_set_joineui( stack_id, lora_params.join_eui );
             smtc_modem_set_nwkkey( stack_id, lora_params.app_key );
 						
-//				    uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
+			
+//				    uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};             
 //				    memset(custom_datarate,lora_params.dr,SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
 //	          smtc_modem_adr_set_profile( STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate );
 //						

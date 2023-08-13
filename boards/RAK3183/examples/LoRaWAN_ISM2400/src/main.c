@@ -106,7 +106,7 @@ const am_hal_uart_config_t g_sUartConfig =
         //
         // Standard UART settings: 115200-8-N-1
         //
-        .ui32BaudRate = 115200,
+        .ui32BaudRate = 921600,
         .ui32DataBits = AM_HAL_UART_DATA_BITS_8,
         .ui32Parity = AM_HAL_UART_PARITY_NONE,
         .ui32StopBits = AM_HAL_UART_ONE_STOP_BIT,
@@ -142,7 +142,7 @@ void am_uart_isr(void)
     am_hal_uart_interrupt_clear(phUART, ui32Status);
     am_hal_uart_interrupt_service(phUART, ui32Status, &ui32Idle);
 
-    am_hal_gpio_state_write(LED1, AM_HAL_GPIO_OUTPUT_TOGGLE);
+    //am_hal_gpio_state_write(LED1, AM_HAL_GPIO_OUTPUT_TOGGLE);
 }
 
 //*****************************************************************************
@@ -177,14 +177,14 @@ void uart_print(char *pcStr)
 
     CHECK_ERRORS(am_hal_uart_transfer(phUART, &sUartWrite));
 
-    if (ui32BytesWritten != ui32StrLen)
-    {
-        //
-        // Couldn't send the whole string!!
-        //
-        while (1)
-            ;
-    }
+//    if (ui32BytesWritten != ui32StrLen)
+//    {
+//        //
+//        // Couldn't send the whole string!!
+//        //
+//        while (1)
+//            ;
+//    }
 }
 
 void init_rak3183_led()

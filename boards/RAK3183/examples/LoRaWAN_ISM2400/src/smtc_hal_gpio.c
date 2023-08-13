@@ -181,7 +181,7 @@ void am_gpio_isr(void)
 	  
 	  if( ( gpio_irq[15] != NULL ) && ( gpio_irq[15]->callback != NULL ) )
     {
-			   //am_util_stdio_printf("am_gpio_isr\n");
+//			  am_util_stdio_printf("am_gpio_isr\n");
         gpio_irq[15]->callback( gpio_irq[15]->context );
     }
 	}

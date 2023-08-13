@@ -74,7 +74,7 @@ typedef struct
 
 void handle_version(const AT_Command *cmd)
 {
-    am_util_stdio_printf("Version: 1.0.1\n");
+    am_util_stdio_printf("Version: 1.0.2\n");
 }
 
 void handle_reset(const AT_Command *cmd)
@@ -113,6 +113,9 @@ void handle_deveui(const AT_Command *cmd)
         }
         am_util_stdio_printf("\n");
 				save_lora_params();
+				
+			  smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
+
     }
     else
     {
@@ -151,6 +154,9 @@ void handle_joineui(const AT_Command *cmd)
         }
         am_util_stdio_printf("\n");
 				save_lora_params();
+				
+        smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
+
     }
     else
     {
@@ -189,6 +195,9 @@ void handle_appkey(const AT_Command *cmd)
         }
         am_util_stdio_printf("\n");
 				save_lora_params();
+
+        smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
+				
     }
     else
     {
@@ -259,6 +268,7 @@ void handle_join(const AT_Command *cmd)
         return ;
     }
 	
+		/* This part is mainly to make up for the problem of power-on without initialization parameters, which cannot be placed in reset events for P2P reasons */
 		// pre join
 		uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
 		memset(custom_datarate,lora_params.dr,SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
@@ -269,6 +279,8 @@ void handle_join(const AT_Command *cmd)
 		{
 				SMTC_HAL_TRACE_WARNING( "smtc_modem_set_class failed: rc=(%d)\n", rc );
 		}
+		
+		/*  The main reason for blocking here is that setting the connection parameters while already connected to the network results in an error log */ 
 //    smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
 //    smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
 //    smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
@@ -297,7 +309,11 @@ void handle_class(const AT_Command *cmd)
           am_util_stdio_printf("Invalid parameter\n");
 					return;
         }
-			  smtc_modem_set_class( STACK_ID, lora_params.class );
+			  if(SMTC_MODEM_RC_OK != smtc_modem_set_class( STACK_ID, lora_params.class ))
+				{
+					 am_util_stdio_printf("ERROR\n");
+					 return ;
+				}
 				save_lora_params();
         am_util_stdio_printf("OK\n");
     }
