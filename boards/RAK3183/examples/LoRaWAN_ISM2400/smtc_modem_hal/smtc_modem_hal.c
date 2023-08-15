@@ -349,6 +349,7 @@ uint8_t smtc_modem_hal_get_voltage( void )
 //    hal_adc_init( );
 //    measure_vref_mv = hal_adc_get_vref_int( );
 //    hal_adc_deinit( );
+	
 
     // convert voltage from mv to cloud readable (1/50V = 20mv)
     return ( uint8_t )( measure_vref_mv / 20 );
@@ -356,7 +357,7 @@ uint8_t smtc_modem_hal_get_voltage( void )
 
 int8_t smtc_modem_hal_get_board_delay_ms( void )   //daniel
 {
-    return (-20);   //This is an actual test value  £¬ very important
+    return (-15);   //This is an actual test value  £¬ very important
 } 
 
 /* ------------ Trace management ------------*/
