@@ -1,5 +1,10 @@
 # Changelog  
 
+# [1.0.2_sensor] - 2023-8-29  
+## Added   
+Add a three-axis sensor, RAK1904, which automatically and continuously sends sensor data after join the network
+## Fixed  
+
 # [1.0.1] - 2023-7-30  
 ## Added   
 AT+CLASS - Set/Get class (0-CLASSA 2-CLASSC)

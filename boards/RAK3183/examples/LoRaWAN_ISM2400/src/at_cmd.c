@@ -74,7 +74,7 @@ typedef struct
 
 void handle_version(const AT_Command *cmd)
 {
-    am_util_stdio_printf("Version: 1.0.2\n");
+    am_util_stdio_printf("Version: 1.0.2_sensor\n");
 }
 
 void handle_reset(const AT_Command *cmd)
