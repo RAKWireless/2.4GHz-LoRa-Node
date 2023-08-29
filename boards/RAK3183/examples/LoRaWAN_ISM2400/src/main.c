@@ -56,6 +56,7 @@
 #include "smtc_hal_gpio.h"
 #include "smtc_hal_lp_timer.h"
 #include "smtc_hal_mcu.h"
+#include "i2c.h"
 
 #define LED1 44
 #define LED2 45
@@ -260,8 +261,10 @@ int main(void)
     am_util_stdio_terminal_clear();
 
     init_rak3183_led();
-
+		am_util_stdio_printf("Version: 1.0.2 LPP\n");
     lorawan_init();
+		
+		i2c_init();
 
     char character = 0;
 

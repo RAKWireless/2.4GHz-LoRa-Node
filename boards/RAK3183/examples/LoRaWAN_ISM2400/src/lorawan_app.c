@@ -18,10 +18,12 @@
 #include "smtc_modem_utilities.h"
 #include "smtc_hal_flash.h"
 
+#include "i2c.h"
 
 #define ADDR_FLASH_AT_PARAM_CONTEXT   (AM_HAL_FLASH_INSTANCE_SIZE + (4 * AM_HAL_FLASH_PAGE_SIZE))
+#define APP_TX_DUTYCYCLE              (7)
 
-
+void lis3dh_lpp_uplink(void);
 /**
  * @brief LoRaWAN User credentials
  */
@@ -101,50 +103,50 @@ static void get_event( void )
         {
         case SMTC_MODEM_EVENT_RESET:
             SMTC_HAL_TRACE_INFO( "Event received: RESET\n" );
+				    /*  */
 						load_lora_params();
 
-            // Set user credentials
-       
             // Set user region
             smtc_modem_set_region( stack_id, MODEM_EXAMPLE_REGION );
-				
-						/* Not here, for unknown reasons */
-//						if( modem_get_test_mode_status( ) == true )
-//						{
-//			         break;
-//						}
-//						
+									
 						smtc_modem_set_deveui( stack_id, lora_params.dev_eui );
-            smtc_modem_set_joineui( stack_id, lora_params.join_eui );
+            smtc_modem_set_joineui( stack_id,lora_params.join_eui );
             smtc_modem_set_nwkkey( stack_id, lora_params.app_key );
 						
-			
-//				    uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};             
-//				    memset(custom_datarate,lora_params.dr,SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
-//	          smtc_modem_adr_set_profile( STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate );
-//						
-//						uint8_t rc = smtc_modem_set_class( stack_id, lora_params.class );
-//						if( rc != SMTC_MODEM_RC_OK )
-//						{
-//								SMTC_HAL_TRACE_WARNING( "smtc_modem_set_class failed: rc=(%d)\n", rc );
-//						}
-            // Schedule a Join LoRaWAN network
-            //smtc_modem_join_network( stack_id );
+				
+			      //This code needs to be automatically connected to the network, so we need to set the parameters here, regardless of the test mode
+				    uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};             
+				    memset(custom_datarate,lora_params.dr,SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
+	          smtc_modem_adr_set_profile( STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate );
+						
+						uint8_t rc = smtc_modem_set_class( stack_id, lora_params.class );
+						if( rc != SMTC_MODEM_RC_OK )
+						{
+								SMTC_HAL_TRACE_WARNING( "smtc_modem_set_class failed: rc=(%d)\n", rc );
+						}
+						
+            //Schedule a Join LoRaWAN network
+            smtc_modem_join_network( stack_id );
             break;
 
         case SMTC_MODEM_EVENT_ALARM:
-            SMTC_HAL_TRACE_INFO( "Event received: ALARM\n" );
+//            SMTC_HAL_TRACE_INFO( "Event received: ALARM\n" );
+//				    smtc_modem_alarm_start_timer( APP_TX_DUTYCYCLE );
 
-            break;
 
         case SMTC_MODEM_EVENT_JOINED:
             SMTC_HAL_TRACE_INFO( "Event received: JOINED\n" );
             SMTC_HAL_TRACE_INFO( "Modem is now joined \n" );
+				
+						//smtc_modem_alarm_start_timer( APP_TX_DUTYCYCLE );
+				    lis3dh_lpp_uplink();
+				
             break;
 
         case SMTC_MODEM_EVENT_TXDONE:
             SMTC_HAL_TRACE_INFO( "Event received: TXDONE\n" );
             SMTC_HAL_TRACE_INFO( "Transmission done \n" );
+				    lis3dh_lpp_uplink();
             break;
 
         case SMTC_MODEM_EVENT_DOWNDATA:
@@ -178,6 +180,9 @@ static void get_event( void )
         case SMTC_MODEM_EVENT_JOINFAIL:
             SMTC_HAL_TRACE_INFO( "Event received: JOINFAIL\n" );
             SMTC_HAL_TRACE_WARNING( "Join request failed \n" );
+						/* Stop joining the network after failure */
+				    smtc_modem_leave_network(stack_id);
+				    
             break;
 
         case SMTC_MODEM_EVENT_TIME:
@@ -232,5 +237,24 @@ void lorawan_init()
 		smtc_modem_set_region( STACK_ID, MODEM_EXAMPLE_REGION );
 	  smtc_modem_set_tx_power_offset_db( STACK_ID, 0 );
 
+}
+
+void lis3dh_lpp_uplink()
+{
+		RAK1904_func();	
+		int8_t buffer[8]={0};
+		buffer[0] = 1;      //channel
+		buffer[1] = 0x71 ;  //LPP  
+				 
+		buffer[2] = (val[0])>>8;
+		buffer[3] =  val[0];
+		
+		buffer[4] = (val[1])>>8;
+		buffer[5] = (val[1]);
+		
+		buffer[6] = (val[2])>>8;
+		buffer[7] = (val[2]);
+			
+		smtc_modem_request_uplink( STACK_ID, 1, true, buffer, sizeof(buffer) ) ;
 }
 

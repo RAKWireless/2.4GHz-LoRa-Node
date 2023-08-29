@@ -239,7 +239,7 @@ int lr1mac_rx_fhdr_extract( uint8_t* rx_payload, uint8_t rx_payload_size, uint8_
     else
     {
         *rx_payload_empty = 1;
-        SMTC_MODEM_HAL_TRACE_MSG( " EMPTY MSG \n" );
+        SMTC_MODEM_HAL_TRACE_MSG( " EMPTY MSG \n" );  
     }
     /**************************/
     /* manage Fctrl Byte      */

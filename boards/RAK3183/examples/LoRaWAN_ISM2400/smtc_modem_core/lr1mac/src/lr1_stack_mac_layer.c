@@ -1013,7 +1013,7 @@ rx_packet_type_t lr1_stack_mac_rx_frame_decode( lr1_stack_mac_t* lr1_mac )
                                                          // if received on RX1 or RX2
     }
 
-    SMTC_MODEM_HAL_TRACE_PRINTF( " rx_packet_type = %d\n", rx_packet_type );
+    //SMTC_MODEM_HAL_TRACE_PRINTF( " rx_packet_type = %d\n", rx_packet_type );
     return ( rx_packet_type );
 }
 
@@ -1425,7 +1425,7 @@ status_lorawan_t lr1_stack_mac_join_accept( lr1_stack_mac_t* lr1_mac )
     SMTC_MODEM_HAL_TRACE_PRINTF( " MacRx1DataRateOffset= %d\n", lr1_mac->rx1_dr_offset );
     SMTC_MODEM_HAL_TRACE_PRINTF( " MacRx2DataRate= %d\n", lr1_mac->rx2_data_rate );
     SMTC_MODEM_HAL_TRACE_PRINTF( " MacRx1Delay= %d\n", lr1_mac->rx1_delay_s );
-    SMTC_MODEM_HAL_TRACE_MSG( " Save In Flash After Join succeed\n" );
+    SMTC_MODEM_HAL_TRACE_MSG( " Save In Flash After Join succeed\n" ); 
 
     return OKLORAWAN;
 }
