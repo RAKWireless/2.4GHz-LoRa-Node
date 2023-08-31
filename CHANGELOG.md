@@ -2,9 +2,8 @@
 
 # [1.0.2.2] - 2023-8-29  
 ## Added   
-- Add AT+INTERVAL=<second> ，Set sensor data uplink interval time
+- Add AT+INTERVAL，Set sensor data uplink interval time
 ## Fixed  
-
 
 # [1.0.2.1] - 2023-8-29  
 ## Added   
