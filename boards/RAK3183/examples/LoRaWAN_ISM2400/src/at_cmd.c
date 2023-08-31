@@ -74,7 +74,7 @@ typedef struct
 
 void handle_version(const AT_Command *cmd)
 {
-    am_util_stdio_printf("Version: 1.0.2_sensor\n");
+    am_util_stdio_printf("Version: 1.0.2.2\n");
 }
 
 void handle_reset(const AT_Command *cmd)
@@ -514,6 +514,29 @@ typedef struct
 
 
 
+void handle_sendinterval(const AT_Command *cmd)
+{	  
+	if (strcmp(cmd->params, "?") == 0)
+	{ 
+    am_util_stdio_printf("%u\n",lora_params.interval);
+		am_util_stdio_printf("OK\n");
+		return;
+  }
+  else if (strlen(cmd->params) == 1)
+  {
+				lora_params.interval = atoi(cmd->params);
+				save_lora_params();
+        am_util_stdio_printf("OK\n");
+		
+				if(lora_params.interval > 0)
+ 				smtc_modem_alarm_start_timer( lora_params.interval );
+  }
+  else
+  {
+        am_util_stdio_printf("Invalid parameter\n");
+  }
+}
+
 
 
 AT_HandlerTable handler_table[] = {
@@ -532,6 +555,7 @@ AT_HandlerTable handler_table[] = {
 		{"AT+TTX",handle_psend,"RF test tx,Example A+TTX=1122BBCC"},
 		{"AT+TRX",handle_trx,"RF test rx continuously receive mode"},
 		{"AT+TRXNOP",handle_trxnop,"RF test terminate an ongoing continuous rx mode"},
+		{"AT+INTERVAL",handle_sendinterval,"Set the interval for reporting sensor data"}
 };
 
 AT_Command parse_AT_Command(const char *input)

@@ -79,10 +79,11 @@ void save_lora_params(void) {
 void load_lora_params(void) {
     hal_flash_read_buffer(ADDR_FLASH_AT_PARAM_CONTEXT,(uint8_t *)&lora_params,sizeof(lora_params));
 	
-		if(lora_params.class == 255)
+		if(lora_params.class == 255 ||lora_params.interval == 0xFFFFFFFF )
 		{
 			lora_params.class = 0;
 			lora_params.dr = 0;  
+			lora_params.interval = 0;
 		}
 }
 
@@ -130,23 +131,27 @@ static void get_event( void )
             break;
 
         case SMTC_MODEM_EVENT_ALARM:
-//            SMTC_HAL_TRACE_INFO( "Event received: ALARM\n" );
-//				    smtc_modem_alarm_start_timer( APP_TX_DUTYCYCLE );
-
+            SMTC_HAL_TRACE_INFO( "Event received: ALARM\n" );
+				
+				    if(lora_params.interval > 0)
+ 				    smtc_modem_alarm_start_timer( lora_params.interval );
+  				  lis3dh_lpp_uplink();
+            break;
 
         case SMTC_MODEM_EVENT_JOINED:
             SMTC_HAL_TRACE_INFO( "Event received: JOINED\n" );
             SMTC_HAL_TRACE_INFO( "Modem is now joined \n" );
 				
-						//smtc_modem_alarm_start_timer( APP_TX_DUTYCYCLE );
-				    lis3dh_lpp_uplink();
+					  if(lora_params.interval > 0)
+						smtc_modem_alarm_start_timer( lora_params.interval  );
+				  
 				
             break;
 
         case SMTC_MODEM_EVENT_TXDONE:
             SMTC_HAL_TRACE_INFO( "Event received: TXDONE\n" );
             SMTC_HAL_TRACE_INFO( "Transmission done \n" );
-				    lis3dh_lpp_uplink();
+
             break;
 
         case SMTC_MODEM_EVENT_DOWNDATA:

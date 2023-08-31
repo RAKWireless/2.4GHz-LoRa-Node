@@ -8,6 +8,8 @@ typedef struct {
     uint8_t app_key[16];
 		uint8_t class;
 	  uint8_t dr;
+	  uint16_t temp;
+	  uint32_t interval;
 } LoRaWAN_Params;
 
 extern LoRaWAN_Params lora_params;
