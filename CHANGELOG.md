@@ -1,6 +1,12 @@
 # Changelog  
 
-# [1.0.2_sensor] - 2023-8-29  
+# [1.0.2.2] - 2023-8-29  
+## Added   
+- Add AT+INTERVAL=<second> ，Set sensor data uplink interval time
+## Fixed  
+
+
+# [1.0.2.1] - 2023-8-29  
 ## Added   
 - Add a three-axis sensor, RAK1904, which automatically and continuously sends sensor data after join the network
 - Fix classA downlink
