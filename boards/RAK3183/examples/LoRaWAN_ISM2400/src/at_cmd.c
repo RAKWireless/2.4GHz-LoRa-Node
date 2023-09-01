@@ -522,19 +522,15 @@ void handle_sendinterval(const AT_Command *cmd)
 		am_util_stdio_printf("OK\n");
 		return;
   }
-  else if (strlen(cmd->params) == 1)
-  {
-				lora_params.interval = atoi(cmd->params);
-				save_lora_params();
-        am_util_stdio_printf("OK\n");
+ 
+	lora_params.interval = atoi(cmd->params);
+	save_lora_params();
+  am_util_stdio_printf("OK\n");
 		
-				if(lora_params.interval > 0)
- 				smtc_modem_alarm_start_timer( lora_params.interval );
-  }
-  else
-  {
-        am_util_stdio_printf("Invalid parameter\n");
-  }
+	if(lora_params.interval > 0)
+ 	smtc_modem_alarm_start_timer( lora_params.interval );
+  
+  
 }
 
 

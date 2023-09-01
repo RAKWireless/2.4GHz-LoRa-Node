@@ -82,16 +82,11 @@ void i2c_init()
 	 RAK1904();
 }
 
-/*RAK1901*/
-/*地址0x70 0111 0000*/  
 
-/*RAK1904*/
-/*地址0x18*/ 
 
 void RAK1904(void)      
 {		
 	
-		
 	  uint16_t id;
 	  uint32_t pBuf[10]={0};
 		uint32_t offset = 0x0f;             
@@ -117,8 +112,6 @@ void RAK1904_func(void)
 }
 
 
-
-/* 可以参考的函数  这个size应该是不算offset和地址在里面的  注意这个offset是一个字节*/   
 void iom_slave_read_offset(uint32_t offset, uint32_t *pBuf, uint32_t size)
 {
 		int ret;
@@ -202,7 +195,7 @@ void iom_slave_write(uint32_t *pBuf, uint32_t size)
     am_hal_iom_transfer_t       Transaction;
 
     Transaction.ui32InstrLen    = 0;
-	  Transaction.ui32Instr       = 0;                    //没有这个0居然会异常 测试发现会没有时钟
+	  Transaction.ui32Instr       = 0;                    
     Transaction.eDirection      = AM_HAL_IOM_TX;
     Transaction.ui32NumBytes    = size;
     Transaction.pui32TxBuffer   = pBuf;
@@ -270,7 +263,7 @@ int32_t lis3dh_operating_mode_set(void)
 	uint32_t cmd;
   uint32_t offset = LIS3DH_CTRL_REG1;           
   iom_slave_read_offset(offset,&cmd,1);          
-	cmd &= ~0x08;                               //清0
+	cmd &= ~0x08;                               
 	iom_slave_write_offset(offset,&cmd,1);
 	
 	
@@ -305,21 +298,6 @@ int32_t lis3dh_full_scale_set(void)
 
 int32_t lis3dh_acceleration_raw_get()
 {
-//	am_util_stdio_printf("lis3dh acceleration raw get ");
-	
-//  int ret = 0;
-//	uint16_t id;
-//	uint32_t pbuf[2];
-//	uint16_t val[3];
-//  uint32_t offset = LIS3DH_OUT_X_L;           
-//  iom_slave_read_offset(offset,pbuf,6);    
-//	//先读到的是 XL XH YL YH ZL ZH 
-//	val[0] = (uint16_t)pbuf[0] ; //这是由apollo3 DMA特性决定的  x
-//  val[1] = (uint16_t)(pbuf[0]>>16) ; //这是由apollo3 DMA特性决定的	y
-//	val[2] = (uint16_t)pbuf[1] ; //这是由apollo3 DMA特性决定的	z
-//	am_util_stdio_printf("lis3dh acceleration raw x %d y %d z %d\n",val[0],val[1],val[2]);
-	  
-	
 	uint32_t offset = LIS3DH_OUT_X_L;  
 	uint32_t pbuf[2];
   iom_slave_read_offset(offset,pbuf,1);  
@@ -340,7 +318,7 @@ int32_t lis3dh_acceleration_raw_get()
   iom_slave_read_offset(offset,&pbuf[1],1);  
 	val[1] =( (pbuf[1]<<8) | (pbuf[0]) );
 	//am_util_stdio_printf("Y %d\n",val[1]);
-	val[1] = val[1]/16;   //除以16 而不是左移是因为符号位在最高位
+	val[1] = val[1]/16;   
 	
 	
   offset = LIS3DH_OUT_Z_L;  

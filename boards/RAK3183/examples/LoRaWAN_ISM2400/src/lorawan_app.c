@@ -232,7 +232,7 @@ static void get_event( void )
 void lorawan_init()
 {
 		SMTC_HAL_TRACE_INFO( "RAK LoRaWAN ISM2400 Example\n" );
-  	hal_spi_init(1,1,1,0);
+  	hal_spi_init(0,0,0,0);
 	  hal_rtc_init(  );
 	  hal_lp_timer_init();
 		hal_mcu_disable_irq( );   
