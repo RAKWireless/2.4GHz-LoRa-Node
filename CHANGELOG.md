@@ -1,6 +1,6 @@
 # Changelog  
 
-# [1.0.2.3] 2023-8-29  
+# [1.0.2.3] 2023-9-4  
 ## Added   
 - 1.Added the setting of timer compensation
 ## Fixed  
