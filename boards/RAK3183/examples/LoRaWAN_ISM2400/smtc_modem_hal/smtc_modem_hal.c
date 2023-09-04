@@ -355,7 +355,7 @@ uint8_t smtc_modem_hal_get_voltage( void )
     return ( uint8_t )( measure_vref_mv / 20 );
 }
 
-extern uint32_t board_delay_ms ;
+extern volatile int32_t board_delay_ms ;
 
 int8_t smtc_modem_hal_get_board_delay_ms( void )   //daniel
 {

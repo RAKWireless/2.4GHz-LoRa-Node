@@ -27,7 +27,7 @@
 #define MAX_CMD_LEN 40
 #define MAX_PARAM_LEN 256
 
-uint32_t board_delay_ms = -15;
+volatile int32_t board_delay_ms = 0;
 
 static uint32_t frequency_hz = 2402000000, tx_power_dbm = 10, sf = 1, bw = 3, cr = 0, preamble_size = 14;
 
@@ -507,7 +507,7 @@ void handle_compensation(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0)
     {
-        am_util_stdio_printf("%u\n", board_delay_ms);
+        am_util_stdio_printf("%d\n", board_delay_ms);
         am_util_stdio_printf("OK\n");
         return;
     }
