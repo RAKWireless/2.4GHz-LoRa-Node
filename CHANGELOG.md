@@ -1,5 +1,11 @@
 # Changelog  
 
+# [1.0.2.3] 2023-8-29  
+## Added   
+- 1.Added the setting of timer compensation
+## Fixed  
+- 1.Change the example join logic to prevent conflicts with p2p test mode
+
 # [1.0.2.2] - 2023-8-29  
 ## Added   
 - Add AT+INTERVAL，Set sensor data uplink interval time

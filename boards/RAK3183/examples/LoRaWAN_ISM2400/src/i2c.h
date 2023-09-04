@@ -11,5 +11,7 @@ void iom_slave_read(uint32_t *pBuf, uint32_t size);
 void iom_slave_write(uint32_t *pBuf, uint32_t size);
 
 extern int16_t val[3];   // x y z mg
+extern uint8_t lis3dh_initialized ;
+
 void RAK1904_func(void) ;
 #endif

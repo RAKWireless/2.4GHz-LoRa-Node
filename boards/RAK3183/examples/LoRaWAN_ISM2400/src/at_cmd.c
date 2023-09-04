@@ -4,7 +4,7 @@
 #include "lorawan_app.h"
 #include "am_mcu_apollo.h"
 #include "am_util.h"
-#include "stdlib.h" 
+#include "stdlib.h"
 
 #include "smtc_modem_api.h"
 #include "smtc_modem_utilities.h"
@@ -23,13 +23,13 @@
 
 #include "smtc_hal_mcu.h"
 
-
 #define STACK_ID 0
-#define MAX_CMD_LEN 40   
-#define MAX_PARAM_LEN 256 
+#define MAX_CMD_LEN 40
+#define MAX_PARAM_LEN 256
 
+uint32_t board_delay_ms = -15;
 
-static uint32_t frequency_hz=2402000000,tx_power_dbm=10,sf=1,bw=3,cr=0,preamble_size=14;
+static uint32_t frequency_hz = 2402000000, tx_power_dbm = 10, sf = 1, bw = 3, cr = 0, preamble_size = 14;
 
 static bool is_joined(void)
 {
@@ -64,31 +64,28 @@ int hex_string_to_bytes(const char *str, uint8_t *bytes, size_t len)
     return 0;
 }
 
-
 typedef struct
 {
-    char cmd[MAX_CMD_LEN + 1];     
-    char params[MAX_PARAM_LEN + 1]; 
+    char cmd[MAX_CMD_LEN + 1];
+    char params[MAX_PARAM_LEN + 1];
 } AT_Command;
-
 
 void handle_version(const AT_Command *cmd)
 {
-    am_util_stdio_printf("Version: 1.0.2.2\n");
+    am_util_stdio_printf("Version: 1.0.2.3\n");
 }
 
 void handle_reset(const AT_Command *cmd)
 {
     am_util_stdio_printf("Resetting...\n");
     NVIC_SystemReset();
-    
 }
 
 void handle_deveui(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0)
     {
-        
+
         int i;
         for (i = 0; i < 8; i++)
         {
@@ -98,7 +95,7 @@ void handle_deveui(const AT_Command *cmd)
     }
     else if (strlen(cmd->params) == 16)
     {
-        
+
         uint8_t bytes[8] = {0};
         if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
         {
@@ -112,24 +109,21 @@ void handle_deveui(const AT_Command *cmd)
             am_util_stdio_printf("%02X", lora_params.dev_eui[i]);
         }
         am_util_stdio_printf("\n");
-				save_lora_params();
-				
-			  smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
+        save_lora_params();
 
+        smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
     }
     else
     {
         am_util_stdio_printf("Invalid parameter\n");
     }
-
-    
 }
 
 void handle_joineui(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0)
     {
-        
+
         int i;
         for (i = 0; i < 8; i++)
         {
@@ -139,7 +133,7 @@ void handle_joineui(const AT_Command *cmd)
     }
     else if (strlen(cmd->params) == 16)
     {
-        
+
         uint8_t bytes[8] = {0};
         if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
         {
@@ -153,24 +147,21 @@ void handle_joineui(const AT_Command *cmd)
             am_util_stdio_printf("%02X", lora_params.join_eui[i]);
         }
         am_util_stdio_printf("\n");
-				save_lora_params();
-				
-        smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
+        save_lora_params();
 
+        smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
     }
     else
     {
         am_util_stdio_printf("Invalid parameter\n");
     }
-
-   
 }
 
 void handle_appkey(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0)
     {
-        
+
         int i;
         for (i = 0; i < 16; i++)
         {
@@ -180,7 +171,7 @@ void handle_appkey(const AT_Command *cmd)
     }
     else if (strlen(cmd->params) == 32)
     {
-        
+
         uint8_t bytes[16] = {0};
         if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
         {
@@ -194,17 +185,14 @@ void handle_appkey(const AT_Command *cmd)
             am_util_stdio_printf("%02X", lora_params.app_key[i]);
         }
         am_util_stdio_printf("\n");
-				save_lora_params();
+        save_lora_params();
 
         smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
-				
     }
     else
     {
         am_util_stdio_printf("Invalid parameter\n");
     }
-
-   
 }
 
 void handle_send(const AT_Command *cmd)
@@ -247,7 +235,6 @@ void handle_send(const AT_Command *cmd)
         am_util_stdio_printf("%02x ", hex_data[i]);
     }
     am_util_stdio_printf("\n");
-    
 
     if (is_joined() == true)
     {
@@ -262,59 +249,52 @@ void handle_send(const AT_Command *cmd)
 
 void handle_join(const AT_Command *cmd)
 {
-	  if( modem_get_test_mode_status( ) == true )
+    if (modem_get_test_mode_status() == true)
     {
-        am_util_stdio_printf( "In test mode, please reset to exit RF test mode.\n");
-        return ;
+        am_util_stdio_printf("In test mode, please reset to exit RF test mode.\n");
+        return;
     }
-	
-		/* This part is mainly to make up for the problem of power-on without initialization parameters, which cannot be placed in reset events for P2P reasons */
-		// pre join
-		uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
-		memset(custom_datarate,lora_params.dr,SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
-		smtc_modem_adr_set_profile( STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate );
-		
-		uint8_t rc = smtc_modem_set_class( STACK_ID, lora_params.class );
-		if( rc != SMTC_MODEM_RC_OK )
-		{
-				SMTC_HAL_TRACE_WARNING( "smtc_modem_set_class failed: rc=(%d)\n", rc );
-		}
-		
-		/*  The main reason for blocking here is that setting the connection parameters while already connected to the network results in an error log */ 
-//    smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
-//    smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
-//    smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
+
+    /* This part is mainly to make up for the problem of power-on without initialization parameters, which cannot be placed in reset events for P2P reasons */
+    // pre join
+    uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
+    memset(custom_datarate, lora_params.dr, SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
+    smtc_modem_adr_set_profile(STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate);
+
+    uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
+    if (rc != SMTC_MODEM_RC_OK)
+    {
+        SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\n", rc);
+    }
 
     smtc_modem_join_network(STACK_ID);
 }
-
-
 
 //    SMTC_MODEM_CLASS_A = 0x00,  //!< Modem class A
 //    SMTC_MODEM_CLASS_B = 0x01,  //!< Modem class B
 //    SMTC_MODEM_CLASS_C = 0x02,  //!< Modem class C
 void handle_class(const AT_Command *cmd)
 {
-		char* class_info[10] = {"A","B","C"};
-	  if (strcmp(cmd->params, "?") == 0)
-		{ 
-        am_util_stdio_printf("%d\n",lora_params.class);
+    char *class_info[10] = {"A", "B", "C"};
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\n", lora_params.class);
     }
     else if (strlen(cmd->params) == 1)
     {
-			
-				lora_params.class = atoi(cmd->params);
-				if (lora_params.class > 2)
-			  {
-          am_util_stdio_printf("Invalid parameter\n");
-					return;
+
+        lora_params.class = atoi(cmd->params);
+        if (lora_params.class > 2)
+        {
+            am_util_stdio_printf("Invalid parameter\n");
+            return;
         }
-			  if(SMTC_MODEM_RC_OK != smtc_modem_set_class( STACK_ID, lora_params.class ))
-				{
-					 am_util_stdio_printf("ERROR\n");
-					 return ;
-				}
-				save_lora_params();
+        if (SMTC_MODEM_RC_OK != smtc_modem_set_class(STACK_ID, lora_params.class))
+        {
+            am_util_stdio_printf("ERROR\n");
+            return;
+        }
+        save_lora_params();
         am_util_stdio_printf("OK\n");
     }
     else
@@ -323,10 +303,9 @@ void handle_class(const AT_Command *cmd)
     }
 }
 
-
 void handle_nwm(const AT_Command *cmd)
 {
-		smtc_modem_test_start();
+    smtc_modem_test_start();
 }
 
 /**
@@ -348,78 +327,78 @@ void handle_nwm(const AT_Command *cmd)
 
 void handle_p2p(const AT_Command *cmd)
 {
-	if (strcmp(cmd->params, "?") == 0)
-	{ 
-    am_util_stdio_printf("frequency_hz %u\n",frequency_hz);
-		am_util_stdio_printf("tx_power_dbm %d\n",tx_power_dbm);
-		am_util_stdio_printf("sf %d\n",sf);
-		am_util_stdio_printf("bw %d\n",bw);
-		am_util_stdio_printf("cr %d\n",cr);
-		am_util_stdio_printf("preamble_size %d\n",preamble_size);
-		am_util_stdio_printf("OK\n");
-		return;
-  }
-  if (sscanf(cmd->params, "%d:%d:%d:%d:%d:%d",&frequency_hz,&tx_power_dbm,&sf,&bw,&cr,&preamble_size) != 6)
-	{
-		am_util_stdio_printf("Invalid parameter\n");
-    return;
-	}
-	am_util_stdio_printf("OK\n");
-/*
-	  SMTC_MODEM_TEST_FSK = 0,        //!< FSK
-    SMTC_MODEM_TEST_LORA_SF5,       //!< SF5
-    SMTC_MODEM_TEST_LORA_SF6,       //!< SF6
-    SMTC_MODEM_TEST_LORA_SF7,       //!< SF7
-    SMTC_MODEM_TEST_LORA_SF8,       //!< SF8
-    SMTC_MODEM_TEST_LORA_SF9,       //!< SF9
-    SMTC_MODEM_TEST_LORA_SF10,      //!< SF10
-    SMTC_MODEM_TEST_LORA_SF11,      //!< SF11
-    SMTC_MODEM_TEST_LORA_SF12,      //!< SF12
-    SMTC_MODEM_TEST_LORA_SF_COUNT,  //!< Count
-*/
-	
-/*
-	  SMTC_MODEM_TEST_BW_125_KHZ = 0,   //!< BW125
-    SMTC_MODEM_TEST_BW_250_KHZ,   //!< BW250
-    SMTC_MODEM_TEST_BW_500_KHZ,   //!< BW500
-    SMTC_MODEM_TEST_BW_200_KHZ,   //!< BW200
-    SMTC_MODEM_TEST_BW_400_KHZ,   //!< BW400
-    SMTC_MODEM_TEST_BW_800_KHZ,   //!< BW800
-    SMTC_MODEM_TEST_BW_1600_KHZ,  //!< BW1600
-    SMTC_MODEM_TEST_BW_COUNT,     //!< Count
-		
-		SMTC_MODEM_TEST_BW_12M = 15,
-    SMTC_MODEM_TEST_BW_18M,
-    SMTC_MODEM_TEST_BW_24M,
-*/	
-
-/*
-	  SMTC_MODEM_TEST_CR_4_5 = 0,  //!< CR 4/5
-    SMTC_MODEM_TEST_CR_4_6,      //!< CR 4/6
-    SMTC_MODEM_TEST_CR_4_7,      //!< CR 4/7
-    SMTC_MODEM_TEST_CR_4_8,      //!< CR 4/8
-    SMTC_MODEM_TEST_CR_LI_4_5,   //!< CR 4/5 long interleaved
-    SMTC_MODEM_TEST_CR_LI_4_6,   //!< CR 4/6 long interleaved
-    SMTC_MODEM_TEST_CR_LI_4_8,   //!< CR 4/8 long interleaved
-    SMTC_MODEM_TEST_CR_COUNT,    //!< Count
-*/
-}
-
-void handle_psend(const AT_Command *cmd)
-{
-	if (strcmp(cmd->params, "?") == 0)
-	{ 
-     am_util_stdio_printf("Invalid parameter\n");
-  }
-  
-    char data[MAX_PARAM_LEN + 1];
-		if (sscanf(cmd->params,"%s",data) != 1)
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("frequency_hz %u\n", frequency_hz);
+        am_util_stdio_printf("tx_power_dbm %d\n", tx_power_dbm);
+        am_util_stdio_printf("sf %d\n", sf);
+        am_util_stdio_printf("bw %d\n", bw);
+        am_util_stdio_printf("cr %d\n", cr);
+        am_util_stdio_printf("preamble_size %d\n", preamble_size);
+        am_util_stdio_printf("OK\n");
+        return;
+    }
+    if (sscanf(cmd->params, "%d:%d:%d:%d:%d:%d", &frequency_hz, &tx_power_dbm, &sf, &bw, &cr, &preamble_size) != 6)
     {
         am_util_stdio_printf("Invalid parameter\n");
         return;
     }
-		size_t len = strlen(data);
-		if (len % 2 != 0)
+    am_util_stdio_printf("OK\n");
+    /*
+        SMTC_MODEM_TEST_FSK = 0,        //!< FSK
+        SMTC_MODEM_TEST_LORA_SF5,       //!< SF5
+        SMTC_MODEM_TEST_LORA_SF6,       //!< SF6
+        SMTC_MODEM_TEST_LORA_SF7,       //!< SF7
+        SMTC_MODEM_TEST_LORA_SF8,       //!< SF8
+        SMTC_MODEM_TEST_LORA_SF9,       //!< SF9
+        SMTC_MODEM_TEST_LORA_SF10,      //!< SF10
+        SMTC_MODEM_TEST_LORA_SF11,      //!< SF11
+        SMTC_MODEM_TEST_LORA_SF12,      //!< SF12
+        SMTC_MODEM_TEST_LORA_SF_COUNT,  //!< Count
+    */
+
+    /*
+        SMTC_MODEM_TEST_BW_125_KHZ = 0,   //!< BW125
+        SMTC_MODEM_TEST_BW_250_KHZ,   //!< BW250
+        SMTC_MODEM_TEST_BW_500_KHZ,   //!< BW500
+        SMTC_MODEM_TEST_BW_200_KHZ,   //!< BW200
+        SMTC_MODEM_TEST_BW_400_KHZ,   //!< BW400
+        SMTC_MODEM_TEST_BW_800_KHZ,   //!< BW800
+        SMTC_MODEM_TEST_BW_1600_KHZ,  //!< BW1600
+        SMTC_MODEM_TEST_BW_COUNT,     //!< Count
+
+        SMTC_MODEM_TEST_BW_12M = 15,
+        SMTC_MODEM_TEST_BW_18M,
+        SMTC_MODEM_TEST_BW_24M,
+    */
+
+    /*
+        SMTC_MODEM_TEST_CR_4_5 = 0,  //!< CR 4/5
+        SMTC_MODEM_TEST_CR_4_6,      //!< CR 4/6
+        SMTC_MODEM_TEST_CR_4_7,      //!< CR 4/7
+        SMTC_MODEM_TEST_CR_4_8,      //!< CR 4/8
+        SMTC_MODEM_TEST_CR_LI_4_5,   //!< CR 4/5 long interleaved
+        SMTC_MODEM_TEST_CR_LI_4_6,   //!< CR 4/6 long interleaved
+        SMTC_MODEM_TEST_CR_LI_4_8,   //!< CR 4/8 long interleaved
+        SMTC_MODEM_TEST_CR_COUNT,    //!< Count
+    */
+}
+
+void handle_psend(const AT_Command *cmd)
+{
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("Invalid parameter\n");
+    }
+
+    char data[MAX_PARAM_LEN + 1];
+    if (sscanf(cmd->params, "%s", data) != 1)
+    {
+        am_util_stdio_printf("Invalid parameter\n");
+        return;
+    }
+    size_t len = strlen(data);
+    if (len % 2 != 0)
     {
         am_util_stdio_printf("Invalid hex value\n");
         return;
@@ -442,98 +421,101 @@ void handle_psend(const AT_Command *cmd)
         am_util_stdio_printf("%02x ", hex_data[i]);
     }
     am_util_stdio_printf("\n");
-		
-		if( modem_get_test_mode_status( ) == false )
+
+    if (modem_get_test_mode_status() == false)
     {
-			smtc_modem_test_start();
+        smtc_modem_test_start();
     }
-    smtc_modem_test_tx( hex_data,count,frequency_hz,
-                        tx_power_dbm,  sf,  bw,
-                        cr,  preamble_size, false );
-		
-		am_util_stdio_printf("OK\n");
+    smtc_modem_test_tx(hex_data, count, frequency_hz,
+                       tx_power_dbm, sf, bw,
+                       cr, preamble_size, false);
+
+    am_util_stdio_printf("OK\n");
 }
 
-
-
 void handle_trx(const AT_Command *cmd)
-{	  
-	
-	  if( modem_get_test_mode_status( ) == false )
+{
+
+    if (modem_get_test_mode_status() == false)
     {
-			smtc_modem_test_start();
+        smtc_modem_test_start();
     }
-	  smtc_modem_test_rx_continuous( frequency_hz, sf, bw, cr  );
-		am_util_stdio_printf("OK\n");
+    smtc_modem_test_rx_continuous(frequency_hz, sf, bw, cr);
+    am_util_stdio_printf("OK\n");
 }
 
 void handle_trxnop(const AT_Command *cmd)
-{	  
-	smtc_modem_test_nop();
+{
+    smtc_modem_test_nop();
 }
-
 
 void handle_dr(const AT_Command *cmd)
-{	  
-	if (strcmp(cmd->params, "?") == 0)
-	{ 
-    am_util_stdio_printf("%d\n",lora_params.dr);
-		am_util_stdio_printf("OK\n");
-		return;
-  }
-  else if (strlen(cmd->params) == 1)
-  {
-				lora_params.dr = atoi(cmd->params);
-				if (lora_params.dr > 5)
-			  {
-          am_util_stdio_printf("Invalid parameter\n");
-					return;
-        }
-				uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
-				memset(custom_datarate,lora_params.dr,SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
-	      smtc_modem_adr_set_profile( STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate );
-				save_lora_params();
+{
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\n", lora_params.dr);
         am_util_stdio_printf("OK\n");
-  }
-  else
-  {
+        return;
+    }
+    else if (strlen(cmd->params) == 1)
+    {
+        lora_params.dr = atoi(cmd->params);
+        if (lora_params.dr > 5)
+        {
+            am_util_stdio_printf("Invalid parameter\n");
+            return;
+        }
+        uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
+        memset(custom_datarate, lora_params.dr, SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
+        smtc_modem_adr_set_profile(STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate);
+        save_lora_params();
+        am_util_stdio_printf("OK\n");
+    }
+    else
+    {
         am_util_stdio_printf("Invalid parameter\n");
-  }
+    }
 }
-
 
 typedef void (*AT_Handler)(const AT_Command *);
 
-
 typedef struct
 {
-    const char *cmd;    
-    AT_Handler handler; 
-    const char *help;   
+    const char *cmd;
+    AT_Handler handler;
+    const char *help;
 } AT_HandlerTable;
 
-
-
 void handle_sendinterval(const AT_Command *cmd)
-{	  
-	if (strcmp(cmd->params, "?") == 0)
-	{ 
-    am_util_stdio_printf("%u\n",lora_params.interval);
-		am_util_stdio_printf("OK\n");
-		return;
-  }
- 
-	lora_params.interval = atoi(cmd->params);
-	save_lora_params();
-  am_util_stdio_printf("OK\n");
-		
-	if(lora_params.interval > 0)
- 	smtc_modem_alarm_start_timer( lora_params.interval );
-  
-  
+{
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%u\n", lora_params.interval);
+        am_util_stdio_printf("OK\n");
+        return;
+    }
+
+    lora_params.interval = atoi(cmd->params);
+    save_lora_params();
+    am_util_stdio_printf("OK\n");
+
+    if (lora_params.interval > 0)
+        smtc_modem_alarm_start_timer(lora_params.interval);
 }
 
+void handle_compensation(const AT_Command *cmd)
+{
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%u\n", board_delay_ms);
+        am_util_stdio_printf("OK\n");
+        return;
+    }
 
+    board_delay_ms = atoi(cmd->params);
+    //save_lora_params();
+    am_util_stdio_printf("OK\n");
+}
 
 AT_HandlerTable handler_table[] = {
     {"AT+VERSION", handle_version, "Get firmware version"},
@@ -543,16 +525,17 @@ AT_HandlerTable handler_table[] = {
     {"AT+APPKEY", handle_appkey, "Set/Get application key"},
     {"AT+JOIN", handle_join, "Join network"},
     {"AT+SEND", handle_send, "Send data to server"},
-	  {"AT+CLASS", handle_class, "Set/Get class (0-CLASSA 2-CLASSC)"},
-		{"AT+DR", handle_dr, "Set/Get datarate (0-5)"},
-		{"AT+TCONF",handle_p2p,"Set/Get RF test config\nExample :\nAT+TCONF=2403000000:13:1:3:0:10 \nfrequency_hz 2403000000\ntx_power_dbm 13\nsf 1-8 SF5-SF12\nbw 3-BW200 4-BW400 5-BW-800 6-BW1600\n"
-		"cr 0-CR4/5 1-CR4/6 2-CR4/7 3-CR4/8\n"
-		"preamble_size 10\n"},
-		{"AT+TTX",handle_psend,"RF test tx,Example A+TTX=1122BBCC"},
-		{"AT+TRX",handle_trx,"RF test rx continuously receive mode"},
-		{"AT+TRXNOP",handle_trxnop,"RF test terminate an ongoing continuous rx mode"},
-		{"AT+INTERVAL",handle_sendinterval,"Set the interval for reporting sensor data"}
-};
+    {"AT+CLASS", handle_class, "Set/Get class (0-CLASSA 2-CLASSC)"},
+    {"AT+DR", handle_dr, "Set/Get datarate (0-5)"},
+    {"AT+TCONF", handle_p2p, "Set/Get RF test config\nExample :\nAT+TCONF=2403000000:13:1:3:0:10 \nfrequency_hz 2403000000\ntx_power_dbm 13\nsf 1-8 SF5-SF12\nbw 3-BW200 4-BW400 5-BW-800 6-BW1600\n"
+                             "cr 0-CR4/5 1-CR4/6 2-CR4/7 3-CR4/8\n"
+                             "preamble_size 10\n"},
+    {"AT+TTX", handle_psend, "RF test tx,Example AT+TTX=1122BBCC"},
+    {"AT+TRX", handle_trx, "RF test rx continuously receive mode"},
+    {"AT+TRXNOP", handle_trxnop, "RF test terminate an ongoing continuous rx mode"},
+    {"AT+INTERVAL", handle_sendinterval, "Set the interval for reporting sensor data"} ,
+    {"AT+COMPENSATION",handle_compensation, "Set the tiemr compensation"}
+    };
 
 AT_Command parse_AT_Command(const char *input)
 {
@@ -575,7 +558,6 @@ AT_Command parse_AT_Command(const char *input)
     return cmd;
 }
 
-
 void process_AT_Command(const char *input)
 {
     AT_Command cmd = parse_AT_Command(input);
@@ -588,7 +570,7 @@ void process_AT_Command(const char *input)
             return;
         }
     }
-    am_util_stdio_printf("ERROR: Unknown command\n"); 
+    am_util_stdio_printf("ERROR: Unknown command\n");
 }
 
 void get_all_commands()
@@ -603,32 +585,31 @@ void get_all_commands()
 
 void process_serial_input(char c)
 {
-    static char input[MAX_CMD_LEN + MAX_PARAM_LEN + 3]; 
+    static char input[MAX_CMD_LEN + MAX_PARAM_LEN + 3];
     static int i = 0;
 
     if (c == '\b')
     {
-        
+
         if (i > 0)
         {
             i--;
-            am_util_stdio_printf(" \b"); 
+            am_util_stdio_printf(" \b");
         }
         return;
     }
 
     if (i >= MAX_CMD_LEN + MAX_PARAM_LEN + 2)
     {
-       
+
         i = 0;
         am_util_stdio_printf("ERROR: Input buffer overflow\n");
         return;
     }
 
-   
     if (c == '\n' || c == '\r')
     {
-        input[i] = '\0'; 
+        input[i] = '\0';
         if (strcasecmp(input, "AT?") == 0 || strcasecmp(input, "AT+HELP") == 0)
         {
             get_all_commands();
@@ -637,10 +618,10 @@ void process_serial_input(char c)
         {
             process_AT_Command(input);
         }
-        i = 0; 
+        i = 0;
     }
     else
-    { 
+    {
         input[i] = c;
         i++;
     }
