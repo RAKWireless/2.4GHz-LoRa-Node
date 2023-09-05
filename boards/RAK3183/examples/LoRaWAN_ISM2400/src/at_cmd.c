@@ -103,7 +103,7 @@ void handle_deveui(const AT_Command *cmd)
             return;
         }
         memcpy(lora_params.dev_eui, bytes, sizeof(lora_params.dev_eui));
-        am_util_stdio_printf("DevEUI set to ");
+        am_util_stdio_printf("DEVEUI set to ");
         for (int i = 0; i < 8; i++)
         {
             am_util_stdio_printf("%02X", lora_params.dev_eui[i]);
@@ -141,7 +141,7 @@ void handle_joineui(const AT_Command *cmd)
             return;
         }
         memcpy(lora_params.join_eui, bytes, sizeof(lora_params.join_eui));
-        am_util_stdio_printf("DevEUI set to ");
+        am_util_stdio_printf("JOINEUI set to ");
         for (int i = 0; i < 8; i++)
         {
             am_util_stdio_printf("%02X", lora_params.join_eui[i]);
@@ -179,7 +179,7 @@ void handle_appkey(const AT_Command *cmd)
             return;
         }
         memcpy(lora_params.app_key, bytes, sizeof(lora_params.app_key));
-        am_util_stdio_printf("DevEUI set to ");
+        am_util_stdio_printf("APPKEY set to ");
         for (int i = 0; i < 16; i++)
         {
             am_util_stdio_printf("%02X", lora_params.app_key[i]);

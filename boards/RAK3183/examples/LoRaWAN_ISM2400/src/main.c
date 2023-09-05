@@ -217,6 +217,19 @@ int main(void)
     //
     // am_bsp_low_power_init();
 
+	  am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_XTAL_START, 0);
+
+    //
+    // Wait for 1 second for the 32KHz XTAL to startup and stabilize.
+    //
+    am_util_delay_ms(1000);
+		
+		//
+    // Enable HFADJ.
+    //
+    am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_HFADJ_ENABLE, 0);
+		
+		  
     //
     // Initialize the printf interface for UART output.
     //
