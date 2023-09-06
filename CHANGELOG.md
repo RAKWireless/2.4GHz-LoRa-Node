@@ -1,5 +1,9 @@
 # Changelog  
 
+# [1.0.2.4] 2023-9-7  
+## Added   
+- Increase the MCU crystal calibration, improve the stability of the system.  
+
 # [1.0.2.3] 2023-9-4  
 ## Added   
 - 1.Added the setting of timer compensation
