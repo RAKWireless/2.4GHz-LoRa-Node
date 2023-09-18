@@ -203,14 +203,14 @@ CFLAGS+= -O0
 CFLAGS+= $(DEFINES)
 CFLAGS+= $(INCLUDES)
 #CFLAGS+= -Wall
-#CFLAGS+= -specs=nano.specs -specs=nosys.specs
+#CFLAGS+= -specs=nosys.specs
 CFLAGS+= -w
 
 LFLAGS = -mthumb -mcpu=$(CPU) -mfpu=$(FPU) -mfloat-abi=$(FABI)
 LFLAGS+= -nostartfiles -static
 LFLAGS+= -Wl,--gc-sections,--entry,Reset_Handler,-Map,$(CONFIG)/$(TARGET).map
 LFLAGS+= -Wl,--start-group -lm -lc -lgcc $(LIBS) -Wl,--end-group
-LFLAGS+= -specs=nano.specs -specs=nosys.specs
+LFLAGS+= -specs=nosys.specs
 
 # Additional user specified CFLAGS
 CFLAGS+=$(EXTRA_CFLAGS)
