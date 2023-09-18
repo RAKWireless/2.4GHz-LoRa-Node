@@ -234,7 +234,6 @@ DEPS = $(CSRC:%.c=$(CONFIG)/%.d)
 DEPS+= $(ASRC:%.s=$(CONFIG)/%.d)
 
 LIBS = ../../../../../mcu/apollo3/hal/gcc/bin/libam_hal.a
-LIBS += ../../../bsp/gcc/bin/libam_bsp.a
 
 CFLAGS = -mthumb -mcpu=$(CPU) -mfpu=$(FPU) -mfloat-abi=$(FABI)
 CFLAGS+= -ffunction-sections -fdata-sections -fomit-frame-pointer
@@ -284,6 +283,8 @@ $(CONFIG)/$(TARGET).bin: $(CONFIG)/$(TARGET).axf
 	$(Q) $(CP) $(CPFLAGS) $< $@
 	$(Q) $(OD) $(ODFLAGS) $< > $(CONFIG)/$(TARGET).lst
 	$(Q) $(SIZE) $(OBJS) $(LIBS) $(CONFIG)/$(TARGET).axf >$(CONFIG)/$(TARGET).size
+	@echo " Copying $(COMPILERNAME) $(CONFIG)/$(TARGET).hex"
+	$(Q) $(CP) -O ihex $< $(CONFIG)/$(TARGET).hex
 
 clean:
 	@echo "Cleaning..."
@@ -296,8 +297,6 @@ $(CONFIG)/%.d: ;
 ../../../../../mcu/apollo3/hal/gcc/bin/libam_hal.a:
 	$(MAKE) -C ../../../../../mcu/apollo3/hal
 
-../../../bsp/gcc/bin/libam_bsp.a:
-	$(MAKE) -C ../../../bsp
 
 # Automatically include any generated dependencies
 -include $(DEPS)
