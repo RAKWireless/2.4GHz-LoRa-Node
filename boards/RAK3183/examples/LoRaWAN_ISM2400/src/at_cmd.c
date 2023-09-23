@@ -198,17 +198,12 @@ void handle_appkey(const AT_Command *cmd)
 void handle_send(const AT_Command *cmd)
 {
 
-    int port, confirm;
+    int port;
     char data[MAX_PARAM_LEN + 1];
-    if (sscanf(cmd->params, "%d:%d:%s", &port, &confirm, data) != 3)
+    if (sscanf(cmd->params, "%d:%s", &port, data) != 2)
     {
         am_util_stdio_printf("Invalid parameter\n");
         return;
-    }
-
-    if (confirm > 1)
-    {
-        am_util_stdio_printf("Invalid hex value\n");
     }
 
     size_t len = strlen(data);
@@ -229,7 +224,7 @@ void handle_send(const AT_Command *cmd)
         }
         hex_data[count++] = (unsigned char)hex_value;
     }
-    am_util_stdio_printf("Sending data on port %d confirm %d: ", port, confirm);
+    am_util_stdio_printf("Sending data on port %d", port);
     for (size_t i = 0; i < count; i++)
     {
         am_util_stdio_printf("%02x ", hex_data[i]);
@@ -239,7 +234,7 @@ void handle_send(const AT_Command *cmd)
     if (is_joined() == true)
     {
         uint8_t temperature = (uint8_t)smtc_modem_hal_get_temperature();
-        smtc_modem_request_uplink(STACK_ID, port, confirm, hex_data, count);
+        smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, hex_data, count);
     }
     else
     {
@@ -517,6 +512,36 @@ void handle_compensation(const AT_Command *cmd)
     am_util_stdio_printf("OK\n");
 }
 
+void handle_confirm(const AT_Command *cmd)
+{
+    uint8_t confirm = 0;
+
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\n", lora_params.confirm);
+        am_util_stdio_printf("OK\n");
+        return;
+    }
+    else if (strlen(cmd->params) == 1)
+    {
+        confirm = atoi(cmd->params);
+        if (confirm > 1)
+        {
+            am_util_stdio_printf("Invalid parameter\n");
+            return;
+        }
+        
+        lora_params.confirm = confirm;
+        save_lora_params();
+        am_util_stdio_printf("OK\n");
+    }
+    else
+    {
+        am_util_stdio_printf("Invalid parameter\n");
+    }
+}
+
+
 AT_HandlerTable handler_table[] = {
     {"AT+VERSION", handle_version, "Get firmware version"},
     {"AT+RESET", handle_reset, "Reset device"},
@@ -525,6 +550,7 @@ AT_HandlerTable handler_table[] = {
     {"AT+APPKEY", handle_appkey, "Set/Get application key"},
     {"AT+JOIN", handle_join, "Join network"},
     {"AT+SEND", handle_send, "Send data to server"},
+    {"AT+CFM", handle_confirm, "Set/Get comfirm mode"},
     {"AT+CLASS", handle_class, "Set/Get class (0-CLASSA 2-CLASSC)"},
     {"AT+DR", handle_dr, "Set/Get datarate (0-5)"},
     {"AT+TCONF", handle_p2p, "Set/Get RF test config\nExample :\nAT+TCONF=2403000000:13:1:3:0:10 \nfrequency_hz 2403000000\ntx_power_dbm 13\nsf 1-8 SF5-SF12\nbw 3-BW200 4-BW400 5-BW-800 6-BW1600\n"

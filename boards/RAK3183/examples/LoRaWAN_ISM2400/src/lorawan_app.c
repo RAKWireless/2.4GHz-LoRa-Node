@@ -57,7 +57,8 @@ LoRaWAN_Params lora_params = {
     .join_eui = USER_LORAWAN_JOIN_EUI,
     .app_key = USER_LORAWAN_APP_KEY,
     .class = 0,
-    .dr = 0};
+    .dr = 0,
+    .confirm = 1};
 
 uint8_t rx_payload_size;
 uint8_t rx_payload[256];
