@@ -809,7 +809,7 @@ AT_HandlerTable handler_table[] = {
     {"AT+CLASS", handle_class, "Set/Get class (0-CLASSA 2-CLASSC)"},
     {"AT+DR", handle_dr, "Set/Get datarate (0-5)"},
     {"AT+RETY", handle_rety, "Set/Get the number of retransmissions of Confirm packet data (1-15)"},
-    {"AT+TXP", handle_tx_power, "get or set the transmitting power"},
+    //{"AT+TXP", handle_tx_power, "get or set the transmitting power"},
 
     {"AT+TCONF", handle_p2p, "Set/Get RF test config\r\nExample :\r\nAT+TCONF=2403000000:13:1:3:0:10 \r\nfrequency_hz 2403000000\r\ntx_power_dbm 13\r\nsf 1-8 SF5-SF12\r\nbw 3-BW200 4-BW400 5-BW-800 6-BW1600\r\n"
                              "cr 0-CR4/5 1-CR4/6 2-CR4/7 3-CR4/8\r\n"
@@ -818,7 +818,7 @@ AT_HandlerTable handler_table[] = {
     {"AT+TRX", handle_trx, "RF test rx continuously receive mode"},
     {"AT+TRXNOP", handle_trxnop, "RF test terminate an ongoing continuous rx mode"},
     {"AT+INTERVAL", handle_sendinterval, "Set the interval for reporting sensor data"} ,
-    {"AT+TEST",handle_test,"Test command"}
+    //{"AT+TEST",handle_test,"Test command"}
     //{"AT+COMPENSATION",handle_compensation, "Set the tiemr compensation"}
     };
 

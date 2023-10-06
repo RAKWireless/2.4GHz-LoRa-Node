@@ -1,5 +1,19 @@
 # Changelog  
 
+# [1.0.3] 2023-10-6  
+## Added   
+- AT+HWMODEL Get the string of the hardware mode
+- AT+HWID  Get the string of the hardware ID
+- AT+NJM Get or set the network join mode (0 = ABP, 1 = OTAA)
+- AT+DEVADDR Get or set the device address (4 bytes in hex)
+- AT+NWKSKEY Get or set the network session key (16 bytes in hex)
+- AT+APPSKEY Get or set the application session key (16 bytes in hex)
+- AT+NJS Get the join status (0 = not joined, 1 = joined),
+- AT+CFM Set/Get comfirm mode
+- AT+CFS Get the confirmation status of the last AT+SEND (0 = failure, 1 = success)
+- AT+RETY Set/Get the number of retransmissions of Confirm packet data (1-15)
+
+
 # [1.0.2.4] 2023-9-7  
 ## Added   
 - Increase the MCU crystal calibration, improve the stability of the system.  
