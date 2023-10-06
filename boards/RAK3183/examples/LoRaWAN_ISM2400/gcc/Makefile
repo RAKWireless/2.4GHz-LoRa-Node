@@ -150,6 +150,8 @@ SRC += smtc_hal_mcu.c
 SRC += at_cmd.c
 SRC += lorawan_app.c
 SRC += i2c.c
+SRC += rak1904.c
+SRC += rak1901.c
 
 SRC += ral_sx128x_bsp.c
 SRC += sx128x_hal.c
