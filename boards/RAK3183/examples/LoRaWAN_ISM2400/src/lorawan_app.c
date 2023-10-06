@@ -17,8 +17,10 @@
 #include "smtc_modem_test_api.h"
 #include "smtc_modem_utilities.h"
 #include "smtc_hal_flash.h"
+#include "lr1mac_defs.h"
 
 #include "i2c.h"
+#include "at_cmd.h"
 
 #define ADDR_FLASH_AT_PARAM_CONTEXT (AM_HAL_FLASH_INSTANCE_SIZE + (4 * AM_HAL_FLASH_PAGE_SIZE))
 #define APP_TX_DUTYCYCLE (7)
@@ -38,7 +40,19 @@ void lis3dh_lpp_uplink(void);
 #define USER_LORAWAN_APP_KEY                               \
     {                                                      \
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    \
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
+    }
+
+#define USER_LORAWAN_NWKSKEY                               \
+    {                                                      \
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    \
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
+    }
+
+#define USER_LORAWAN_APPSKEY                               \
+    {                                                      \
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    \
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
     }
 
 #define MODEM_EXAMPLE_REGION SMTC_MODEM_REGION_WW2G4
@@ -49,16 +63,21 @@ void lis3dh_lpp_uplink(void);
 #define STACK_ID 0
 
 /**
- * @brief Stack credentials
+ * @brief Stack credentials  default parameters
  */
-
 LoRaWAN_Params lora_params = {
     .dev_eui = USER_LORAWAN_DEVICE_EUI,
     .join_eui = USER_LORAWAN_JOIN_EUI,
     .app_key = USER_LORAWAN_APP_KEY,
+    .devaddr = 0,
+    .appskey = USER_LORAWAN_APPSKEY,
+    .nwkskey = USER_LORAWAN_NWKSKEY,
     .class = 0,
     .dr = 0,
-    .confirm = 1};
+    .confirm = 1,
+    .retry = 1,
+    .join_mode = 0,
+};
 
 uint8_t rx_payload_size;
 uint8_t rx_payload[256];
@@ -86,11 +105,15 @@ void load_lora_params(void)
 {
     hal_flash_read_buffer(ADDR_FLASH_AT_PARAM_CONTEXT, (uint8_t *)&lora_params, sizeof(lora_params));
 
-    if (lora_params.class == 255 || lora_params.interval == 0xFFFFFFFF)
+    if (lora_params.join_mode == 0xFF)
     {
+        /* Setting default parameters  todo: adding the crc parameter */
+        lora_params.devaddr = 0;
         lora_params.class = 0;
         lora_params.dr = 0;
-        lora_params.interval = 0;
+        lora_params.confirm = 1;
+        lora_params.retry = 1;
+        lora_params.join_mode = 0;
     }
 }
 
@@ -110,15 +133,7 @@ static void get_event(void)
         {
         case SMTC_MODEM_EVENT_RESET:
             SMTC_HAL_TRACE_INFO("Event received: RESET\n");
-            /*  */
-            load_lora_params();
-
-            // Set user region
-            smtc_modem_set_region(stack_id, MODEM_EXAMPLE_REGION);
-
-            smtc_modem_set_deveui(stack_id, lora_params.dev_eui);
-            smtc_modem_set_joineui(stack_id, lora_params.join_eui);
-            smtc_modem_set_nwkkey(stack_id, lora_params.app_key);
+            /* If you add a parameter initialization here, the test mode won't work */
 
             // This code needs to be automatically connected to the network, so we need to set the parameters here, regardless of the test mode
             // uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
@@ -164,7 +179,12 @@ static void get_event(void)
             memcpy(rx_payload, current_event.event_data.downdata.data, rx_payload_size);
             SMTC_HAL_TRACE_PRINTF("Data received on port %u\n", current_event.event_data.downdata.fport);
             SMTC_HAL_TRACE_ARRAY("Received payload", rx_payload, rx_payload_size);
-            break;
+
+            /* Not necessarily accurate */
+            if(rx_payload_size == 0)
+            {
+                g_confirm_status = 1;
+            }
 
         case SMTC_MODEM_EVENT_UPLOADDONE:
             SMTC_HAL_TRACE_INFO("Event received: UPLOADDONE\n");
@@ -245,6 +265,43 @@ void lorawan_init()
     hal_mcu_enable_irq();
     smtc_modem_set_region(STACK_ID, MODEM_EXAMPLE_REGION);
     smtc_modem_set_tx_power_offset_db(STACK_ID, 0);
+
+    load_lora_params();
+
+    smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
+    smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
+    smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
+
+    lorawan_api_set_activation_mode(lora_params.join_mode);
+
+    /* ABP mode */
+    if(lora_params.join_mode == 1)
+    {
+        int ret ;
+        SMTC_HAL_TRACE_INFO("ABP mode\r\n");
+        lorawan_api_devaddr_set(lora_params.devaddr);
+        ret = smtc_modem_crypto_set_key(SMTC_SE_NWK_S_ENC_KEY,lora_params.nwkskey);
+        if(ret)
+        {
+            SMTC_HAL_TRACE_ERROR("SMTC_SE_NWK_S_ENC_KEY ERROR\r\n");
+        }
+        ret = smtc_modem_crypto_set_key(SMTC_SE_APP_S_KEY,lora_params.appskey);
+        if(ret)
+        {
+            SMTC_HAL_TRACE_ERROR("SMTC_SE_APP_S_KEY ERROR\r\n");
+        }
+    }
+
+    uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
+    if (rc != SMTC_MODEM_RC_OK)
+    {
+        SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\n", rc);
+    }
+
+    lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);
+    smtc_modem_set_nb_trans(STACK_ID,lora_params.retry);
+    
+            
 }
 
 void lis3dh_lpp_uplink()

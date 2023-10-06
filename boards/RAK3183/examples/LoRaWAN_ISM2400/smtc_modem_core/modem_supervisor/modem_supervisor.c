@@ -384,7 +384,7 @@ void modem_supervisor_launch_task( task_id_t id )
     }
 
     case DM_TASK:
-        if( get_join_state( ) == MODEM_JOINED )
+        /*if( get_join_state( ) == MODEM_JOINED )
         {
             if( lorawan_api_modem_certification_is_enabled( ) == true )
             {
@@ -460,6 +460,7 @@ void modem_supervisor_launch_task( task_id_t id )
                 }
             }
         }
+        */
         break;
     case DM_TASK_NOW:
         if( get_join_state( ) == MODEM_JOINED )

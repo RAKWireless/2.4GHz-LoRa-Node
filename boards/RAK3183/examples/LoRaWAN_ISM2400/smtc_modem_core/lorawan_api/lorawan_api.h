@@ -268,6 +268,7 @@ uint32_t lorawan_api_next_max_payload_length_get( void );
  */
 uint32_t lorawan_api_devaddr_get( void );
 
+uint32_t lorawan_api_devaddr_set(uint32_t dev_addr );
 /**
  * @brief Get the DevEUI of the device
  *

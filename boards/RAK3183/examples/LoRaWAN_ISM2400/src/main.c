@@ -224,7 +224,7 @@ int main(void)
     //
     am_util_delay_ms(1000);
 		
-		//
+	//
     // Enable HFADJ.
     //
     am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_HFADJ_ENABLE, 0);
@@ -275,8 +275,7 @@ int main(void)
 
     init_rak3183_led();
     lorawan_init();
-		
-		i2c_init();
+	i2c_init();
 
     char character = 0;
 

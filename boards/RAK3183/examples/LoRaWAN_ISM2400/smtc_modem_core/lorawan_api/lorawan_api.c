@@ -360,6 +360,12 @@ uint32_t lorawan_api_devaddr_get( void )
     return lr1mac_core_devaddr_get( &lr1_mac_obj );
 }
 
+/* set devaddr  2023/10/6 Daniel*/
+uint32_t lorawan_api_devaddr_set(uint32_t dev_addr )
+{
+    lr1_mac_obj.dev_addr = dev_addr;
+}
+
 status_lorawan_t lorawan_api_get_deveui( uint8_t* dev_eui )
 {
     status_lorawan_t rc = OKLORAWAN;

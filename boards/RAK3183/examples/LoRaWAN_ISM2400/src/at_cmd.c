@@ -22,14 +22,12 @@
 #include "smtc_modem_utilities.h"
 
 #include "smtc_hal_mcu.h"
-
-#define STACK_ID 0
-#define MAX_CMD_LEN 40
-#define MAX_PARAM_LEN 256
+#include "lr1mac_defs.h"
 
 volatile int32_t board_delay_ms = 0;
-
 static uint32_t frequency_hz = 2402000000, tx_power_dbm = 10, sf = 1, bw = 3, cr = 0, preamble_size = 14;
+uint32_t g_confirm_status = 0;
+
 
 static bool is_joined(void)
 {
@@ -43,6 +41,22 @@ static bool is_joined(void)
     {
         return false;
     }
+}
+
+void handle_join_status(const AT_Command *cmd)
+{
+    uint8_t status ;
+    status = is_joined();
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\r\n",status);
+        am_util_stdio_printf("OK\r\n");
+    }
+    else
+    {
+        am_util_stdio_printf("AT_ERROR\r\n");
+    }
+
 }
 
 int hex_string_to_bytes(const char *str, uint8_t *bytes, size_t len)
@@ -64,22 +78,32 @@ int hex_string_to_bytes(const char *str, uint8_t *bytes, size_t len)
     return 0;
 }
 
-typedef struct
-{
-    char cmd[MAX_CMD_LEN + 1];
-    char params[MAX_PARAM_LEN + 1];
-} AT_Command;
 
 void handle_version(const AT_Command *cmd)
 {
-    am_util_stdio_printf("Version: 1.0.2.3\n");
+    am_util_stdio_printf("%s\r\n",VERSION);
+    am_util_stdio_printf("OK\r\n");
 }
 
 void handle_reset(const AT_Command *cmd)
 {
-    am_util_stdio_printf("Resetting...\n");
+    am_util_stdio_printf("Resetting...\r\n");
     NVIC_SystemReset();
 }
+
+
+void handle_hwmodel(const AT_Command *cmd)
+{
+    am_util_stdio_printf("rak3183\r\n");
+    am_util_stdio_printf("OK\r\n");
+}
+
+void handle_hwid(const AT_Command *cmd)
+{
+    am_util_stdio_printf("apollo3 blue\r\n");
+    am_util_stdio_printf("OK\r\nn");
+}
+
 
 void handle_deveui(const AT_Command *cmd)
 {
@@ -91,7 +115,8 @@ void handle_deveui(const AT_Command *cmd)
         {
             am_util_stdio_printf("%02X", lora_params.dev_eui[i]);
         }
-        am_util_stdio_printf("\n");
+        am_util_stdio_printf("\r\n");
+        am_util_stdio_printf("OK\r\n");
     }
     else if (strlen(cmd->params) == 16)
     {
@@ -99,23 +124,19 @@ void handle_deveui(const AT_Command *cmd)
         uint8_t bytes[8] = {0};
         if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
         {
-            am_util_stdio_printf("Invalid parameter\n");
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
             return;
         }
         memcpy(lora_params.dev_eui, bytes, sizeof(lora_params.dev_eui));
-        am_util_stdio_printf("DEVEUI set to ");
-        for (int i = 0; i < 8; i++)
-        {
-            am_util_stdio_printf("%02X", lora_params.dev_eui[i]);
-        }
-        am_util_stdio_printf("\n");
+   
+        am_util_stdio_printf("OK\r\n");
         save_lora_params();
 
         smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
     }
     else
     {
-        am_util_stdio_printf("Invalid parameter\n");
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
     }
 }
 
@@ -129,7 +150,8 @@ void handle_joineui(const AT_Command *cmd)
         {
             am_util_stdio_printf("%02X", lora_params.join_eui[i]);
         }
-        am_util_stdio_printf("\n");
+        am_util_stdio_printf("\r\n");
+        am_util_stdio_printf("OK\r\n");
     }
     else if (strlen(cmd->params) == 16)
     {
@@ -137,23 +159,19 @@ void handle_joineui(const AT_Command *cmd)
         uint8_t bytes[8] = {0};
         if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
         {
-            am_util_stdio_printf("Invalid parameter\n");
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
             return;
         }
         memcpy(lora_params.join_eui, bytes, sizeof(lora_params.join_eui));
-        am_util_stdio_printf("JOINEUI set to ");
-        for (int i = 0; i < 8; i++)
-        {
-            am_util_stdio_printf("%02X", lora_params.join_eui[i]);
-        }
-        am_util_stdio_printf("\n");
+
+        am_util_stdio_printf("\r\nOK\r\n");
         save_lora_params();
 
         smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
     }
     else
     {
-        am_util_stdio_printf("Invalid parameter\n");
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
     }
 }
 
@@ -167,7 +185,8 @@ void handle_appkey(const AT_Command *cmd)
         {
             am_util_stdio_printf("%02X", lora_params.app_key[i]);
         }
-        am_util_stdio_printf("\n");
+        am_util_stdio_printf("\r\n");
+        am_util_stdio_printf("OK\r\n");
     }
     else if (strlen(cmd->params) == 32)
     {
@@ -175,23 +194,18 @@ void handle_appkey(const AT_Command *cmd)
         uint8_t bytes[16] = {0};
         if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
         {
-            am_util_stdio_printf("Invalid parameter\n");
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
             return;
         }
         memcpy(lora_params.app_key, bytes, sizeof(lora_params.app_key));
-        am_util_stdio_printf("APPKEY set to ");
-        for (int i = 0; i < 16; i++)
-        {
-            am_util_stdio_printf("%02X", lora_params.app_key[i]);
-        }
-        am_util_stdio_printf("\n");
+        am_util_stdio_printf("OK\r\n");
         save_lora_params();
 
         smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
     }
     else
     {
-        am_util_stdio_printf("Invalid parameter\n");
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
     }
 }
 
@@ -202,14 +216,15 @@ void handle_send(const AT_Command *cmd)
     char data[MAX_PARAM_LEN + 1];
     if (sscanf(cmd->params, "%d:%s", &port, data) != 2)
     {
-        am_util_stdio_printf("Invalid parameter\n");
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
         return;
     }
 
     size_t len = strlen(data);
     if (len % 2 != 0)
     {
-        am_util_stdio_printf("Invalid hex value\n");
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        am_util_stdio_printf("Invalid hex value\r\n");
         return;
     }
     unsigned char hex_data[256];
@@ -219,49 +234,70 @@ void handle_send(const AT_Command *cmd)
         unsigned int hex_value;
         if (sscanf(data + i, "%02x", &hex_value) != 1)
         {
-            am_util_stdio_printf("Failed to parse hex value\n");
+            am_util_stdio_printf("Failed to parse hex value\r\n");
             return;
         }
         hex_data[count++] = (unsigned char)hex_value;
     }
-    am_util_stdio_printf("Sending data on port %d", port);
-    for (size_t i = 0; i < count; i++)
-    {
-        am_util_stdio_printf("%02x ", hex_data[i]);
-    }
-    am_util_stdio_printf("\n");
+    //am_util_stdio_printf("Sending data on port %d", port);
+    // for (size_t i = 0; i < count; i++)
+    // {
+    //     am_util_stdio_printf("%02x ", hex_data[i]);
+    // }
+    // am_util_stdio_printf("\r\n");
 
-    if (is_joined() == true)
+    if (lorawan_api_get_activation_mode() == ACTIVATION_MODE_OTAA)
     {
-        uint8_t temperature = (uint8_t)smtc_modem_hal_get_temperature();
-        smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, hex_data, count);
+        if (is_joined() == true)
+        {
+            g_confirm_status = 0;
+            smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, hex_data, count);
+            am_util_stdio_printf("OK\r\n");
+        }
+        else
+        {
+            am_util_stdio_printf("Device not joined to the network\r\n");
+        }
     }
     else
     {
-        am_util_stdio_printf("Device not joined to the network\n");
+        smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, hex_data, count);
+        am_util_stdio_printf("OK\r\n");
     }
+}
+
+void handle_tx_power(const AT_Command *cmd)
+{
+
 }
 
 void handle_join(const AT_Command *cmd)
 {
     if (modem_get_test_mode_status() == true)
     {
-        am_util_stdio_printf("In test mode, please reset to exit RF test mode.\n");
+        am_util_stdio_printf("In test mode, please reset to exit RF test mode.\r\n");
         return;
     }
 
     /* This part is mainly to make up for the problem of power-on without initialization parameters, which cannot be placed in reset events for P2P reasons */
     // pre join
-    uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
-    memset(custom_datarate, lora_params.dr, SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
-    smtc_modem_adr_set_profile(STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate);
 
-    uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
-    if (rc != SMTC_MODEM_RC_OK)
-    {
-        SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\n", rc);
-    }
+    // uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
+    // memset(custom_datarate, lora_params.dr, SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
+    // smtc_modem_adr_set_profile(STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate);
 
+    /* to do */ 
+    //lorawan_api_dr_custom_set(custom_datarate);
+
+    // uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
+    // if (rc != SMTC_MODEM_RC_OK)
+    // {
+    //     SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\r\n", rc);
+    // }
+
+    //smtc_modem_set_nb_trans(STACK_ID,lora_params.retry);
+
+    am_util_stdio_printf("OK\r\n");
     smtc_modem_join_network(STACK_ID);
 }
 
@@ -270,10 +306,10 @@ void handle_join(const AT_Command *cmd)
 //    SMTC_MODEM_CLASS_C = 0x02,  //!< Modem class C
 void handle_class(const AT_Command *cmd)
 {
-    char *class_info[10] = {"A", "B", "C"};
     if (strcmp(cmd->params, "?") == 0)
     {
-        am_util_stdio_printf("%d\n", lora_params.class);
+        am_util_stdio_printf("%d\r\n", lora_params.class);
+        am_util_stdio_printf("OK\r\n");
     }
     else if (strlen(cmd->params) == 1)
     {
@@ -281,20 +317,21 @@ void handle_class(const AT_Command *cmd)
         lora_params.class = atoi(cmd->params);
         if (lora_params.class > 2)
         {
-            am_util_stdio_printf("Invalid parameter\n");
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
             return;
         }
         if (SMTC_MODEM_RC_OK != smtc_modem_set_class(STACK_ID, lora_params.class))
         {
-            am_util_stdio_printf("ERROR\n");
+            am_util_stdio_printf("AT_ERROR\r\n");
             return;
         }
         save_lora_params();
-        am_util_stdio_printf("OK\n");
+        am_util_stdio_printf("OK\r\n");
+        return;
     }
     else
     {
-        am_util_stdio_printf("Invalid parameter\n");
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
     }
 }
 
@@ -324,21 +361,21 @@ void handle_p2p(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0)
     {
-        am_util_stdio_printf("frequency_hz %u\n", frequency_hz);
-        am_util_stdio_printf("tx_power_dbm %d\n", tx_power_dbm);
-        am_util_stdio_printf("sf %d\n", sf);
-        am_util_stdio_printf("bw %d\n", bw);
-        am_util_stdio_printf("cr %d\n", cr);
-        am_util_stdio_printf("preamble_size %d\n", preamble_size);
-        am_util_stdio_printf("OK\n");
+        am_util_stdio_printf("frequency_hz %u\r\n", frequency_hz);
+        am_util_stdio_printf("tx_power_dbm %d\r\n", tx_power_dbm);
+        am_util_stdio_printf("sf %d\r\n", sf);
+        am_util_stdio_printf("bw %d\r\n", bw);
+        am_util_stdio_printf("cr %d\r\n", cr);
+        am_util_stdio_printf("preamble_size %d\r\n", preamble_size);
+        am_util_stdio_printf("OK\r\n");
         return;
     }
     if (sscanf(cmd->params, "%d:%d:%d:%d:%d:%d", &frequency_hz, &tx_power_dbm, &sf, &bw, &cr, &preamble_size) != 6)
     {
-        am_util_stdio_printf("Invalid parameter\n");
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
         return;
     }
-    am_util_stdio_printf("OK\n");
+    am_util_stdio_printf("OK\r\n");
     /*
         SMTC_MODEM_TEST_FSK = 0,        //!< FSK
         SMTC_MODEM_TEST_LORA_SF5,       //!< SF5
@@ -383,19 +420,19 @@ void handle_psend(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0)
     {
-        am_util_stdio_printf("Invalid parameter\n");
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
     }
 
     char data[MAX_PARAM_LEN + 1];
     if (sscanf(cmd->params, "%s", data) != 1)
     {
-        am_util_stdio_printf("Invalid parameter\n");
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
         return;
     }
     size_t len = strlen(data);
     if (len % 2 != 0)
     {
-        am_util_stdio_printf("Invalid hex value\n");
+        am_util_stdio_printf("Invalid hex value\r\n");
         return;
     }
     unsigned char hex_data[256];
@@ -405,7 +442,7 @@ void handle_psend(const AT_Command *cmd)
         unsigned int hex_value;
         if (sscanf(data + i, "%02x", &hex_value) != 1)
         {
-            am_util_stdio_printf("Failed to parse hex value\n");
+            am_util_stdio_printf("Failed to parse hex value\r\n");
             return;
         }
         hex_data[count++] = (unsigned char)hex_value;
@@ -415,7 +452,7 @@ void handle_psend(const AT_Command *cmd)
     {
         am_util_stdio_printf("%02x ", hex_data[i]);
     }
-    am_util_stdio_printf("\n");
+    am_util_stdio_printf("\r\n");
 
     if (modem_get_test_mode_status() == false)
     {
@@ -425,7 +462,7 @@ void handle_psend(const AT_Command *cmd)
                        tx_power_dbm, sf, bw,
                        cr, preamble_size, false);
 
-    am_util_stdio_printf("OK\n");
+    am_util_stdio_printf("OK\r\n");
 }
 
 void handle_trx(const AT_Command *cmd)
@@ -436,7 +473,7 @@ void handle_trx(const AT_Command *cmd)
         smtc_modem_test_start();
     }
     smtc_modem_test_rx_continuous(frequency_hz, sf, bw, cr);
-    am_util_stdio_printf("OK\n");
+    am_util_stdio_printf("OK\r\n");
 }
 
 void handle_trxnop(const AT_Command *cmd)
@@ -448,8 +485,8 @@ void handle_dr(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0)
     {
-        am_util_stdio_printf("%d\n", lora_params.dr);
-        am_util_stdio_printf("OK\n");
+        am_util_stdio_printf("%d\r\n", lora_params.dr);
+        am_util_stdio_printf("OK\r\n");
         return;
     }
     else if (strlen(cmd->params) == 1)
@@ -457,18 +494,18 @@ void handle_dr(const AT_Command *cmd)
         lora_params.dr = atoi(cmd->params);
         if (lora_params.dr > 5)
         {
-            am_util_stdio_printf("Invalid parameter\n");
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
             return;
         }
         uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
         memset(custom_datarate, lora_params.dr, SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
         smtc_modem_adr_set_profile(STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate);
         save_lora_params();
-        am_util_stdio_printf("OK\n");
+        am_util_stdio_printf("OK\r\n");
     }
     else
     {
-        am_util_stdio_printf("Invalid parameter\n");
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
     }
 }
 
@@ -485,14 +522,14 @@ void handle_sendinterval(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0)
     {
-        am_util_stdio_printf("%u\n", lora_params.interval);
-        am_util_stdio_printf("OK\n");
+        am_util_stdio_printf("%u\r\n", lora_params.interval);
+        am_util_stdio_printf("OK\r\n");
         return;
     }
 
     lora_params.interval = atoi(cmd->params);
     save_lora_params();
-    am_util_stdio_printf("OK\n");
+    am_util_stdio_printf("OK\r\n");
 
     if (lora_params.interval > 0)
         smtc_modem_alarm_start_timer(lora_params.interval);
@@ -502,14 +539,28 @@ void handle_compensation(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0)
     {
-        am_util_stdio_printf("%d\n", board_delay_ms);
-        am_util_stdio_printf("OK\n");
+        am_util_stdio_printf("%d\r\n", board_delay_ms);
+        am_util_stdio_printf("OK\r\n");
         return;
     }
 
     board_delay_ms = atoi(cmd->params);
     //save_lora_params();
-    am_util_stdio_printf("OK\n");
+    am_util_stdio_printf("OK\r\n");
+}
+
+void handle_confirm_status(const AT_Command *cmd)
+{
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\r\n", g_confirm_status);
+        am_util_stdio_printf("OK\r\n");
+        return;
+    }
+    else
+    {
+        am_util_stdio_printf("AT_ERROR\r\n");
+    }
 }
 
 void handle_confirm(const AT_Command *cmd)
@@ -518,8 +569,8 @@ void handle_confirm(const AT_Command *cmd)
 
     if (strcmp(cmd->params, "?") == 0)
     {
-        am_util_stdio_printf("%d\n", lora_params.confirm);
-        am_util_stdio_printf("OK\n");
+        am_util_stdio_printf("%d\r\n", lora_params.confirm);
+        am_util_stdio_printf("OK\r\n");
         return;
     }
     else if (strlen(cmd->params) == 1)
@@ -527,40 +578,248 @@ void handle_confirm(const AT_Command *cmd)
         confirm = atoi(cmd->params);
         if (confirm > 1)
         {
-            am_util_stdio_printf("Invalid parameter\n");
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
             return;
         }
         
         lora_params.confirm = confirm;
         save_lora_params();
-        am_util_stdio_printf("OK\n");
+        am_util_stdio_printf("OK\r\n");
     }
     else
     {
-        am_util_stdio_printf("Invalid parameter\n");
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
     }
 }
 
 
+void handle_test(const AT_Command *cmd)
+{
+    am_util_stdio_printf("AT_Command\r\n");
+    am_util_stdio_printf("cmd->cmd %s\r\n",cmd->cmd);
+    am_util_stdio_printf("cmd->params %s\r\n",cmd->params);
+    am_util_stdio_printf("cmd->argc %d\r\n",cmd->argc);
+    
+    for(int i=0 ; i < cmd->argc ;i++)
+    {
+        am_util_stdio_printf("cmd->argv[%d] : %s\r\n",i,cmd->argv[i]);
+    }
+
+    am_util_stdio_printf("OK\r\n");
+    return;
+}
+
+void handle_njm(const AT_Command *cmd)
+{
+    uint8_t mode = 0;
+
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\r\n", lora_params.join_mode);
+        am_util_stdio_printf("OK\r\n");
+        return;
+    }
+    else if (strlen(cmd->params) < 2) /* It is more appropriate to determine the number of parameters instead */
+    {
+        mode = atoi(cmd->params);
+
+        if (mode > 1)
+        {
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return;
+        }
+
+        lorawan_api_set_activation_mode( mode );
+        
+        
+        lora_params.join_mode = mode;
+        save_lora_params();
+        am_util_stdio_printf("OK\r\n");
+    }
+    else
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+    }
+    return ;
+}
+
+
+void handle_devaddr(const AT_Command *cmd)
+{
+    uint32_t devaddr =0;
+
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%08X\r\n", lora_params.devaddr);
+        am_util_stdio_printf("OK\r\n");
+        return;
+    }
+    else if(strlen(cmd->params) == 8)
+    {
+        if (sscanf(cmd->params, "%8X", &devaddr) != 1)
+        {
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return; 
+        }
+        else
+        {
+            lora_params.devaddr = devaddr;
+            lorawan_api_devaddr_set(devaddr);
+            save_lora_params();
+            am_util_stdio_printf("OK\r\n");
+            return;
+        }
+    }
+    else
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return;
+    }
+ 
+}
+
+void handle_rety(const AT_Command *cmd)
+{
+    uint8_t retry = 0;
+    smtc_modem_return_code_t ret;
+
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\r\n", lora_params.retry);
+        am_util_stdio_printf("OK\r\n");
+        return;
+    }
+    else if (strlen(cmd->params) < 3) /* It is more appropriate to determine the number of parameters instead */
+    {
+        retry = atoi(cmd->params);
+
+        if (retry > 16 || retry < 0 )
+        {
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return;
+        }
+
+        lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);
+        
+        ret = smtc_modem_set_nb_trans(0,retry);
+        if(ret != 0)
+        {
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return;
+        }
+        
+        lora_params.retry = retry;
+        save_lora_params();
+        am_util_stdio_printf("OK\r\n");
+    }
+    else
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+    }
+    return ;
+}
+
+void handle_nwkskey(const AT_Command *cmd)
+{
+    if (strcmp(cmd->params, "?") == 0)
+    {
+
+        int i;
+        for (i = 0; i < 16; i++)
+        {
+            am_util_stdio_printf("%02X", lora_params.nwkskey[i]);
+        }
+        am_util_stdio_printf("\r\n");
+        am_util_stdio_printf("OK\r\n");
+    }
+    else if (strlen(cmd->params) == 32)
+    {
+
+        uint8_t bytes[16] = {0};
+        if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
+        {
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return;
+        }
+        memcpy(lora_params.nwkskey, bytes, sizeof(lora_params.nwkskey));
+        am_util_stdio_printf("OK\r\n");
+        save_lora_params();
+
+        smtc_modem_crypto_set_key(SMTC_SE_NWK_S_ENC_KEY,lora_params.nwkskey);
+        
+    }
+    else
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+    }
+}
+
+void handle_appskey(const AT_Command *cmd)
+{
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        int i;
+        for (i = 0; i < 16; i++)
+        {
+            am_util_stdio_printf("%02X", lora_params.appskey[i]);
+        }
+        am_util_stdio_printf("\r\n");
+        am_util_stdio_printf("OK\r\n");
+    }
+    else if (strlen(cmd->params) == 32)
+    {
+
+        uint8_t bytes[16] = {0};
+        if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
+        {
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return;
+        }
+        memcpy(lora_params.appskey, bytes, sizeof(lora_params.appskey));
+        am_util_stdio_printf("OK\r\n");
+        save_lora_params();
+
+        smtc_modem_crypto_set_key(SMTC_SE_APP_S_KEY,lora_params.appskey);
+    }
+    else
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+    }
+}
+
 AT_HandlerTable handler_table[] = {
-    {"AT+VERSION", handle_version, "Get firmware version"},
-    {"AT+RESET", handle_reset, "Reset device"},
+
+    {"ATZ", handle_reset, "Reset device"},
+    {"AT+VER", handle_version, "Get firmware version"},
+    {"AT+HWMODEL", handle_hwmodel, "Get the string of the hardware model"},
+    {"AT+HWID", handle_hwid, "Get the string of the hardware ID"},
+    
     {"AT+DEVEUI", handle_deveui, "Set/Get device EUI"},
     {"AT+JOINEUI", handle_joineui, "Set/Get join EUI"},
     {"AT+APPKEY", handle_appkey, "Set/Get application key"},
+    {"AT+DEVADDR", handle_devaddr, "Get or set the device address (4 bytes in hex)"},
+    {"AT+NWKSKEY", handle_nwkskey, "Get or set the network session key (16 bytes in hex)"},
+    {"AT+APPSKEY", handle_appskey, "Get or set the application session key (16 bytes in hex)"},
+    {"AT+NJM", handle_njm, "get or set the network join mode (0 = ABP, 1 = OTAA)"},
     {"AT+JOIN", handle_join, "Join network"},
+    {"AT+NJS", handle_join_status, "get the join status (0 = not joined, 1 = joined)"},
     {"AT+SEND", handle_send, "Send data to server"},
     {"AT+CFM", handle_confirm, "Set/Get comfirm mode"},
+    {"AT+CFS", handle_confirm_status, "Get the confirmation status of the last AT+SEND (0 = failure, 1 = success)"},
     {"AT+CLASS", handle_class, "Set/Get class (0-CLASSA 2-CLASSC)"},
     {"AT+DR", handle_dr, "Set/Get datarate (0-5)"},
-    {"AT+TCONF", handle_p2p, "Set/Get RF test config\nExample :\nAT+TCONF=2403000000:13:1:3:0:10 \nfrequency_hz 2403000000\ntx_power_dbm 13\nsf 1-8 SF5-SF12\nbw 3-BW200 4-BW400 5-BW-800 6-BW1600\n"
-                             "cr 0-CR4/5 1-CR4/6 2-CR4/7 3-CR4/8\n"
-                             "preamble_size 10\n"},
+    {"AT+RETY", handle_rety, "Set/Get the number of retransmissions of Confirm packet data (1-15)"},
+    {"AT+TXP", handle_tx_power, "get or set the transmitting power"},
+
+    {"AT+TCONF", handle_p2p, "Set/Get RF test config\r\nExample :\r\nAT+TCONF=2403000000:13:1:3:0:10 \r\nfrequency_hz 2403000000\r\ntx_power_dbm 13\r\nsf 1-8 SF5-SF12\r\nbw 3-BW200 4-BW400 5-BW-800 6-BW1600\r\n"
+                             "cr 0-CR4/5 1-CR4/6 2-CR4/7 3-CR4/8\r\n"
+                             "preamble_size 10\r\n"},
     {"AT+TTX", handle_psend, "RF test tx,Example AT+TTX=1122BBCC"},
     {"AT+TRX", handle_trx, "RF test rx continuously receive mode"},
     {"AT+TRXNOP", handle_trxnop, "RF test terminate an ongoing continuous rx mode"},
     {"AT+INTERVAL", handle_sendinterval, "Set the interval for reporting sensor data"} ,
-    {"AT+COMPENSATION",handle_compensation, "Set the tiemr compensation"}
+    {"AT+TEST",handle_test,"Test command"}
+    //{"AT+COMPENSATION",handle_compensation, "Set the tiemr compensation"}
     };
 
 AT_Command parse_AT_Command(const char *input)
@@ -570,17 +829,41 @@ AT_Command parse_AT_Command(const char *input)
     if (eq_pos != NULL)
     {
         size_t cmd_len = eq_pos - input;
+        /* Gets the length of the argument */
         size_t params_len = strlen(eq_pos + 1);
         memcpy(cmd.cmd, input, cmd_len);
         memcpy(cmd.params, eq_pos + 1, params_len);
         cmd.cmd[cmd_len] = '\0';
         cmd.params[params_len] = '\0';
+
+        //am_util_stdio_printf("cmd_len %d params_len %d\r\n",cmd_len,params_len);
+
+        // cmd.argc = 0;
+        // char params_copy[MAX_PARAM_LEN]; 
+        // strcpy(params_copy, cmd.params);
+        // char *token = strtok(params_copy, ":");
+        // am_util_stdio_printf("1token %s\r\n",token);
+
+        // token = strtok(NULL, ":");
+        // am_util_stdio_printf("2token %s\r\n",token);
+        /* If not: The first time is to return the whole string */
+        //
+        //{
+            // while (token != NULL && cmd.argc < MAX_ARGV_SIZE) {
+            // strcpy(cmd.argv[cmd.argc], token);
+            // cmd.argc++;
+            // token = strtok(NULL, ":");
+            // am_util_stdio_printf("token %s\r\n",token);
+            //}  
+        //}
     }
     else
     {
+        /* Without the = sign, the whole string is copied */
         strcpy(cmd.cmd, input);
         cmd.params[0] = '\0';
     }
+
     return cmd;
 }
 
@@ -596,16 +879,16 @@ void process_AT_Command(const char *input)
             return;
         }
     }
-    am_util_stdio_printf("ERROR: Unknown command\n");
+    am_util_stdio_printf("AT_ERROR\r\n");
 }
 
 void get_all_commands()
 {
-    am_util_stdio_printf("Available AT commands:\n");
+    am_util_stdio_printf("Available AT commands:\r\n");
     int num_handlers = sizeof(handler_table) / sizeof(handler_table[0]);
     for (int i = 0; i < num_handlers; i++)
     {
-        am_util_stdio_printf("%s - %s\n", handler_table[i].cmd, handler_table[i].help);
+        am_util_stdio_printf("%s - %s\r\n", handler_table[i].cmd, handler_table[i].help);
     }
 }
 
@@ -614,9 +897,9 @@ void process_serial_input(char c)
     static char input[MAX_CMD_LEN + MAX_PARAM_LEN + 3];
     static int i = 0;
 
+    /* backspace */
     if (c == '\b')
     {
-
         if (i > 0)
         {
             i--;
@@ -629,7 +912,7 @@ void process_serial_input(char c)
     {
 
         i = 0;
-        am_util_stdio_printf("ERROR: Input buffer overflow\n");
+        am_util_stdio_printf("ERROR: Input buffer overflow\r\n");
         return;
     }
 

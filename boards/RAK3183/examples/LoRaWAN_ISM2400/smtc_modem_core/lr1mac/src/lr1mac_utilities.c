@@ -46,6 +46,8 @@
 #include "smtc_modem_hal.h"
 #include "smtc_modem_hal_dbg_trace.h"
 
+#include "at_cmd.h"
+
 void memcpy1( uint8_t* dst, const uint8_t* src, uint16_t size )
 {
     while( size-- )
@@ -240,6 +242,7 @@ int lr1mac_rx_fhdr_extract( uint8_t* rx_payload, uint8_t rx_payload_size, uint8_
     {
         *rx_payload_empty = 1;
         SMTC_MODEM_HAL_TRACE_MSG( " EMPTY MSG \n" );  
+        g_confirm_status = 1;
     }
     /**************************/
     /* manage Fctrl Byte      */

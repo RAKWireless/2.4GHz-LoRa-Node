@@ -262,7 +262,7 @@ void lr1_stack_mac_tx_lora_launch_callback_for_rp( void* rp_void )
     // At this time only tcxo startup delay is remaining
     smtc_modem_hal_start_radio_tcxo( );
     smtc_modem_hal_assert( ral_set_tx( &( rp->radio->ral ) ) == RAL_STATUS_OK );
-    rp_stats_set_tx_timestamp( &rp->stats, smtc_modem_hal_get_time_in_ms( )); //daniel    ÐèÒª¼ÓÉÏËðºÄµÄÊ±¼ä
+    rp_stats_set_tx_timestamp( &rp->stats, smtc_modem_hal_get_time_in_ms( )); //daniel    ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½Ê±ï¿½ï¿½
 }
 
 void lr1_stack_mac_tx_gfsk_launch_callback_for_rp( void* rp_void )
@@ -274,7 +274,7 @@ void lr1_stack_mac_tx_gfsk_launch_callback_for_rp( void* rp_void )
     smtc_modem_hal_assert( ral_set_dio_irq_params( &( rp->radio->ral ), RAL_IRQ_TX_DONE ) == RAL_STATUS_OK );
     smtc_modem_hal_assert( ral_set_pkt_payload( &( rp->radio->ral ), rp->payload[id], rp->payload_size[id] ) ==
                            RAL_STATUS_OK );
-    // Wait the exact expected time (ie target - tcxo startup delay)   // daniel  ÕâÀïÓ¦¸ÃÖ´ÐÐ²»µ½
+    // Wait the exact expected time (ie target - tcxo startup delay)   // daniel  ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½Ö´ï¿½Ð²ï¿½ï¿½ï¿½
     while( ( int32_t )( rp->tasks[id].start_time_ms - smtc_modem_hal_get_time_in_ms( ) ) > 0 )
     {
     }
@@ -303,7 +303,7 @@ void lr1_stack_mac_tx_lr_fhss_launch_callback_for_rp( void* rp_void )
                                                     rp->radio_params[id].tx.lr_fhss.hop_sequence_id, rp->payload[id],
                                                     rp->payload_size[id] ) == RAL_STATUS_OK );
     // Wait the exact expected time (ie target - tcxo startup delay)
-    while( ( int32_t )( rp->tasks[id].start_time_ms - smtc_modem_hal_get_time_in_ms( ) ) > 0 )    // daniel ÕâÀïÓ¦¸ÃÒ²Ö´ÐÐ²»µ½
+    while( ( int32_t )( rp->tasks[id].start_time_ms - smtc_modem_hal_get_time_in_ms( ) ) > 0 )    // daniel ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½Ò²Ö´ï¿½Ð²ï¿½ï¿½ï¿½
     {
         // Do nothing
     }
@@ -323,7 +323,7 @@ void lr1_stack_mac_rx_lora_launch_callback_for_rp( void* rp_void )
                                                                             RAL_IRQ_RX_HDR_ERROR |
                                                                             RAL_IRQ_RX_CRC_ERROR ) == RAL_STATUS_OK );
     // Wait the exact expected time (ie target - tcxo startup delay)
-//    while( ( int32_t )( rp->tasks[id].start_time_ms - smtc_modem_hal_get_time_in_ms( ) ) > 0 )     //daniel ÕâÀïÓ¦¸Ã»áÖ´ÐÐµ½
+//    while( ( int32_t )( rp->tasks[id].start_time_ms - smtc_modem_hal_get_time_in_ms( ) ) > 0 )     //daniel ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½Ã»ï¿½Ö´ï¿½Ðµï¿½
 //    {
 //    }
     // At this time only tcxo startup delay is remaining
@@ -332,7 +332,7 @@ void lr1_stack_mac_rx_lora_launch_callback_for_rp( void* rp_void )
     rp_stats_set_rx_timestamp( &rp->stats, smtc_modem_hal_get_time_in_ms( ) );
 }
 
-void lr1_stack_mac_rx_gfsk_launch_callback_for_rp( void* rp_void )     //daniel ÕâÀïÓ¦¸ÃÖ´ÐÐ²»µ½
+void lr1_stack_mac_rx_gfsk_launch_callback_for_rp( void* rp_void )     //daniel ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½Ö´ï¿½Ð²ï¿½ï¿½ï¿½
 {
     radio_planner_t* rp = ( radio_planner_t* ) rp_void;
     uint8_t          id = rp->radio_task_id;
@@ -1549,6 +1549,7 @@ status_lorawan_t lr1_stack_nb_trans_set( lr1_stack_mac_t* lr1_mac, uint8_t nb_tr
 {
     if( lr1_mac->adr_mode_select == STATIC_ADR_MODE )
     {
+        SMTC_MODEM_HAL_TRACE_PRINTF("Error STATIC_ADR_MODE\r\n");
         return ERRORLORAWAN;
     }
 
