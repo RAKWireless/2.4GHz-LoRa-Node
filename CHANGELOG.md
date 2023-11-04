@@ -1,6 +1,6 @@
 # Changelog  
 
-# [1.0.4] 
+# [1.0.4] 2023-11-4
 ## Added  
 - AT+NWM - get or set the network working mode (0 = P2P_LORA, 1 = LoRaWAN)
 - AT+PFREQ - configure P2P Frequency (2400000000 - 2500000000)

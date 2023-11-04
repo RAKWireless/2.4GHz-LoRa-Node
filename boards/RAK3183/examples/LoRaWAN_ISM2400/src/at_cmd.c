@@ -468,7 +468,7 @@ void handle_sf(const AT_Command *cmd)
     {
 
         sf = atoi(cmd->params);
-        if (sf > 12)
+        if (sf > 8 || sf < 1)
         {
             am_util_stdio_printf("AT_PARAM_ERROR\r\n");
             return;
@@ -592,7 +592,8 @@ void handle_p2p_precv(const AT_Command *cmd)
 
     uint32_t time;
     time = atoi(cmd->params);
-    if(time == 0)
+
+    if(time == 0 && cmd->params[0] != 0)
     {
         smtc_modem_test_nop();
     }
