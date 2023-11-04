@@ -777,7 +777,7 @@ smtc_modem_return_code_t smtc_modem_test_direct_radio_read( uint8_t* command, ui
 
 void modem_test_empty_callback( modem_test_context_t* context )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF( "TEST mode Empty callback\n" );
+    //SMTC_MODEM_HAL_TRACE_PRINTF( "TEST mode Empty callback\n" );   //daniel
 }
 
 void modem_test_compute_rssi_callback( modem_test_context_t* context )
@@ -860,9 +860,15 @@ void modem_test_rx_callback( modem_test_context_t* context )
         int16_t  snr              = context->rp->radio_params[context->hook_id].rx.lora_pkt_status.snr_pkt_in_db;
         int16_t  rssi             = context->rp->radio_params[context->hook_id].rx.lora_pkt_status.rssi_pkt_in_dbm;
         uint32_t irq_timestamp_ms = context->rp->irq_timestamp_ms[context->hook_id];
-        SMTC_MODEM_HAL_TRACE_PRINTF( "t: %d, rp_status %u, snr: %d, rssi: %d\n", irq_timestamp_ms, rp_status, snr,
-                                     rssi );
-        SMTC_MODEM_HAL_TRACE_ARRAY( "rx_payload", context->tx_rx_payload, context->rp->payload_size[context->hook_id] );
+        //SMTC_MODEM_HAL_TRACE_PRINTF( "t: %d, rp_status %u, snr: %d, rssi: %d\n", irq_timestamp_ms, rp_status, snr,
+        //                            rssi );
+        SMTC_MODEM_HAL_TRACE_PRINTF("+EVT:RXP2P:%d:%d:",rssi,snr);
+        for(int i=0; i<context->rp->payload_size[context->hook_id] ; i++)
+        {
+            SMTC_MODEM_HAL_TRACE_PRINTF("%02X",context->tx_rx_payload[i]);
+        }
+        SMTC_MODEM_HAL_TRACE_PRINTF("\r\n");
+        //SMTC_MODEM_HAL_TRACE_ARRAY( "rx_payload", context->tx_rx_payload, context->rp->payload_size[context->hook_id] );
 #endif
     }
     else if( rp_status == RP_STATUS_TASK_ABORTED )

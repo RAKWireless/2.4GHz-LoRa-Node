@@ -385,7 +385,7 @@ void handle_freq(const AT_Command *cmd)
 
     if (strcmp(cmd->params, "?") == 0)
     {
-        am_util_stdio_printf("%d\r\n", lora_params.frequency_hz);
+        am_util_stdio_printf("%u\r\n", lora_params.frequency_hz);
         am_util_stdio_printf("OK\r\n");
     }
     else if (strlen(cmd->params) == 10)  
@@ -647,12 +647,6 @@ void handle_p2p_send(const AT_Command *cmd)
         }
         hex_data[count++] = (unsigned char)hex_value;
     }
-    am_util_stdio_printf("Sending data : ");
-    for (size_t i = 0; i < count; i++)
-    {
-        am_util_stdio_printf("%02x ", hex_data[i]);
-    }
-    am_util_stdio_printf("\r\n");
 
     if (modem_get_test_mode_status() == false)
     {
