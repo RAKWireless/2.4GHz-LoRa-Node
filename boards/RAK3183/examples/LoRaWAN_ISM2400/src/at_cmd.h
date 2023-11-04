@@ -3,9 +3,9 @@
 #include <stdint.h>
 
 #define STACK_ID 0
-#define MAX_CMD_LEN 40
+#define MAX_CMD_LEN 64
 #define MAX_PARAM_LEN 256
-#define MAX_ARGV_SIZE 10
+#define MAX_ARGV_SIZE 64
 
 #define VERSION "v1.0.3"
 

@@ -16,6 +16,14 @@ typedef struct
 	uint32_t interval; 
 	uint8_t retry;
 	uint8_t join_mode;
+
+	uint8_t nwm; 
+	uint32_t frequency_hz;
+	uint8_t tx_power_dbm;
+	uint8_t sf;
+	uint8_t bw;
+	uint8_t cr;
+	uint8_t preamble_size;
 } LoRaWAN_Params;
 
 extern LoRaWAN_Params lora_params;

@@ -21,7 +21,7 @@ void RAK1904(void)
 	uint32_t offset = 0x0f;
 	if (!iom_slave_read_offset(offset, pBuf, 1, LIS3DH_I2C_ADDR))
 	{
-		am_util_stdio_printf("RAK1904 read failed\n");
+		//am_util_stdio_printf("RAK1904 read failed\n");
 		return;
 	}
 

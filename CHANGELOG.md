@@ -1,5 +1,18 @@
 # Changelog  
 
+# [1.0.4] 
+## Added  
+- AT+NWM - get or set the network working mode (0 = P2P_LORA, 1 = LoRaWAN)
+- AT+PFREQ - configure P2P Frequency (2400000000 - 2500000000)
+- AT+PTP - configure P2P TX power (Max 13)
+- AT+PSF - configure P2P Spreading Factor (1-8 SF5-SF12)
+- AT+PBW - configure P2P Bandwidth (3-BW200 4-BW400 5-BW-800 6-BW1600)
+- AT+PCR - configure P2P Code Rate (0-CR4/5 1-CR4/6 2-CR4/7 3-CR4/8)
+- AT+PPL - configure P2P Preamble Length
+- AT+PSEND - send data in P2P mode
+- AT+PRECV - continuous receive mode (AT+PRECV=0 exit receive mode)
+
+
 # [1.0.3] 2023-10-6  
 ## Added   
 - AT+HWMODEL Get the string of the hardware mode

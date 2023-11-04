@@ -25,9 +25,15 @@
 #include "lr1mac_defs.h"
 
 volatile int32_t board_delay_ms = 0;
+
 static uint32_t frequency_hz = 2402000000, tx_power_dbm = 10, sf = 1, bw = 3, cr = 0, preamble_size = 14;
 uint32_t g_confirm_status = 0;
 
+enum mode
+{
+    P2P_MODE,
+    LORAWAN_MODE
+};
 
 static bool is_joined(void)
 {
@@ -337,7 +343,325 @@ void handle_class(const AT_Command *cmd)
 
 void handle_nwm(const AT_Command *cmd)
 {
-    smtc_modem_test_start();
+    uint8_t nwm;
+
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\r\n", lora_params.nwm);
+        am_util_stdio_printf("OK\r\n");
+    }
+    else if (strlen(cmd->params) == 1)
+    {
+
+        nwm = atoi(cmd->params);
+        if (nwm > 1)
+        {
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return;
+        }
+
+        lora_params.nwm = nwm;
+        save_lora_params();
+        am_util_stdio_printf("OK\r\n");
+        NVIC_SystemReset();
+        return;
+    }
+    else
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+    }
+    //smtc_modem_test_start();
+}
+
+void handle_freq(const AT_Command *cmd)
+{
+    uint32_t frequency_hz;
+
+    if(lora_params.nwm == LORAWAN_MODE)
+    {
+        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
+        return;
+    }
+
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\r\n", lora_params.frequency_hz);
+        am_util_stdio_printf("OK\r\n");
+    }
+    else if (strlen(cmd->params) == 10)  
+    {
+        frequency_hz = strtoul(cmd->params, NULL, 10);
+
+        //am_util_stdio_printf("frequency_hz %u  %s\r\n", frequency_hz,cmd->params);
+
+        if (frequency_hz > 2500000000 ||  frequency_hz < 2400000000)
+        {
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return;
+        }
+
+        lora_params.frequency_hz = frequency_hz;
+        save_lora_params();
+        am_util_stdio_printf("OK\r\n");
+        return;
+    }
+    else
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR cmd->params %d\r\n",cmd->params);
+    }
+    
+}
+
+
+void handle_tx_power_dbm(const AT_Command *cmd)
+{
+    uint32_t power;
+
+    if(lora_params.nwm == LORAWAN_MODE)
+    {
+        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
+        return;
+    }
+
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\r\n", lora_params.tx_power_dbm);
+        am_util_stdio_printf("OK\r\n");
+    }
+    else if (strlen(cmd->params) < 3)
+    {
+
+        power = atoi(cmd->params);
+        if (power > 13)
+        {
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return;
+        }
+
+        lora_params.tx_power_dbm = power;
+        save_lora_params();
+        am_util_stdio_printf("OK\r\n");
+        return;
+    }
+    else
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+    }
+}
+
+void handle_sf(const AT_Command *cmd)
+{
+    uint32_t sf;
+
+    if(lora_params.nwm == LORAWAN_MODE)
+    {
+        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
+        return;
+    }
+
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\r\n", lora_params.sf);
+        am_util_stdio_printf("OK\r\n");
+    }
+    else if (strlen(cmd->params) < 3)
+    {
+
+        sf = atoi(cmd->params);
+        if (sf > 12)
+        {
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return;
+        }
+
+        lora_params.sf = sf;
+        save_lora_params();
+        am_util_stdio_printf("OK\r\n");
+        return;
+    }
+    else
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+    }
+}
+
+void handle_bw(const AT_Command *cmd)
+{
+    uint32_t bw;
+
+    if(lora_params.nwm == LORAWAN_MODE)
+    {
+        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
+        return;
+    }
+
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\r\n", lora_params.bw);
+        am_util_stdio_printf("OK\r\n");
+    }
+    else if (strlen(cmd->params) == 1)
+    {
+
+        bw = atoi(cmd->params);
+        if (bw > 6 || bw < 3)
+        {
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return;
+        }
+
+        lora_params.bw = bw;
+        save_lora_params();
+        am_util_stdio_printf("OK\r\n");
+        return;
+    }
+    else
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+    }       
+}
+
+
+void handle_cr(const AT_Command *cmd)
+{
+    uint32_t cr;
+
+    if(lora_params.nwm == LORAWAN_MODE)
+    {
+        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
+        return;
+    }
+
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\r\n", lora_params.cr);
+        am_util_stdio_printf("OK\r\n");
+    }
+    else if (strlen(cmd->params) == 1)
+    {
+        cr = atoi(cmd->params);
+        if (cr > 3)
+        {
+            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return;
+        }
+
+        lora_params.cr = cr;
+        save_lora_params();
+        am_util_stdio_printf("OK\r\n");
+        return;
+    }
+    else
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+    }   
+}
+
+void handle_preamble_size(const AT_Command *cmd)
+{
+    uint32_t preamble;
+
+    if(lora_params.nwm == LORAWAN_MODE)
+    {
+        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
+        return;
+    }
+
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("%d\r\n", lora_params.preamble_size);
+        am_util_stdio_printf("OK\r\n");
+    }
+    else
+    {
+        preamble = atoi(cmd->params);
+        lora_params.preamble_size = preamble;
+        save_lora_params();
+        am_util_stdio_printf("OK\r\n");
+        return;
+    }
+}
+
+void handle_p2p_precv(const AT_Command *cmd)
+{
+    if(lora_params.nwm == LORAWAN_MODE)
+    {
+        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
+        return;
+    }
+
+    uint32_t time;
+    time = atoi(cmd->params);
+    if(time == 0)
+    {
+        smtc_modem_test_nop();
+    }
+    else if(time == 65535 || time == 65534)
+    {
+        smtc_modem_test_rx_continuous(lora_params.frequency_hz, lora_params.sf, lora_params.bw, lora_params.cr);
+    }
+    else
+    {
+        /*to timer   smtc_modem_alarm_start_timer ERROR*/
+        smtc_modem_test_rx_continuous(lora_params.frequency_hz, lora_params.sf, lora_params.bw, lora_params.cr);
+    }    
+    am_util_stdio_printf("OK\r\n");
+}
+
+  
+void handle_p2p_send(const AT_Command *cmd)
+{
+    if(lora_params.nwm == LORAWAN_MODE)
+    {
+        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
+        return;
+    }
+
+    if (strcmp(cmd->params, "?") == 0)
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+    }
+
+    char data[MAX_PARAM_LEN + 1];
+    if (sscanf(cmd->params, "%s", data) != 1)
+    {
+        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return;
+    }
+    size_t len = strlen(data);
+    if (len % 2 != 0)
+    {
+        am_util_stdio_printf("Invalid hex value\r\n");
+        return;
+    }
+    unsigned char hex_data[256];
+    size_t count = 0;
+    for (size_t i = 0; i < len; i += 2)
+    {
+        unsigned int hex_value;
+        if (sscanf(data + i, "%02x", &hex_value) != 1)
+        {
+            am_util_stdio_printf("Failed to parse hex value\r\n");
+            return;
+        }
+        hex_data[count++] = (unsigned char)hex_value;
+    }
+    am_util_stdio_printf("Sending data : ");
+    for (size_t i = 0; i < count; i++)
+    {
+        am_util_stdio_printf("%02x ", hex_data[i]);
+    }
+    am_util_stdio_printf("\r\n");
+
+    if (modem_get_test_mode_status() == false)
+    {
+        smtc_modem_test_start();
+    }
+    smtc_modem_test_tx(hex_data, count, lora_params.frequency_hz,
+                       lora_params.tx_power_dbm, lora_params.sf, lora_params.bw,
+                       lora_params.cr, lora_params.preamble_size, false);
+
+    am_util_stdio_printf("OK\r\n");
 }
 
 /**
@@ -810,6 +1134,17 @@ AT_HandlerTable handler_table[] = {
     {"AT+DR", handle_dr, "Set/Get datarate (0-5)"},
     {"AT+RETY", handle_rety, "Set/Get the number of retransmissions of Confirm packet data (1-15)"},
     //{"AT+TXP", handle_tx_power, "get or set the transmitting power"},
+
+    {"AT+NWM", handle_nwm, "get or set the network working mode (0 = P2P_LORA, 1 = LoRaWAN)"},
+    {"AT+PFREQ", handle_freq, "configure P2P Frequency (2400000000 - 2500000000)"},
+    {"AT+PTP", handle_tx_power_dbm, "configure P2P TX power (Max 13)"},
+    {"AT+PSF", handle_sf, "configure P2P Spreading Factor (1-8 SF5-SF12)"},
+    {"AT+PBW", handle_bw, "configure P2P Bandwidth (3-BW200 4-BW400 5-BW-800 6-BW1600)"},
+    {"AT+PCR", handle_cr, "configure P2P Code Rate (0-CR4/5 1-CR4/6 2-CR4/7 3-CR4/8)"},
+    {"AT+PPL", handle_preamble_size, "configure P2P Preamble Length"},
+    {"AT+PSEND", handle_p2p_send, "send data in P2P mode"},
+    {"AT+PRECV", handle_p2p_precv, "continuous receive mode (AT+PRECV=0 exit receive mode)"},
+
 
     {"AT+TCONF", handle_p2p, "Set/Get RF test config\r\nExample :\r\nAT+TCONF=2403000000:13:1:3:0:10 \r\nfrequency_hz 2403000000\r\ntx_power_dbm 13\r\nsf 1-8 SF5-SF12\r\nbw 3-BW200 4-BW400 5-BW-800 6-BW1600\r\n"
                              "cr 0-CR4/5 1-CR4/6 2-CR4/7 3-CR4/8\r\n"

@@ -77,6 +77,14 @@ LoRaWAN_Params lora_params = {
     .confirm = 1,
     .retry = 1,
     .join_mode = 0,
+
+	.nwm = 1,
+	.frequency_hz = 2402000000,
+	.tx_power_dbm = 10,
+	.sf = 1,
+	.bw = 3,
+	.cr = 0,
+	.preamble_size = 14
 };
 
 uint8_t rx_payload_size;
@@ -105,7 +113,7 @@ void load_lora_params(void)
 {
 	hal_flash_read_buffer(ADDR_FLASH_AT_PARAM_CONTEXT, (uint8_t *)&lora_params, sizeof(lora_params));
 
-    if (lora_params.join_mode == 0xFF)
+    if (lora_params.join_mode == 0xFF || lora_params.nwm == 0xFF)
     {
         /* Setting default parameters  todo: adding the crc parameter */
         lora_params.devaddr = 0;
@@ -114,6 +122,15 @@ void load_lora_params(void)
         lora_params.confirm = 1;
         lora_params.retry = 1;
         lora_params.join_mode = 0;
+
+		lora_params.nwm = 1;
+		lora_params.frequency_hz = 2402000000;
+		lora_params.tx_power_dbm = 10;
+		lora_params.sf = 1;
+		lora_params.bw = 3;
+		lora_params.cr = 0;
+		lora_params.preamble_size = 14;
+
     }
 }
 
@@ -133,6 +150,13 @@ static void get_event(void)
         {
         case SMTC_MODEM_EVENT_RESET:
             SMTC_HAL_TRACE_INFO("Event received: RESET\n");
+
+			/* The device reset is always in Lorawan mode */
+			if(lora_params.nwm == 0)
+			{
+				smtc_modem_test_start();
+			}
+
             /* If you add a parameter initialization here, the test mode won't work */
 
 			// This code needs to be automatically connected to the network, so we need to set the parameters here, regardless of the test mode
@@ -263,15 +287,19 @@ void lorawan_init()
 
     load_lora_params();
 
+	char* mode[2]={"P2P" , "LORAWAN"};
+	SMTC_HAL_TRACE_INFO("Work Mode %s\n",mode[lora_params.nwm]);
+
     smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
     smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
     smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
 
-    lorawan_api_set_activation_mode(lora_params.join_mode);
-
     /* ABP mode */
-    if(lora_params.join_mode == 1)
+    if(lora_params.join_mode == 0)
     {
+		/* The ABP mode pass parameter is 1 */
+		lorawan_api_set_activation_mode(1);
+
         int ret ;
         SMTC_HAL_TRACE_INFO("ABP mode\r\n");
         lorawan_api_devaddr_set(lora_params.devaddr);
@@ -295,7 +323,6 @@ void lorawan_init()
 
     lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);
     smtc_modem_set_nb_trans(STACK_ID,lora_params.retry);
-    
             
 }
 

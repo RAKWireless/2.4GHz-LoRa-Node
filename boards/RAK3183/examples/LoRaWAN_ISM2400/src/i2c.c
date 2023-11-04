@@ -75,7 +75,7 @@ bool iom_slave_read_offset(uint32_t offset, uint32_t *pBuf, uint32_t size, uint8
 	ret = am_hal_iom_blocking_transfer(iom2_phandle, &Transaction);
 	if (ret != 0)
 	{
-		am_util_stdio_printf("am_hal_iom_blocking_transfer error\n");
+		//am_util_stdio_printf("am_hal_iom_blocking_transfer error\n");
 		return false;
 	}
 	return true;

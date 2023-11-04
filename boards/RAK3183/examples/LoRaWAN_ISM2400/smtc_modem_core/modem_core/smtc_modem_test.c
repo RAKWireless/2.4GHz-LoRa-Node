@@ -199,18 +199,18 @@ smtc_modem_return_code_t smtc_modem_test_start( void )
 {
     if( modem_get_test_mode_status( ) == true )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TST MODE: ALREADY STARTED\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "P2P MODE: ALREADY STARTED\n" );
         return SMTC_MODEM_RC_BUSY;
     }
 
     if( get_join_state( ) != MODEM_NOT_JOINED )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "TST MODE: not available if joined\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "P2P MODE: not available if joined\n" );
         return SMTC_MODEM_RC_FAIL;
     }
 
     modem_set_test_mode_status( true );
-    SMTC_MODEM_HAL_TRACE_INFO( "TST MODE: START\n" );
+    SMTC_MODEM_HAL_TRACE_INFO( "P2P MODE: START\n" );
     memset( &modem_test_context, 0, sizeof( modem_test_context_t ) );
 
     modem_test_context.rp          = modem_context_get_modem_rp( );

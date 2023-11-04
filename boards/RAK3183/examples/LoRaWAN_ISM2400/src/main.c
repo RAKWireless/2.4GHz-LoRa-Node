@@ -222,7 +222,7 @@ int main(void)
     //
     // Wait for 1 second for the 32KHz XTAL to startup and stabilize.
     //
-    am_util_delay_ms(1000);
+    am_util_delay_ms(100);
 		
 	//
     // Enable HFADJ.
