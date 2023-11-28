@@ -7,7 +7,7 @@
 #define MAX_PARAM_LEN 256
 #define MAX_ARGV_SIZE 64
 
-#define VERSION "v1.0.3"
+#define VERSION "v1.0.4"
 
 typedef struct
 {
