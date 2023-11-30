@@ -1138,7 +1138,7 @@ AT_HandlerTable handler_table[] = {
     {"AT+PCR", handle_cr, "configure P2P Code Rate (0-CR4/5 1-CR4/6 2-CR4/7 3-CR4/8)"},
     {"AT+PPL", handle_preamble_size, "configure P2P Preamble Length"},
     {"AT+PSEND", handle_p2p_send, "send data in P2P mode"},
-    {"AT+PRECV", handle_p2p_precv, "continuous receive mode (AT+PRECV=0 exit receive mode)"},
+    {"AT+PRECV", handle_p2p_precv, "continuous receive P2P mode (AT+PRECV=0 exit receive mode)"},
 
 
     {"AT+TCONF", handle_p2p, "Set/Get RF test config\r\nExample :\r\nAT+TCONF=2403000000:13:1:3:0:10 \r\nfrequency_hz 2403000000\r\ntx_power_dbm 13\r\nsf 1-8 SF5-SF12\r\nbw 3-BW200 4-BW400 5-BW-800 6-BW1600\r\n"
