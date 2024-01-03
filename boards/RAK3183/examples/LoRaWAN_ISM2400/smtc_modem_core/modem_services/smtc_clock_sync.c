@@ -528,7 +528,7 @@ void clock_sync_convert_gps_epoch_to_unix_epoch( uint32_t gps_epoch )
     // Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
     ts = *localtime( &rawtime );
     strftime( buf, sizeof( buf ), "%a %Y-%m-%d %H:%M:%S %Z", &ts );
-    LOG_INFO( "%s\n", buf );
+    LOG_INFO( "%s\r\n", buf );
 }
 #endif
 

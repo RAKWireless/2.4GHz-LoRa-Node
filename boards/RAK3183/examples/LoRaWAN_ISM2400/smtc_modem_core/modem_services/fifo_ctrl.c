@@ -97,15 +97,15 @@ void fifo_ctrl_clear( fifo_ctrl_t* ctrl )
 
 void fifo_ctrl_print_stat( const fifo_ctrl_t* ctrl )
 {
-    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "----------------------------------\n" );
-    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "fifo_ctrl_print_stat\n" );
-    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "Buffer size : %d\n", ctrl->buffer_size );
-    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "Current elt : %d\n", ctrl->nb_element );
-    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "Free space  : %d\n", ctrl->free_space );
-    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "Write       : %d\n", ctrl->write_cnt );
-    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "Read        : %d\n", ctrl->read_cnt - ctrl->drop_cnt );
-    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "Drop        : %d\n", ctrl->drop_cnt );
-    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "----------------------------------\n" );
+    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "----------------------------------\r\n" );
+    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "fifo_ctrl_print_stat\r\n" );
+    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "Buffer size : %d\r\n", ctrl->buffer_size );
+    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "Current elt : %d\r\n", ctrl->nb_element );
+    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "Free space  : %d\r\n", ctrl->free_space );
+    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "Write       : %d\r\n", ctrl->write_cnt );
+    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "Read        : %d\r\n", ctrl->read_cnt - ctrl->drop_cnt );
+    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "Drop        : %d\r\n", ctrl->drop_cnt );
+    SMTC_MODEM_HAL_TRACE_INFO_DEBUG( "----------------------------------\r\n" );
 }
 
 uint16_t fifo_ctrl_get_nb_elt( const fifo_ctrl_t* ctrl )

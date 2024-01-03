@@ -345,7 +345,7 @@ static dm_cmd_length_valid_t check_dm_status_max_size( uint32_t info_requested, 
             {
                 SMTC_MODEM_HAL_TRACE_ERROR(
                     "max_size must be greater than the smallest requested "
-                    "information\n" );
+                    "information\r\n" );
                 return DM_CMD_LENGTH_NOT_VALID;
             }
         }
@@ -490,7 +490,7 @@ void increment_asynchronous_msgnumber( uint8_t event_type, uint8_t status )
     // Next condition should never append because only one asynch msg by type of message
     if( asynchronous_msgnumber > MODEM_NUMBER_OF_EVENTS )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( " Modem reach the max number of asynch message\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( " Modem reach the max number of asynch message\r\n" );
         return;
     }
     uint8_t tmp;
@@ -575,7 +575,7 @@ dm_rc_t set_modem_dm_port( uint8_t port )
 {
     if( ( port == 0 ) || ( port >= 224 ) )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "modem port invalid\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "modem port invalid\r\n" );
         return ( DM_ERROR );
     }
     else
@@ -597,7 +597,7 @@ uint8_t get_modem_dm_port( void )
 #if defined( ADD_SMTC_PATCH_UPDATE )
 dm_rc_t set_modem_frag_port( uint8_t port )
 {
-    SMTC_MODEM_HAL_TRACE_ERROR( "set_modem_frag_port not implemented\n" );
+    SMTC_MODEM_HAL_TRACE_ERROR( "set_modem_frag_port not implemented\r\n" );
     return ( DM_ERROR );
 }
 
@@ -665,7 +665,7 @@ void modem_supervisor_add_task_join( void )
     task_join.time_to_execute_s = smtc_modem_hal_get_random_nb_in_range( 0, 5 );
 
 #if defined( TEST_BYPASS_JOIN_DUTY_CYCLE )
-    SMTC_MODEM_HAL_TRACE_WARNING( "BYPASS JOIN DUTY CYCLE activated\n" );
+    SMTC_MODEM_HAL_TRACE_WARNING( "BYPASS JOIN DUTY CYCLE activated\r\n" );
     task_join.time_to_execute_s += current_time_s;
 #else
     if( lorawan_api_modem_certification_is_enabled( ) == false )
@@ -677,11 +677,11 @@ void modem_supervisor_add_task_join( void )
 
     if( ( int32_t )( task_join.time_to_execute_s - current_time_s ) <= 0 )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( " Start a new join sequence now \n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( " Start a new join sequence now \r\n" );
     }
     else
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( " Start a new join sequence in %d seconds \n",
+        SMTC_MODEM_HAL_TRACE_PRINTF( " Start a new join sequence in %d seconds \r\n",
                                      task_join.time_to_execute_s - current_time_s );
     }
 
@@ -1040,13 +1040,13 @@ dm_cmd_length_valid_t dm_check_dminfo_size( dm_info_field_t cmd, uint8_t length 
 {
     if( cmd >= DM_INFO_MAX )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid DM command\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid DM command\r\n" );
         return DM_CMD_LENGTH_NOT_VALID;
     }
 
     if( length != dm_info_field_sz[cmd] )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid DM command size\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid DM command size\r\n" );
         return DM_CMD_LENGTH_NOT_VALID;
     }
 
@@ -1132,7 +1132,7 @@ uint8_t dm_get_number_of_days_mute( void )
 
 void dm_set_number_of_days_mute( uint8_t days )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF( "MUTE for %d days\n", days );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "MUTE for %d days\r\n", days );
     if( number_of_muted_day != days )
     {
         number_of_muted_day = days;
@@ -1187,7 +1187,7 @@ dm_rc_t set_dm_info( const uint8_t* requested_info_list, uint8_t len, dm_info_ra
             ( requested_info_list[i] >= DM_INFO_MAX ) )
         {
             ret = DM_ERROR;
-            SMTC_MODEM_HAL_TRACE_ERROR( "invalid DM info code (0x%02x)\n", requested_info_list[i] );
+            SMTC_MODEM_HAL_TRACE_ERROR( "invalid DM info code (0x%02x)\r\n", requested_info_list[i] );
         }
     }
     if( ret == DM_OK )
@@ -1256,7 +1256,7 @@ bool dm_status_payload( uint8_t* dm_uplink_message, uint8_t* dm_uplink_message_l
     if( check_dm_status_max_size( info_requested, max_size ) != DM_CMD_LENGTH_VALID )
     {
         *dm_uplink_message_len = 0;
-        SMTC_MODEM_HAL_TRACE_ERROR( "check_dm_status_max_size\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "check_dm_status_max_size\r\n" );
         return false;
     }
 
@@ -1264,10 +1264,10 @@ bool dm_status_payload( uint8_t* dm_uplink_message, uint8_t* dm_uplink_message_l
     {
         *tag = 0;
     }
-    // SMTC_MODEM_HAL_TRACE_PRINTF("info_requested = %d \n",info_requested);
+    // SMTC_MODEM_HAL_TRACE_PRINTF("info_requested = %d \r\n",info_requested);
     while( ( *tag ) < DM_INFO_MAX )
     {
-        // SMTC_MODEM_HAL_TRACE_WARNING("tag %d - %d\n",*tag, (info_requested >> *tag) & 0x01
+        // SMTC_MODEM_HAL_TRACE_WARNING("tag %d - %d\r\n",*tag, (info_requested >> *tag) & 0x01
         // );
         if( ( info_requested & ( 1 << *tag ) ) )
         {
@@ -1412,7 +1412,7 @@ bool dm_status_payload( uint8_t* dm_uplink_message, uint8_t* dm_uplink_message_l
                 get_modem_gnss_status( p_tmp );
                 break;
             default:
-                SMTC_MODEM_HAL_TRACE_ERROR( "Construct DM payload report, unknown code 0x%02x\n", *tag );
+                SMTC_MODEM_HAL_TRACE_ERROR( "Construct DM payload report, unknown code 0x%02x\r\n", *tag );
                 break;
             }
 
@@ -1451,8 +1451,8 @@ void dm_alm_dbg_uplink_payload( uint8_t max_payload_length, uint8_t* dm_uplink_m
 {
     uint8_t* gnss_payload      = ( uint8_t* ) &POOL_MEM.GNSS_MEM.Buf_data[0];
     uint16_t gnss_payload_size = GnssGetSize( );
-    SMTC_MODEM_HAL_TRACE_PRINTF( "GnssGetSize %d\n", gnss_payload_size );
-    SMTC_MODEM_HAL_TRACE_PRINTF( "max_payload_length %d\n", max_payload_length );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "GnssGetSize %d\r\n", gnss_payload_size );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "max_payload_length %d\r\n", max_payload_length );
     SMTC_MODEM_HAL_TRACE_ARRAY( "dm_alm_dbg_uplink_payload", gnss_payload, gnss_payload_size );
     if( ( gnss_payload[0] == GNSS_DM_MSG ) && ( gnss_payload_size <= max_payload_length ) && ( gnss_payload_size > 0 ) )
     {
@@ -1488,7 +1488,7 @@ dm_rc_t set_modem_adr_profile( smtc_modem_adr_profile_t adr_profile, const uint8
         ( ( adr_profile == SMTC_MODEM_ADR_PROFILE_CUSTOM ) && ( adr_custom_length != 16 ) ) ||
         ( ( adr_profile < SMTC_MODEM_ADR_PROFILE_CUSTOM ) && ( adr_custom_length != 0 ) ) )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "user_dr = %d not compatible with adr data length = %d \n ", adr_profile,
+        SMTC_MODEM_HAL_TRACE_ERROR( "user_dr = %d not compatible with adr data length = %d \r\n ", adr_profile,
                                     adr_custom_length );
         return DM_ERROR;
     }
@@ -1520,7 +1520,7 @@ dm_rc_t set_modem_adr_profile( smtc_modem_adr_profile_t adr_profile, const uint8
         {
             if( adr_custom_data[i] > 15 )  // DR are defined from 0 to 15 by definition in LoRaWAN spec
             {
-                SMTC_MODEM_HAL_TRACE_ERROR( "ADR with DataRate out of range\n" );
+                SMTC_MODEM_HAL_TRACE_ERROR( "ADR with DataRate out of range\r\n" );
                 return DM_ERROR;
             }
             if( ( ( MaskDrTmp >> adr_custom_data[i] ) & 0x01 ) == 1 )
@@ -1579,7 +1579,7 @@ dm_rc_t set_modem_adr_profile( smtc_modem_adr_profile_t adr_profile, const uint8
         }
         if( cpt_tmp == 0 )
         {
-            SMTC_MODEM_HAL_TRACE_ERROR( "ADR with a bad DataRate value\n" );
+            SMTC_MODEM_HAL_TRACE_ERROR( "ADR with a bad DataRate value\r\n" );
             return DM_ERROR;
         }
         lorawan_api_dr_custom_set( adrDistribution );
@@ -1588,7 +1588,7 @@ dm_rc_t set_modem_adr_profile( smtc_modem_adr_profile_t adr_profile, const uint8
         break;
     }
     default: {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Unknown adr profile %d\n ", adr_profile );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Unknown adr profile %d\r\n ", adr_profile );
         return DM_ERROR;
     }
     break;
@@ -1619,7 +1619,7 @@ void set_modem_downlink_frame( uint8_t* data, uint8_t data_length, lr1mac_down_m
     SMTC_MODEM_HAL_TRACE_PRINTF( "DL Port = %d , ", modem_dwn_pkt.port );
     SMTC_MODEM_HAL_TRACE_PRINTF( "DL SNR = %d , DL RSSI = %d , ", modem_dwn_pkt.snr, modem_dwn_pkt.rssi );
     SMTC_MODEM_HAL_TRACE_PRINTF( "DL Freq = %lu , DL DR = %d , ", modem_dwn_pkt.frequency_hz, modem_dwn_pkt.datarate );
-    SMTC_MODEM_HAL_TRACE_PRINTF( "DL Fpending Bit = %d \n", modem_dwn_pkt.fpending_bit );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "DL Fpending Bit = %d \r\n", modem_dwn_pkt.fpending_bit );
 }
 void get_modem_downlink_frame( modem_downlink_msg_t* modem_dwn_in )
 {
@@ -1687,15 +1687,15 @@ void modem_load_context( void )
         modem_appkey_status = ctx.appkey_crc_status;
         modem_appkey_crc    = ctx.appkey_crc;
 
-        SMTC_MODEM_HAL_TRACE_PRINTF( "Modem Load Config :\n Port = %d\n", modem_dm_port );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "Modem Load Config :\r\nPort = %d\r\n", modem_dm_port );
 
 #if defined( ADD_SMTC_FILE_UPLOAD )
-        SMTC_MODEM_HAL_TRACE_PRINTF( "Upload_sctr = %d\n", modem_dm_upload_sctr );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "Upload_sctr = %d\r\n", modem_dm_upload_sctr );
 #endif  // ADD_SMTC_FILE_UPLOAD
     }
     else
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Restore Modem context fail => Factory Reset Modem\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Restore Modem context fail => Factory Reset Modem\r\n" );
         modem_context_factory_reset( );
     }
 }
@@ -1716,7 +1716,7 @@ void modem_context_factory_reset( void )
     smtc_modem_hal_context_restore( CONTEXT_LR1MAC, ( uint8_t* ) &ctx, sizeof( ctx ) );
 
     is_modem_reset_requested = true;
-    SMTC_MODEM_HAL_TRACE_INFO( "modem_context_factory_reset done\n" );
+    SMTC_MODEM_HAL_TRACE_INFO( "modem_context_factory_reset done\r\n" );
 }
 
 #if defined( ADD_SMTC_FILE_UPLOAD )
@@ -1887,7 +1887,7 @@ void modem_context_set_modem_rp( radio_planner_t* rp )
 
 void modem_context_empty_callback( void* ctx )
 {
-    // SMTC_MODEM_HAL_TRACE_ERROR( " empty call back \n" );
+    // SMTC_MODEM_HAL_TRACE_ERROR( " empty call back \r\n" );
 }
 
 #if !defined( LR1110_MODEM_E )
@@ -1915,7 +1915,7 @@ bool modem_context_resume_user_radio_access( void )
 
     if( rp_task_abort( modem_rp, RP_HOOK_ID_USER_SUSPEND ) != RP_HOOK_STATUS_OK )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Fail to abort hook\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Fail to abort hook\r\n" );
         status = false;
     }
 
@@ -1951,7 +1951,7 @@ bool modem_context_resume_radio_access( void )
 
     if( rp_task_abort( modem_rp, RP_HOOK_ID_SUSPEND ) != RP_HOOK_STATUS_OK )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Fail to abort hook\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Fail to abort hook\r\n" );
         status = false;
     }
 

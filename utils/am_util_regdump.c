@@ -851,7 +851,7 @@ regdump_newline_print(uint32_t ui32Num)
 {
     while ( ui32Num-- )
     {
-        am_util_stdio_printf("\n");
+        am_util_stdio_printf("\r\n");
     }
 }
 
@@ -895,8 +895,8 @@ block_print(am_util_regdump_t *psDump, uint32_t ui32BaseAddr)
     //
     // Create the format string
     //
-    am_util_stdio_sprintf((char*)g_ui8Fmt, "  %%-%ds (0x%%08X) = 0x%%08X\n", ui32MaxLen + 1);
-//  am_util_stdio_printf("g_ui8Fmt: '%s'\n\n", (char*)g_ui8Fmt);
+    am_util_stdio_sprintf((char*)g_ui8Fmt, "  %%-%ds (0x%%08X) = 0x%%08X\r\n", ui32MaxLen + 1);
+//  am_util_stdio_printf("g_ui8Fmt: '%s'\r\n\r\n", (char*)g_ui8Fmt);
 
     //
     // Now, get the value of each register and print it.
@@ -905,7 +905,7 @@ block_print(am_util_regdump_t *psDump, uint32_t ui32BaseAddr)
     while ( psDump[ux].ui32Offset != 0xFFFFFFFF )
     {
         //
-        // Format string is of the form: "  %8s (0x%08X) = 0x%08X\n"
+        // Format string is of the form: "  %8s (0x%08X) = 0x%08X\r\n"
         //
         ui32RegAddr = ui32BaseAddr + psDump[ux].ui32Offset;
         am_util_stdio_printf((char*)g_ui8Fmt, psDump[ux].pi8RegName, ui32RegAddr, AM_REGVAL(ui32RegAddr));
@@ -1095,7 +1095,7 @@ dump_reg(uint32_t ui32NumModules,
 {
     uint32_t ui32Module;
 
-    am_util_stdio_printf("%s registers:\n", pui8BlockName);
+    am_util_stdio_printf("%s registers:\r\n", pui8BlockName);
 
     ui32Module = 0;
     while ( ui32Module < ui32NumModules )
@@ -1110,7 +1110,7 @@ dump_reg(uint32_t ui32NumModules,
         {
             if ( ui32NumModules > 1 )
             {
-                am_util_stdio_printf(" %s Module %d\n", pui8BlockName, ui32Module);
+                am_util_stdio_printf(" %s Module %d\r\n", pui8BlockName, ui32Module);
             }
         }
 
@@ -1150,11 +1150,11 @@ am_util_regdump_print(uint32_t ui32PeriphMask, uint32_t ui32ModuleMask)
     if ( ui32PeriphMask & AM_UTIL_REGDUMP_INFO0 )
     {
         #define REGDUMP_INFO0_WDS   20
-        am_util_stdio_printf("INFO0 space (first %d words):\n", REGDUMP_INFO0_WDS);
+        am_util_stdio_printf("INFO0 space (first %d words):\r\n", REGDUMP_INFO0_WDS);
         for ( ux = 0; ux < REGDUMP_INFO0_WDS * 4; ux += 4 )
         {
             ui32RegAddr = AM_HAL_FLASH_INFO_ADDR + ux;
-            am_util_stdio_printf("INFO0 0x%08X = 0x%08X\n",
+            am_util_stdio_printf("INFO0 0x%08X = 0x%08X\r\n",
                                  ui32RegAddr, AM_REGVAL(ui32RegAddr));
         }
     }
@@ -1283,7 +1283,7 @@ am_util_regdump_print(uint32_t ui32PeriphMask, uint32_t ui32ModuleMask)
     }
 
 #if AM_PART_APOLLO2 || AM_PART_APOLLO3 || AM_PART_APOLLO3P
-    am_util_stdio_printf("Apollo2/3 specific registers:\n\n");
+    am_util_stdio_printf("Apollo2/3 specific registers:\r\n\r\n");
 
     if ( ui32PeriphMask & AM_UTIL_REGDUMP_CACHE )
     {
@@ -1310,7 +1310,7 @@ am_util_regdump_print(uint32_t ui32PeriphMask, uint32_t ui32ModuleMask)
 #endif // AM_PART_APOLLO2 || AM_PART_APOLLO3
 
 #if defined(AM_PART_APOLLO3) || defined(AM_PART_APOLLO3P)
-    am_util_stdio_printf("Apollo3 specific registers:\n\n");
+    am_util_stdio_printf("Apollo3 specific registers:\r\n\r\n");
 
     if ( ui32PeriphMask & AM_UTIL_REGDUMP_BLE )
     {
@@ -1332,6 +1332,6 @@ am_util_regdump_print(uint32_t ui32PeriphMask, uint32_t ui32ModuleMask)
 #endif //AM_PART_APOLLO3
 
 
-    am_util_stdio_printf("Register dump completed.\n");
+    am_util_stdio_printf("Register dump completed.\r\n");
 
 } // am_util_regdump_print()

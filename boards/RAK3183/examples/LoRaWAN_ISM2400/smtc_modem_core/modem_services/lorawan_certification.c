@@ -167,7 +167,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
         break;
@@ -180,7 +180,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -196,7 +196,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -220,7 +220,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -242,7 +242,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -262,7 +262,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -276,7 +276,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -296,7 +296,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -320,7 +320,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -337,7 +337,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -350,7 +350,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -364,7 +364,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -377,7 +377,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -391,7 +391,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -403,7 +403,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
         break;
@@ -418,7 +418,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
         break;
@@ -429,7 +429,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
         break;
@@ -451,7 +451,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -466,7 +466,7 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
 
@@ -512,13 +512,13 @@ lorawan_certification_parser_ret_t lorawan_certification_parser( lorawan_certifi
         }
         else
         {
-            LOG_ERROR( "bad size\n" );
+            LOG_ERROR( "bad size\r\n" );
             return LORAWAN_CERTIFICATION_RET_NOTHING;
         }
         break;
 
     default:
-        LOG_ERROR( "%s Illegal state\n ", __func__ );
+        LOG_ERROR( "%s Illegal state\r\n ", __func__ );
         break;
     }
     return LORAWAN_CERTIFICATION_RET_NOTHING;

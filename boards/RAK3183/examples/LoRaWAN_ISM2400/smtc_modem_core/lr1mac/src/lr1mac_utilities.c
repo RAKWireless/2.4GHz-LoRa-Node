@@ -197,7 +197,7 @@ status_lorawan_t lr1mac_rx_payload_min_size_check( uint8_t rx_payload_size )
     if( rx_payload_size < MIN_LORAWAN_PAYLOAD_SIZE )
     {
         status = ERRORLORAWAN;
-        SMTC_MODEM_HAL_TRACE_ERROR( " CheckRxPayloadLength = %d \n", rx_payload_size );
+        SMTC_MODEM_HAL_TRACE_ERROR( " CheckRxPayloadLength = %d \r\n", rx_payload_size );
     }
     return ( status );
 }
@@ -212,7 +212,7 @@ status_lorawan_t lr1mac_rx_mhdr_extract( uint8_t* rx_payload, uint8_t* rx_ftype,
         ( *rx_ftype == REJOIN_REQUEST ) || ( *rx_ftype == PROPRIETARY ) || ( *rx_major != LORAWANR1 ) )
     {
         status = ERRORLORAWAN;
-        SMTC_MODEM_HAL_TRACE_MSG( " BAD RX MHDR\n " );
+        SMTC_MODEM_HAL_TRACE_MSG( " BAD RX MHDR\r\n " );
     }
     *tx_ack_bit = ( *rx_ftype == CONF_DATA_DOWN ) ? 1 : 0;
 
@@ -241,7 +241,7 @@ int lr1mac_rx_fhdr_extract( uint8_t* rx_payload, uint8_t rx_payload_size, uint8_
     else
     {
         *rx_payload_empty = 1;
-        SMTC_MODEM_HAL_TRACE_MSG( " EMPTY MSG \n" );  
+        SMTC_MODEM_HAL_TRACE_MSG( " EMPTY MSG \r\n" );  
         g_confirm_status = 1;
     }
     /**************************/
@@ -249,7 +249,7 @@ int lr1mac_rx_fhdr_extract( uint8_t* rx_payload, uint8_t rx_payload_size, uint8_
     /**************************/
     if( status == ERRORLORAWAN )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( " Bad DevAddr %x\n ", dev_addr_tmp );
+        SMTC_MODEM_HAL_TRACE_ERROR( " Bad DevAddr %x\r\n ", dev_addr_tmp );
     }
     return ( status );
 }
@@ -279,7 +279,7 @@ status_lorawan_t lr1mac_fcnt_dwn_accept( uint16_t fcnt_dwn_tmp, uint32_t* fcnt_l
     {
         SMTC_MODEM_HAL_TRACE_WARNING(
             " FcntDwn is not acceptable fcntDwnReceive = %u "
-            "fcntLoraStack = %d\n",
+            "fcntLoraStack = %d\r\n",
             fcnt_dwn_tmp, ( *fcnt_lorawan ) );
         return ERRORLORAWAN;
     }

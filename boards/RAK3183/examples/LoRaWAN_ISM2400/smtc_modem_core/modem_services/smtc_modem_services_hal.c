@@ -87,7 +87,7 @@ void smtc_modem_services_aes_encrypt( const uint8_t* raw_buffer, uint16_t size, 
     if( smtc_modem_crypto_service_encrypt( raw_buffer, size, aes_ctr_nonce, enc_buffer ) !=
         SMTC_MODEM_CRYPTO_RC_SUCCESS )
     {
-        smtc_modem_hal_mcu_panic( "Encryption of lfu failed\n" );
+        smtc_modem_hal_mcu_panic( "Encryption of lfu failed\r\n" );
     }
 }
 

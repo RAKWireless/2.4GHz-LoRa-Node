@@ -199,18 +199,18 @@ smtc_modem_return_code_t smtc_modem_test_start( void )
 {
     if( modem_get_test_mode_status( ) == true )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "P2P MODE: ALREADY STARTED\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "P2P MODE: ALREADY STARTED\r\n" );
         return SMTC_MODEM_RC_BUSY;
     }
 
     if( get_join_state( ) != MODEM_NOT_JOINED )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "P2P MODE: not available if joined\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "P2P MODE: not available if joined\r\n" );
         return SMTC_MODEM_RC_FAIL;
     }
 
     modem_set_test_mode_status( true );
-    SMTC_MODEM_HAL_TRACE_INFO( "P2P MODE: START\n" );
+    SMTC_MODEM_HAL_TRACE_INFO( "P2P MODE: START\r\n" );
     memset( &modem_test_context, 0, sizeof( modem_test_context_t ) );
 
     modem_test_context.rp          = modem_context_get_modem_rp( );
@@ -227,7 +227,7 @@ smtc_modem_return_code_t smtc_modem_test_stop( void )
 {
     if( modem_get_test_mode_status( ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
 
@@ -246,7 +246,7 @@ smtc_modem_return_code_t smtc_modem_test_tx_hop( void )
 {
     if( modem_get_test_mode_status( ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
     return SMTC_MODEM_RC_FAIL;
@@ -256,7 +256,7 @@ smtc_modem_return_code_t smtc_modem_test_nop( void )
 {
     if( modem_get_test_mode_status( ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
     rp_task_abort( modem_test_context.rp, modem_test_context.hook_id );
@@ -270,27 +270,27 @@ smtc_modem_return_code_t smtc_modem_test_tx( uint8_t* payload, uint8_t payload_l
 {
     if( modem_get_test_mode_status( ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
     if( smtc_real_is_frequency_valid( modem_test_context.lr1_mac_obj, frequency_hz ) != OKLORAWAN )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid Frequency %d\n", frequency_hz );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid Frequency %d\r\n", frequency_hz );
         return SMTC_MODEM_RC_INVALID;
     }
     if( sf >= SMTC_MODEM_TEST_LORA_SF_COUNT )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid sf %d\n", sf );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid sf %d\r\n", sf );
         return SMTC_MODEM_RC_INVALID;
     }
     if( bw >= SMTC_MODEM_TEST_BW_COUNT )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid bw %d\n", bw );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid bw %d\r\n", bw );
         return SMTC_MODEM_RC_INVALID;
     }
     if( cr >= SMTC_MODEM_TEST_CR_COUNT )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid cr %d\n", cr );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid cr %d\r\n", cr );
         return SMTC_MODEM_RC_INVALID;
     }
 
@@ -326,7 +326,7 @@ smtc_modem_return_code_t smtc_modem_test_tx( uint8_t* payload, uint8_t payload_l
         rp_radio_params.pkt_type = RAL_PKT_TYPE_GFSK;
         rp_radio_params.tx.gfsk  = gfsk_param;
 
-        SMTC_MODEM_HAL_TRACE_PRINTF( "GFSK Tx - Freq:%d, Power:%d, length:%u\n", frequency_hz, tx_power_dbm,
+        SMTC_MODEM_HAL_TRACE_PRINTF( "GFSK Tx - Freq:%d, Power:%d, length:%u\r\n", frequency_hz, tx_power_dbm,
                                      payload_length );
 
         rp_task.type                  = RP_TASK_TYPE_TX_FSK;
@@ -360,11 +360,11 @@ smtc_modem_return_code_t smtc_modem_test_tx( uint8_t* payload, uint8_t payload_l
 
   
 /* Remove printing so that the user cannot understand the conversion parameter */	
-       SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Tx - Freq:%u, Power:%d, sf:%u, bw:%u, cr:%u, length:%u\n", frequency_hz,
+       SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Tx - Freq:%u, Power:%d, sf:%u, bw:%u, cr:%u, length:%u\r\n", frequency_hz,
                                      tx_power_dbm, rp_radio_params.tx.lora.mod_params.sf, lora_param.mod_params.bw,
                                      lora_param.mod_params.cr, payload_length );
 
-//        SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Tx - Freq:%u\n", frequency_hz);
+//        SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Tx - Freq:%u\r\n", frequency_hz);
    
         rp_task.type                  = RP_TASK_TYPE_TX_LORA;
         rp_task.launch_task_callbacks = lr1_stack_mac_tx_lora_launch_callback_for_rp;
@@ -420,12 +420,12 @@ smtc_modem_return_code_t smtc_modem_test_tx_cw( uint32_t frequency_hz, int8_t tx
 {
     if( modem_get_test_mode_status( ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
     if( smtc_real_is_frequency_valid( modem_test_context.lr1_mac_obj, frequency_hz ) != OKLORAWAN )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid Frequency %d\n", frequency_hz );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid Frequency %d\r\n", frequency_hz );
         return SMTC_MODEM_RC_INVALID;
     }
 
@@ -459,10 +459,10 @@ smtc_modem_return_code_t smtc_modem_test_tx_cw( uint32_t frequency_hz, int8_t tx
 
     if( rp_task_enqueue( modem_test_context.rp, &rp_task, NULL, 0, &radio_params ) != RP_HOOK_STATUS_OK )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "Radio planner hook %d is busy \n", rp_task.hook_id );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "Radio planner hook %d is busy \r\n", rp_task.hook_id );
     }
 
-    SMTC_MODEM_HAL_TRACE_PRINTF( "Tx CW - Freq:%u, Power:%d\n", frequency_hz, lora_param.output_pwr_in_dbm );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "Tx CW - Freq:%u, Power:%d\r\n", frequency_hz, lora_param.output_pwr_in_dbm );
     return SMTC_MODEM_RC_OK;
 }
 
@@ -471,27 +471,27 @@ smtc_modem_return_code_t smtc_modem_test_rx_continuous( uint32_t frequency_hz, s
 {
     if( modem_get_test_mode_status( ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
     if( smtc_real_is_frequency_valid( modem_test_context.lr1_mac_obj, frequency_hz ) != OKLORAWAN )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid Frequency %u\n", frequency_hz );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid Frequency %u\r\n", frequency_hz );
         return SMTC_MODEM_RC_INVALID;
     }
     if( sf >= SMTC_MODEM_TEST_LORA_SF_COUNT )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid sf %d\n", sf );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid sf %d\r\n", sf );
         return SMTC_MODEM_RC_INVALID;
     }
     if( bw >= SMTC_MODEM_TEST_BW_COUNT )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid bw %d\n", bw );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid bw %d\r\n", bw );
         return SMTC_MODEM_RC_INVALID;
     }
     if( cr >= SMTC_MODEM_TEST_CR_COUNT )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid cr %d\n", cr );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid cr %d\r\n", cr );
         return SMTC_MODEM_RC_INVALID;
     }
 
@@ -531,7 +531,7 @@ smtc_modem_return_code_t smtc_modem_test_rx_continuous( uint32_t frequency_hz, s
         rp_radio_params.pkt_type = RAL_PKT_TYPE_GFSK;
         rp_radio_params.rx.gfsk  = gfsk_param;
 
-        SMTC_MODEM_HAL_TRACE_PRINTF( "GFSK Rx - Freq:%d\n", frequency_hz );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "GFSK Rx - Freq:%d\r\n", frequency_hz );
 
         // Radio planner task config
         rp_task.type                  = RP_TASK_TYPE_RX_FSK;
@@ -562,9 +562,9 @@ smtc_modem_return_code_t smtc_modem_test_rx_continuous( uint32_t frequency_hz, s
         rp_radio_params.pkt_type = RAL_PKT_TYPE_LORA;
         rp_radio_params.rx.lora  = lora_param;
 
-        SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Rx - Freq:%u, sf:%u, bw:%u, cr:%u\n", frequency_hz,
+        SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Rx - Freq:%u, sf:%u, bw:%u, cr:%u\r\n", frequency_hz,
                                      rp_radio_params.rx.lora.mod_params.sf, rp_radio_params.rx.lora.mod_params.bw, rp_radio_params.rx.lora.mod_params.cr );
-//         SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Rx - Freq:%u\n",frequency_hz );
+//         SMTC_MODEM_HAL_TRACE_PRINTF( "LoRa Rx - Freq:%u\r\n",frequency_hz );
         
 
         // Radio planner task config
@@ -593,7 +593,7 @@ smtc_modem_return_code_t smtc_modem_test_get_nb_rx_packets( uint32_t* nb_rx_pack
 {
     if( modem_get_test_mode_status( ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
     *nb_rx_packets = modem_test_context.total_rx_packets;
@@ -604,17 +604,17 @@ smtc_modem_return_code_t smtc_modem_test_rssi( uint32_t frequency_hz, smtc_modem
 {
     if( modem_get_test_mode_status( ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
     if( smtc_real_is_frequency_valid( modem_test_context.lr1_mac_obj, frequency_hz ) != OKLORAWAN )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( " Invalid Frequency %d\n", frequency_hz );
+        SMTC_MODEM_HAL_TRACE_ERROR( " Invalid Frequency %d\r\n", frequency_hz );
         return SMTC_MODEM_RC_INVALID;
     }
     if( bw >= SMTC_MODEM_TEST_BW_COUNT )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid bw %d\n", bw );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid bw %d\r\n", bw );
         return SMTC_MODEM_RC_INVALID;
     }
 
@@ -646,7 +646,7 @@ smtc_modem_return_code_t smtc_modem_test_get_rssi( int8_t* rssi )
 {
     if( modem_get_test_mode_status( ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
 
@@ -654,7 +654,7 @@ smtc_modem_return_code_t smtc_modem_test_get_rssi( int8_t* rssi )
 
     if( modem_test_context.rssi_ready == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "RSSI TEST RESULT NOT READY\n" )
+        SMTC_MODEM_HAL_TRACE_WARNING( "RSSI TEST RESULT NOT READY\r\n" )
         return_code = SMTC_MODEM_RC_BUSY;
     }
     else
@@ -674,7 +674,7 @@ smtc_modem_return_code_t smtc_modem_test_radio_reset( void )
 {
     if( modem_get_test_mode_status( ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
     if( ral_reset( &( modem_test_context.rp->radio->ral ) ) != RAL_STATUS_OK )
@@ -719,7 +719,7 @@ smtc_modem_return_code_t smtc_modem_test_direct_radio_write( uint8_t* command, u
 {
     if( modem_get_test_mode_status( ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
 #if defined( SX128X )
@@ -747,7 +747,7 @@ smtc_modem_return_code_t smtc_modem_test_direct_radio_read( uint8_t* command, ui
 {
     if( modem_get_test_mode_status( ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "TEST FUNCTION CANNOT BE CALLED: NOT IN TEST MODE\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
 #if defined( SX128X )
@@ -777,7 +777,7 @@ smtc_modem_return_code_t smtc_modem_test_direct_radio_read( uint8_t* command, ui
 
 void modem_test_empty_callback( modem_test_context_t* context )
 {
-    //SMTC_MODEM_HAL_TRACE_PRINTF( "TEST mode Empty callback\n" );   //daniel
+    //SMTC_MODEM_HAL_TRACE_PRINTF( "TEST mode Empty callback\r\n" );   //daniel
 }
 
 void modem_test_compute_rssi_callback( modem_test_context_t* context )
@@ -788,7 +788,7 @@ void modem_test_compute_rssi_callback( modem_test_context_t* context )
     context->total_rx_packets = context->lr1_mac_obj->lbt_obj->rssi_nb_of_meas;
     context->rssi_ready       = true;
 
-    SMTC_MODEM_HAL_TRACE_PRINTF( "rssi_accu: %d, cnt:%d --> rssi: %d dBm\n", context->lr1_mac_obj->lbt_obj->rssi_accu,
+    SMTC_MODEM_HAL_TRACE_PRINTF( "rssi_accu: %d, cnt:%d --> rssi: %d dBm\r\n", context->lr1_mac_obj->lbt_obj->rssi_accu,
                                  context->lr1_mac_obj->lbt_obj->rssi_nb_of_meas, context->rssi );
 }
 
@@ -798,7 +798,7 @@ void modem_test_tx_callback( modem_test_context_t* context )
     rp_status_t rp_status = context->rp->status[context->hook_id];
     if( rp_status == RP_STATUS_TASK_ABORTED )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( " modem_test_tx_callback ABORTED\n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( " modem_test_tx_callback ABORTED\r\n" );
         return;
     }
     rp_task_t rp_task = { 0 };
@@ -860,7 +860,7 @@ void modem_test_rx_callback( modem_test_context_t* context )
         int16_t  snr              = context->rp->radio_params[context->hook_id].rx.lora_pkt_status.snr_pkt_in_db;
         int16_t  rssi             = context->rp->radio_params[context->hook_id].rx.lora_pkt_status.rssi_pkt_in_dbm;
         uint32_t irq_timestamp_ms = context->rp->irq_timestamp_ms[context->hook_id];
-        //SMTC_MODEM_HAL_TRACE_PRINTF( "t: %d, rp_status %u, snr: %d, rssi: %d\n", irq_timestamp_ms, rp_status, snr,
+        //SMTC_MODEM_HAL_TRACE_PRINTF( "t: %d, rp_status %u, snr: %d, rssi: %d\r\n", irq_timestamp_ms, rp_status, snr,
         //                            rssi );
         SMTC_MODEM_HAL_TRACE_PRINTF("+EVT:RXP2P:%d:%d:",rssi,snr);
         for(int i=0; i<context->rp->payload_size[context->hook_id] ; i++)
@@ -873,7 +873,7 @@ void modem_test_rx_callback( modem_test_context_t* context )
     }
     else if( rp_status == RP_STATUS_TASK_ABORTED )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( " modem_test_rx_callback ABORTED\n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( " modem_test_rx_callback ABORTED\r\n" );
         return;
     }
 

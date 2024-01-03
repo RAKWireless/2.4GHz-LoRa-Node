@@ -423,7 +423,7 @@ am_util_ble_disable_rollback(void* pHandle, void* pDevConfig)
     ui32ErrorStatus = am_util_ble_update_sign_set(pHandle, COOPER_INFO1_UPDATE_SIGN);
     if ( ui32ErrorStatus != AM_DEVICES_COOPER_STATUS_SUCCESS )
     {
-        am_util_stdio_printf("Write signature to BLE Controller failed\n");
+        am_util_stdio_printf("Write signature to BLE Controller failed\r\n");
     }
     else
     {

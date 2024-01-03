@@ -149,7 +149,7 @@ static void get_event(void)
         switch (current_event.event_type)
         {
         case SMTC_MODEM_EVENT_RESET:
-            SMTC_HAL_TRACE_INFO("Event received: RESET\n");
+            SMTC_HAL_TRACE_INFO("Event received: RESET\r\n");
 
 			/* The device reset is always in Lorawan mode */
 			if(lora_params.nwm == 0)
@@ -167,7 +167,7 @@ static void get_event(void)
 			// uint8_t rc = smtc_modem_set_class(stack_id, lora_params.class);
 			// if (rc != SMTC_MODEM_RC_OK)
 			// {
-			//     SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\n", rc);
+			//     SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\r\n", rc);
 			// }
 
 			// Schedule a Join LoRaWAN network
@@ -175,7 +175,7 @@ static void get_event(void)
 			break;
 
 		case SMTC_MODEM_EVENT_ALARM:
-			SMTC_HAL_TRACE_INFO("Event received: ALARM\n");
+			SMTC_HAL_TRACE_INFO("Event received: ALARM\r\n");
 
 			if (lora_params.interval > 0)
 				smtc_modem_alarm_start_timer(lora_params.interval);
@@ -183,8 +183,8 @@ static void get_event(void)
 			break;
 
 		case SMTC_MODEM_EVENT_JOINED:
-			SMTC_HAL_TRACE_INFO("Event received: JOINED\n");
-			SMTC_HAL_TRACE_INFO("Modem is now joined \n");
+			SMTC_HAL_TRACE_INFO("Event received: JOINED\r\n");
+			SMTC_HAL_TRACE_INFO("Modem is now joined \r\n");
 
 			if (lora_params.interval > 0)
 				smtc_modem_alarm_start_timer(lora_params.interval);
@@ -192,81 +192,81 @@ static void get_event(void)
 			break;
 
 		case SMTC_MODEM_EVENT_TXDONE:
-			SMTC_HAL_TRACE_INFO("Event received: TXDONE\n");
-			SMTC_HAL_TRACE_INFO("Transmission done \n");
+			SMTC_HAL_TRACE_INFO("Event received: TXDONE\r\n");
+			SMTC_HAL_TRACE_INFO("Transmission done \r\n");
 
 			break;
 
         case SMTC_MODEM_EVENT_DOWNDATA:
-            SMTC_HAL_TRACE_INFO("Event received: DOWNDATA\n");
+            SMTC_HAL_TRACE_INFO("Event received: DOWNDATA\r\n");
             rx_payload_size = (uint8_t)current_event.event_data.downdata.length;
             memcpy(rx_payload, current_event.event_data.downdata.data, rx_payload_size);
-            SMTC_HAL_TRACE_PRINTF("Data received on port %u\n", current_event.event_data.downdata.fport);
+            SMTC_HAL_TRACE_PRINTF("Data received on port %u\r\n", current_event.event_data.downdata.fport);
             SMTC_HAL_TRACE_ARRAY("Received payload", rx_payload, rx_payload_size);
 
 
 		case SMTC_MODEM_EVENT_UPLOADDONE:
-			SMTC_HAL_TRACE_INFO("Event received: UPLOADDONE\n");
+			SMTC_HAL_TRACE_INFO("Event received: UPLOADDONE\r\n");
 
 			break;
 
 		case SMTC_MODEM_EVENT_SETCONF:
-			SMTC_HAL_TRACE_INFO("Event received: SETCONF\n");
+			SMTC_HAL_TRACE_INFO("Event received: SETCONF\r\n");
 
 			break;
 
 		case SMTC_MODEM_EVENT_MUTE:
-			SMTC_HAL_TRACE_INFO("Event received: MUTE\n");
+			SMTC_HAL_TRACE_INFO("Event received: MUTE\r\n");
 
 			break;
 
 		case SMTC_MODEM_EVENT_STREAMDONE:
-			SMTC_HAL_TRACE_INFO("Event received: STREAMDONE\n");
+			SMTC_HAL_TRACE_INFO("Event received: STREAMDONE\r\n");
 
 			break;
 
 		case SMTC_MODEM_EVENT_JOINFAIL:
-			SMTC_HAL_TRACE_INFO("Event received: JOINFAIL\n");
-			SMTC_HAL_TRACE_WARNING("Join request failed \n");
+			SMTC_HAL_TRACE_INFO("Event received: JOINFAIL\r\n");
+			SMTC_HAL_TRACE_WARNING("Join request failed \r\n");
 			/* Stop joining the network after failure */
 			smtc_modem_leave_network(stack_id);
 
 			break;
 
 		case SMTC_MODEM_EVENT_TIME:
-			SMTC_HAL_TRACE_INFO("Event received: TIME\n");
+			SMTC_HAL_TRACE_INFO("Event received: TIME\r\n");
 			break;
 
 		case SMTC_MODEM_EVENT_TIMEOUT_ADR_CHANGED:
-			SMTC_HAL_TRACE_INFO("Event received: TIMEOUT_ADR_CHANGED\n");
+			SMTC_HAL_TRACE_INFO("Event received: TIMEOUT_ADR_CHANGED\r\n");
 			break;
 
 		case SMTC_MODEM_EVENT_NEW_LINK_ADR:
-			SMTC_HAL_TRACE_INFO("Event received: NEW_LINK_ADR\n");
+			SMTC_HAL_TRACE_INFO("Event received: NEW_LINK_ADR\r\n");
 			break;
 
 		case SMTC_MODEM_EVENT_LINK_CHECK:
-			SMTC_HAL_TRACE_INFO("Event received: LINK_CHECK\n");
+			SMTC_HAL_TRACE_INFO("Event received: LINK_CHECK\r\n");
 			break;
 
 		case SMTC_MODEM_EVENT_ALMANAC_UPDATE:
-			SMTC_HAL_TRACE_INFO("Event received: ALMANAC_UPDATE\n");
+			SMTC_HAL_TRACE_INFO("Event received: ALMANAC_UPDATE\r\n");
 			break;
 
 		case SMTC_MODEM_EVENT_USER_RADIO_ACCESS:
-			SMTC_HAL_TRACE_INFO("Event received: USER_RADIO_ACCESS\n");
+			SMTC_HAL_TRACE_INFO("Event received: USER_RADIO_ACCESS\r\n");
 			break;
 
 		case SMTC_MODEM_EVENT_CLASS_B_PING_SLOT_INFO:
-			SMTC_HAL_TRACE_INFO("Event received: CLASS_B_PING_SLOT_INFO\n");
+			SMTC_HAL_TRACE_INFO("Event received: CLASS_B_PING_SLOT_INFO\r\n");
 			break;
 
 		case SMTC_MODEM_EVENT_CLASS_B_STATUS:
-			SMTC_HAL_TRACE_INFO("Event received: CLASS_B_STATUS\n");
+			SMTC_HAL_TRACE_INFO("Event received: CLASS_B_STATUS\r\n");
 			break;
 
 		default:
-			SMTC_HAL_TRACE_ERROR("Unknown event %u\n", current_event.event_type);
+			SMTC_HAL_TRACE_ERROR("Unknown event %u\r\n", current_event.event_type);
 			break;
 		}
 	} while (event_pending_count > 0);
@@ -274,7 +274,7 @@ static void get_event(void)
 
 void lorawan_init()
 {
-    SMTC_HAL_TRACE_INFO("RAK LoRaWAN ISM2400 Example\n");
+    SMTC_HAL_TRACE_INFO("RAK LoRaWAN ISM2400 Example\r\n");
     hal_spi_init(0, 0, 0, 0);
     hal_rtc_init();
     hal_lp_timer_init();
@@ -288,7 +288,7 @@ void lorawan_init()
     load_lora_params();
 
 	char* mode[2]={"P2P" , "LORAWAN"};
-	SMTC_HAL_TRACE_INFO("Work Mode %s\n",mode[lora_params.nwm]);
+	SMTC_HAL_TRACE_INFO("Work Mode %s\r\n",mode[lora_params.nwm]);
 
     smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
     smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
@@ -318,7 +318,7 @@ void lorawan_init()
     uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
     if (rc != SMTC_MODEM_RC_OK)
     {
-        SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\n", rc);
+        SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\r\n", rc);
     }
 
     lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);

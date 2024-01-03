@@ -56,9 +56,9 @@
 #define DBG_PRINT_WITH_LINE( ... )                                                     \
     do                                                                                 \
     {                                                                                  \
-        SMTC_MODEM_HAL_TRACE_MSG( "\n  *************************************\n  * " ); \
+        SMTC_MODEM_HAL_TRACE_MSG( "\r\n  *************************************\r\n  * " ); \
         SMTC_MODEM_HAL_TRACE_PRINTF( __VA_ARGS__ );                                    \
-        SMTC_MODEM_HAL_TRACE_MSG( "\n  *************************************\n" );     \
+        SMTC_MODEM_HAL_TRACE_MSG( "\r\n  *************************************\r\n" );     \
     } while( 0 );
 
 /*
@@ -142,7 +142,7 @@ void lr1mac_core_init( lr1_stack_mac_t* lr1_mac_obj, smtc_real_t* real, smtc_lbt
 
     if( status == ERRORLORAWAN )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "No valid lr1mac context --> Use default value\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "No valid lr1mac context --> Use default value\r\n" );
 
         lr1_mac_obj->adr_custom[0]     = BSP_USER_DR_DISTRIBUTION_PARAMETERS;  // (dr0 only)
         lr1_mac_obj->adr_custom[1]     = 0;
@@ -153,23 +153,23 @@ void lr1mac_core_init( lr1_stack_mac_t* lr1_mac_obj, smtc_real_t* real, smtc_lbt
     load_devnonce_reset( lr1_mac_obj );
     lr1_mac_obj->nb_of_reset += 1;  // increment reset counter when lr1mac_core_init is called, reset is saved when
                                     // devnonce is save (after a tx join)
-    SMTC_MODEM_HAL_TRACE_PRINTF( " DevNonce = %d\n", lr1_mac_obj->dev_nonce );
-    SMTC_MODEM_HAL_TRACE_PRINTF( " JoinNonce = 0x%02x %02x %02x, NetID = 0x%02x %02x %02x\n",
+    SMTC_MODEM_HAL_TRACE_PRINTF( " DevNonce = %d\r\n", lr1_mac_obj->dev_nonce );
+    SMTC_MODEM_HAL_TRACE_PRINTF( " JoinNonce = 0x%02x %02x %02x, NetID = 0x%02x %02x %02x\r\n",
                                  lr1_mac_obj->join_nonce[0], lr1_mac_obj->join_nonce[1], lr1_mac_obj->join_nonce[2],
                                  lr1_mac_obj->join_nonce[3], lr1_mac_obj->join_nonce[4], lr1_mac_obj->join_nonce[5] );
-    SMTC_MODEM_HAL_TRACE_PRINTF( " NbOfReset = %d\n", lr1_mac_obj->nb_of_reset );
-    SMTC_MODEM_HAL_TRACE_PRINTF( " Region = %s\n", smtc_real_region_list_str[lr1_mac_obj->real->region_type] );
+    SMTC_MODEM_HAL_TRACE_PRINTF( " NbOfReset = %d\r\n", lr1_mac_obj->nb_of_reset );
+    SMTC_MODEM_HAL_TRACE_PRINTF( " Region = %s\r\n", smtc_real_region_list_str[lr1_mac_obj->real->region_type] );
 
     lr1_mac_obj->rp                           = rp;
     lr1_mac_obj->no_rx_packet_reset_threshold = LR1MAC_NO_RX_PACKET_RESET_THRESHOLD;
     rp_hook_init( lr1_mac_obj->rp, lr1_mac_obj->stack_id4rp, ( void ( * )( void* ) )( lr1_stack_mac_rp_callback ),
                   ( lr1_mac_obj ) );
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "rp_hook_init done\n" );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "rp_hook_init done\r\n" );
 
     smtc_real_config( lr1_mac_obj );
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "smtc_real_config done\n" );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "smtc_real_config done\r\n" );
     smtc_real_init( lr1_mac_obj );
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "smtc_real_init done\n" );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "smtc_real_init done\r\n" );
 
     // Initialize here adr_ack_limit_init and adr_ack_delay_init which are real dependant and must be updated after the
     // real is initialized and not reinit after the join accept
@@ -192,7 +192,7 @@ lr1mac_states_t lr1mac_core_process( lr1_stack_mac_t* lr1_mac_obj )
         if( ( lr1_mac_joined_status_get( lr1_mac_obj ) == JOINING ) &&
             ( ( int32_t )( lr1_mac_obj->next_time_to_join_seconds - smtc_modem_hal_get_time_in_s( ) ) > 0 ) )
         {
-            SMTC_MODEM_HAL_TRACE_PRINTF( "TOO SOON TO JOIN time is  %d time target is : %d\n",
+            SMTC_MODEM_HAL_TRACE_PRINTF( "TOO SOON TO JOIN time is  %d time target is : %d\r\n",
                                          smtc_modem_hal_get_time_in_s( ), lr1_mac_obj->next_time_to_join_seconds );
             lr1_mac_obj->lr1mac_state = LWPSTATE_IDLE;
         }
@@ -203,7 +203,7 @@ lr1mac_states_t lr1mac_core_process( lr1_stack_mac_t* lr1_mac_obj )
         ( ( int32_t )( smtc_modem_hal_get_time_in_s( ) - failsafe_timstamp_get( lr1_mac_obj ) - FAILSAFE_DURATION ) >
           0 ) )
     {
-        smtc_modem_hal_lr1mac_panic( "FAILSAFE EVENT OCCUR (lr1mac_state:0x%x)\n", lr1_mac_obj->lr1mac_state );
+        smtc_modem_hal_lr1mac_panic( "FAILSAFE EVENT OCCUR (lr1mac_state:0x%x)\r\n", lr1_mac_obj->lr1mac_state );
         lr1_mac_obj->lr1mac_state = LWPSTATE_ERROR;
     }
     if( lr1_mac_obj->radio_process_state == RADIOSTATE_ABORTED_BY_RP )
@@ -240,7 +240,7 @@ lr1mac_states_t lr1mac_core_process( lr1_stack_mac_t* lr1_mac_obj )
                 smtc_real_lora_dr_to_sf_bw( lr1_mac_obj, lr1_mac_obj->tx_data_rate, &tx_sf, &tx_bw );
 
                 SMTC_MODEM_HAL_TRACE_PRINTF(
-                    "  Tx  LoRa at %u ms: freq:%u, SF%u, %s, len %u bytes %d dBm, fcnt_up %d, toa = %d\n",
+                    "  Tx  LoRa at %u ms: freq:%u, SF%u, %s, len %u bytes %d dBm, fcnt_up %d, toa = %d\r\n",
                     lr1_mac_obj->rtc_target_timer_ms, lr1_mac_obj->tx_frequency, tx_sf, smtc_name_bw[tx_bw],
                     lr1_mac_obj->tx_payload_size, lr1_mac_obj->tx_power, lr1_mac_obj->fcnt_up,
                     lr1_stack_toa_get( lr1_mac_obj ) );
@@ -248,7 +248,7 @@ lr1mac_states_t lr1mac_core_process( lr1_stack_mac_t* lr1_mac_obj )
             else if( tx_modulation_type == FSK )
             {
                 SMTC_MODEM_HAL_TRACE_PRINTF(
-                    "  Tx  FSK  at %u ms: freq:%u, len %u bytes %d dBm, fcnt_up %d, toa = %d\n",
+                    "  Tx  FSK  at %u ms: freq:%u, len %u bytes %d dBm, fcnt_up %d, toa = %d\r\n",
                     lr1_mac_obj->rtc_target_timer_ms, lr1_mac_obj->tx_frequency, lr1_mac_obj->tx_payload_size,
                     lr1_mac_obj->tx_power, lr1_mac_obj->fcnt_up, lr1_stack_toa_get( lr1_mac_obj ) );
             }
@@ -258,7 +258,7 @@ lr1mac_states_t lr1mac_core_process( lr1_stack_mac_t* lr1_mac_obj )
                 lr_fhss_v1_bw_t tx_bw;
                 smtc_real_lr_fhss_dr_to_cr_bw( lr1_mac_obj, lr1_mac_obj->tx_data_rate, &tx_cr, &tx_bw );
                 SMTC_MODEM_HAL_TRACE_PRINTF(
-                    "  Tx  LR FHSS at %u ms: freq:%u, DR%u (%s, %s Hz), len %u bytes, %d dBm, fcnt_up %d, toa = %d\n",
+                    "  Tx  LR FHSS at %u ms: freq:%u, DR%u (%s, %s Hz), len %u bytes, %d dBm, fcnt_up %d, toa = %d\r\n",
                     lr1_mac_obj->rtc_target_timer_ms, lr1_mac_obj->tx_frequency, lr1_mac_obj->tx_data_rate,
                     smtc_name_lr_fhss_cr[tx_cr], smtc_name_lr_fhss_bw[tx_bw], lr1_mac_obj->tx_payload_size,
                     lr1_mac_obj->tx_power, lr1_mac_obj->fcnt_up, lr1_stack_toa_get( lr1_mac_obj ) );
@@ -372,7 +372,7 @@ lr1mac_states_t lr1mac_core_process( lr1_stack_mac_t* lr1_mac_obj )
         break;
 
     default:
-        smtc_modem_hal_lr1mac_panic( "Illegal state in lorawan process\n" );
+        smtc_modem_hal_lr1mac_panic( "Illegal state in lorawan process\r\n" );
         break;
     }
 
@@ -390,12 +390,12 @@ status_lorawan_t lr1mac_core_join( lr1_stack_mac_t* lr1_mac_obj, uint32_t target
 {
     if( lr1_mac_obj->lr1mac_state != LWPSTATE_IDLE )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "LP STATE NOT EQUAL TO IDLE\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "LP STATE NOT EQUAL TO IDLE\r\n" );
         return ERRORLORAWAN;
     }
     if( lr1mac_core_get_activation_mode( lr1_mac_obj ) == ACTIVATION_MODE_ABP )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "ABP DEVICE CAN'T PROCCED A JOIN REQUEST\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "ABP DEVICE CAN'T PROCCED A JOIN REQUEST\r\n" );
         return ERRORLORAWAN;
     }
     uint32_t current_timestamp       = smtc_modem_hal_get_time_in_s( );
@@ -544,25 +544,25 @@ status_lorawan_t lr1mac_core_payload_send( lr1_stack_mac_t* lr1_mac_obj, uint8_t
                                                                lr1_mac_obj->uplink_dwell_time );
     if( status == ERRORLORAWAN )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "PAYLOAD SIZE TOO HIGH\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "PAYLOAD SIZE TOO HIGH\r\n" );
         return ERRORLORAWAN;
     }
     if( ( packet_type != CONF_DATA_UP ) && ( packet_type != UNCONF_DATA_UP ) )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "PAYLOAD PACKET TYPE INVALID\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "PAYLOAD PACKET TYPE INVALID\r\n" );
         return ERRORLORAWAN;
     }
     if( lr1mac_core_get_activation_mode( lr1_mac_obj ) == ACTIVATION_MODE_OTAA )
     {
         if( lr1_mac_obj->join_status != JOINED )
         {
-            SMTC_MODEM_HAL_TRACE_ERROR( "OTAA DEVICE NOT JOINED YET\n" );
+            SMTC_MODEM_HAL_TRACE_ERROR( "OTAA DEVICE NOT JOINED YET\r\n" );
             return ERRORLORAWAN;
         }
     }
     if( lr1_mac_obj->lr1mac_state != LWPSTATE_IDLE )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "LP STATE NOT EQUAL TO IDLE\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "LP STATE NOT EQUAL TO IDLE\r\n" );
         return ERRORLORAWAN;
     }
     // Decrement duty cycle before check the available DTC
@@ -574,7 +574,7 @@ status_lorawan_t lr1mac_core_payload_send( lr1_stack_mac_t* lr1_mac_obj, uint8_t
 
     if( lr1mac_core_next_free_duty_cycle_ms_get( lr1_mac_obj ) > 0 )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "Duty Cycle is full\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "Duty Cycle is full\r\n" );
         return ERRORLORAWAN;
     }
 
@@ -940,10 +940,10 @@ bool lr1mac_core_convert_rtc_to_gps_epoch_time( lr1_stack_mac_t* lr1_mac_obj, ui
 
     tmp_seconds_since_epoch = lr1_mac_obj->seconds_since_epoch + tmp_s;
 
-    // SMTC_MODEM_HAL_TRACE_PRINTF( "tx: %u, rx:%u, diff:%u\n",
+    // SMTC_MODEM_HAL_TRACE_PRINTF( "tx: %u, rx:%u, diff:%u\r\n",
     // lr1_mac->timestamp_tx_done_device_time_req_ms,
     //                              lr1_mac->timestamp_last_device_time_ans_s, delta_tx_rx_ms );
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "DeviceTime GPS : %u.%u s\n", tmp_seconds_since_epoch, tmp_fractional_second );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "DeviceTime GPS : %u.%u s\r\n", tmp_seconds_since_epoch, tmp_fractional_second );
 
     *seconds_since_epoch = tmp_seconds_since_epoch;
     *fractional_second   = tmp_fractional_second;
@@ -1156,7 +1156,7 @@ static void lr1mac_mac_update( lr1_stack_mac_t* lr1_mac_obj )
 
     if( lr1_mac_obj->valid_rx_packet == JOIN_ACCEPT_PACKET )
     {
-        SMTC_MODEM_HAL_TRACE_MSG( " update join procedure\n" );
+        SMTC_MODEM_HAL_TRACE_MSG( " update join procedure\r\n" );
         if( lr1_stack_mac_join_accept( lr1_mac_obj ) == OKLORAWAN )
         {
             //@note because datarate Distribution has been changed during join
@@ -1166,7 +1166,7 @@ static void lr1mac_mac_update( lr1_stack_mac_t* lr1_mac_obj )
         }
         else
         {
-            SMTC_MODEM_HAL_TRACE_WARNING( "Not Joined\n" );
+            SMTC_MODEM_HAL_TRACE_WARNING( "Not Joined\r\n" );
         }
     }
     if( ( lr1_mac_obj->valid_rx_packet == NWKRXPACKET ) || ( lr1_mac_obj->valid_rx_packet == USERRX_FOPTSPACKET ) )
@@ -1254,13 +1254,13 @@ static void load_devnonce_reset( lr1_stack_mac_t* lr1_mac_obj )
     }
     else
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "No valid DevNonce in NVM, use default (0)\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "No valid DevNonce in NVM, use default (0)\r\n" );
     }
 }
 
 static void try_recover_nvm( lr1_stack_mac_t* lr1_mac_obj )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF( "Lr1mac context : Try recover NVM\n" );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "Lr1mac context : Try recover NVM\r\n" );
 	
     typedef struct mac_context_010007_s
     {
@@ -1280,7 +1280,7 @@ static void try_recover_nvm( lr1_stack_mac_t* lr1_mac_obj )
 
     if( lr1mac_utilities_crc( ( uint8_t* ) &( old_save_fmt ), sizeof( old_save_fmt ) - 4 ) == old_save_fmt.crc )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "Recover success from 1.0.7 !\n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "Recover success from 1.0.7 !\r\n" );
 
         // memcpy1( lr1_mac_obj->join_eui, old_save_fmt.joineui, 8 );
         // memcpy1( lr1_mac_obj->dev_eui, old_save_fmt.deveui, 8 );
@@ -1295,7 +1295,7 @@ static void try_recover_nvm( lr1_stack_mac_t* lr1_mac_obj )
     }
     else
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "Fail to recover\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "Fail to recover\r\n" );
     }
 }
 

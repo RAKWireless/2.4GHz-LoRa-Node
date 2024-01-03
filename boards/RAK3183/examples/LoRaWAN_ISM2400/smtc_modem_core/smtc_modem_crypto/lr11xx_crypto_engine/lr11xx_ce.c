@@ -146,7 +146,7 @@ uint32_t lr11xx_ce_crc( const uint8_t* buf, int len );
 
 smtc_se_return_code_t smtc_secure_element_init( void )
 {
-    SMTC_MODEM_HAL_TRACE_INFO( "Use lr11xx crypto engine for cryptographic functionalities\n" );
+    SMTC_MODEM_HAL_TRACE_INFO( "Use lr11xx crypto engine for cryptographic functionalities\r\n" );
 
     lr11xx_crypto_status_t lr11xx_crypto_status = LR11XX_CRYPTO_STATUS_ERROR;
 
@@ -163,7 +163,7 @@ smtc_se_return_code_t smtc_secure_element_init( void )
     smtc_modem_hal_assert( lr11xx_crypto_restore_from_flash( lr11xx_ctx, &lr11xx_crypto_status ) == LR11XX_STATUS_OK );
 
 #if defined( USE_PRE_PROVISIONED_FEATURES )
-    SMTC_MODEM_HAL_TRACE_WARNING( "Use lr11xx preprovisioned EUIs and keys\n" );
+    SMTC_MODEM_HAL_TRACE_WARNING( "Use lr11xx preprovisioned EUIs and keys\r\n" );
 
     // Read LR11XX pre-provisioned identity
     smtc_modem_hal_assert( lr11xx_system_read_uid( lr11xx_ctx, lr11xx_ce_data.deveui ) == LR11XX_STATUS_OK );
@@ -498,7 +498,7 @@ smtc_se_return_code_t smtc_secure_element_restore_context( void )
     }
     else
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Restore of Secure Element context fails => Return to init values\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Restore of Secure Element context fails => Return to init values\r\n" );
         // Initialize data structure to 0
         memset( &lr11xx_ce_data, 0, sizeof( lr11xx_ce_data_t ) );
         return SMTC_SE_RC_ERROR;

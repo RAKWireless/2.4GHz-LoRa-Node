@@ -175,7 +175,7 @@ void lorawan_api_class_a_downlink_callback( lr1_stack_mac_t* lr1_mac_object )
         if( fifo_ctrl_set( &fifo_ctrl_obj, lr1_mac_object->rx_payload, lr1_mac_object->rx_payload_size,
                            &( lr1_mac_object->rx_metadata ), sizeof( lr1mac_down_metadata_t ) ) != FIFO_STATUS_OK )
         {
-            SMTC_MODEM_HAL_TRACE_PRINTF( "Fifo problem\n" );
+            SMTC_MODEM_HAL_TRACE_PRINTF( "Fifo problem\r\n" );
             return;
         }
         else
@@ -193,7 +193,7 @@ void lorawan_api_class_c_downlink_callback( lr1mac_class_c_t* class_c_object )
         if( fifo_ctrl_set( &fifo_ctrl_obj, class_c_object->rx_payload, class_c_object->rx_payload_size,
                            &( class_c_object->rx_metadata ), sizeof( lr1mac_down_metadata_t ) ) != FIFO_STATUS_OK )
         {
-            smtc_modem_hal_mcu_panic( "Fifo problem\n" );
+            smtc_modem_hal_mcu_panic( "Fifo problem\r\n" );
             return;
         }
         else
@@ -210,7 +210,7 @@ void lorawan_api_class_b_downlink_callback( smtc_ping_slot_t* class_b_object )
         if( fifo_ctrl_set( &fifo_ctrl_obj, class_b_object->rx_payload, class_b_object->rx_payload_size,
                            &( class_b_object->rx_metadata ), sizeof( lr1mac_down_metadata_t ) ) != FIFO_STATUS_OK )
         {
-            smtc_modem_hal_mcu_panic( "Fifo problem\n" );
+            smtc_modem_hal_mcu_panic( "Fifo problem\r\n" );
             return;
         }
         else
@@ -231,7 +231,7 @@ void lorawan_api_class_b_beacon_callback( smtc_lr1_beacon_t* class_b_beacon_obje
                            &( class_b_beacon_object->beacon_metadata.rx_metadata ),
                            sizeof( lr1mac_down_metadata_t ) ) != FIFO_STATUS_OK )
         {
-            smtc_modem_hal_mcu_panic( "Fifo problem\n" );
+            smtc_modem_hal_mcu_panic( "Fifo problem\r\n" );
             return;
         }
         else

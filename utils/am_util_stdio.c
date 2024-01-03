@@ -1319,5 +1319,5 @@ am_util_stdio_terminal_clear(void)
     //
     // Simulate a clear terminal by printing a series of linefeeds.
     //
-    am_util_stdio_printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    am_util_stdio_printf("\r\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 }
