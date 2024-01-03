@@ -1200,6 +1200,15 @@ AT_Command parse_AT_Command(const char *input)
 void process_AT_Command(const char *input)
 {
     AT_Command cmd = parse_AT_Command(input);
+
+    //  start fix Hit Enter to return AT_ERROR
+    if(strlen(cmd.cmd) == 0)    // When the length of the AT command is 0, no processing is performed.
+    {
+        am_util_stdio_printf("\r\n");
+        return;
+    }
+    //  end fix Hit Enter to return AT_ERROR
+
     int num_handlers = sizeof(handler_table) / sizeof(handler_table[0]);
     for (int i = 0; i < num_handlers; i++)
     {
