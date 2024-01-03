@@ -255,7 +255,7 @@ void smtc_modem_hal_assert_fail( uint8_t* func, uint32_t line )
 //    smtc_modem_hal_set_crashlog_status( true );
 //    smtc_modem_hal_print_trace(
 //        "\x1B[0;31m"  // red color
-//        "crash log :%s:%u\n"
+//        "crash log :%s:%u\r\n"
 //        "\x1B[0m",  // revert default color
 //        func, line );
 //	  am_util_delay_ms(1000);
@@ -263,7 +263,7 @@ void smtc_modem_hal_assert_fail( uint8_t* func, uint32_t line )
    
     smtc_modem_hal_print_trace(
         "\x1B[0;31m"  // red color
-        "crash log :%s:%d\n"
+        "crash log :%s:%d\r\n"
         "\x1B[0m",  // revert default color
         func, line );
 	  am_util_delay_ms(1000);	

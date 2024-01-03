@@ -97,17 +97,17 @@ void RAK1901(void)
 	error = SHTC3_Wakeup();
 	if (error != NO_ERROR)
 	{
-		//am_util_stdio_printf("RAK1901 wakeup error\n");
+		//am_util_stdio_printf("RAK1901 wakeup error\r\n");
 		return;
 	}
 
-	am_util_stdio_printf("RAK1901 init\n");
+	am_util_stdio_printf("RAK1901 init\r\n");
 
 	// demonstration of SoftReset command
 	error = SHTC3_SoftReset();
 	if (error != NO_ERROR)
 	{
-		am_util_stdio_printf("RAK1901 soft reset error\n");
+		am_util_stdio_printf("RAK1901 soft reset error\r\n");
 		return;
 	}
 
@@ -118,11 +118,11 @@ void RAK1901(void)
 	error = SHTC3_GetId(&id);
 	if (error == NO_ERROR)
 	{
-		am_util_stdio_printf("RAK1901 ID 0x%02X\n", id);
+		am_util_stdio_printf("RAK1901 ID 0x%02X\r\n", id);
 	}
 	else
 	{
-		am_util_stdio_printf("RAK1901 get ID error\n");
+		am_util_stdio_printf("RAK1901 get ID error\r\n");
 		return;
 	}
 
@@ -132,30 +132,30 @@ void RAK1901(void)
 								 // SHTC3 CORRECT ID
 	}
 
-	am_util_stdio_printf("RAK1901 wake up\n");
+	am_util_stdio_printf("RAK1901 wake up\r\n");
 
 	// wake up the sensor from sleep mode
 	error = SHTC3_Wakeup();
 	if (error != NO_ERROR)
 	{
-		am_util_stdio_printf("RAK1901 wakeup error\n");
+		am_util_stdio_printf("RAK1901 wakeup error\r\n");
 	}
 
 	// Wait some time
 	delay_ms(3000);
 
-	am_util_stdio_printf("RAK1901 wake up\n");
+	am_util_stdio_printf("RAK1901 wake up\r\n");
 
 	// Start Measurement
 	error = SHTC3_GetTempAndHumi(&temperature, &humidity);
 	if (error == NO_ERROR)
 	{
-		am_util_stdio_printf("SHTC3 TEMP: %f\n", temperature);
-		am_util_stdio_printf("SHTC3 HUM: %f\n", humidity);
+		am_util_stdio_printf("SHTC3 TEMP: %f\r\n", temperature);
+		am_util_stdio_printf("SHTC3 HUM: %f\r\n", humidity);
 	}
 	else
 	{
-		am_util_stdio_printf("SHTC3 COMM ERROR: %s\n", error == I2C_ERROR ? "I2C_ERROR" : "CHECKSUM_ERROR");
+		am_util_stdio_printf("SHTC3 COMM ERROR: %s\r\n", error == I2C_ERROR ? "I2C_ERROR" : "CHECKSUM_ERROR");
 		return;
 	}
 
@@ -187,17 +187,17 @@ void RAK1901_func(void)
 	// Wait some time
 	delay_ms(3000);
 
-	am_util_stdio_printf("RAK1901 wake up\n");
+	am_util_stdio_printf("RAK1901 wake up\r\n");
 
 	// Start Measurement
 	error = SHTC3_GetTempAndHumi(&temperature, &humidity);
 	if (error != NO_ERROR)
 		return;
 
-	am_util_stdio_printf("  ******************************************************************\n");
-	am_util_stdio_printf("SHTC3 TEMP: %f\n", temperature);
-	am_util_stdio_printf("SHTC3 HUM: %f\n", humidity);
-	am_util_stdio_printf("  ******************************************************************\n");
+	am_util_stdio_printf("  ******************************************************************\r\n");
+	am_util_stdio_printf("SHTC3 TEMP: %f\r\n", temperature);
+	am_util_stdio_printf("SHTC3 HUM: %f\r\n", humidity);
+	am_util_stdio_printf("  ******************************************************************\r\n");
 
 	val[3] = (int16_t)(temperature * 10);
 	val[4] = (int16_t)(humidity * 2);

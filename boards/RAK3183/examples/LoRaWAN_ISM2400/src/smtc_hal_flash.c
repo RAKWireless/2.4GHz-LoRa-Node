@@ -96,7 +96,7 @@ uint8_t hal_flash_erase_page(uint32_t addr, uint8_t nb_page)
 
 	if (i32ReturnCode)
 	{
-		am_util_stdio_printf("hal_flash_erase_page error!\n");
+		am_util_stdio_printf("hal_flash_erase_page error!\r\n");
 		// while(1);
 	}
 	return i32ReturnCode;
@@ -140,7 +140,7 @@ uint32_t hal_flash_write_buffer(uint32_t addr, const uint8_t *buffer, uint32_t s
 
 		if (i32ReturnCode)
 		{
-			am_util_stdio_printf("hal_flash_write_buffer error!\n");
+			am_util_stdio_printf("hal_flash_write_buffer error!\r\n");
 			while (1)
 				;
 		}

@@ -253,7 +253,7 @@ smtc_modem_event_user_radio_access_status_t convert_rp_to_user_radio_access_stat
 
 void smtc_modem_init( const ralf_t* radio, void ( *callback_event )( void ) )
 {
-    SMTC_MODEM_HAL_TRACE_INFO( "Modem Initialization\n" );
+    SMTC_MODEM_HAL_TRACE_INFO( "Modem Initialization\r\n" );
 
 #ifdef LORAWAN_BYPASS_ENABLED
     stream_bypass_enabled = false;
@@ -331,7 +331,7 @@ smtc_modem_return_code_t smtc_modem_get_event( smtc_modem_event_t* event, uint8_
         event->event_type    = get_last_msg_event( );
         event->missed_events = get_modem_event_count( event->event_type ) - 1;
 
-        // SMTC_MODEM_HAL_TRACE_PRINTF( "Event ID: %d, Missed: %d\n", event->event_type, event->missed_events );
+        // SMTC_MODEM_HAL_TRACE_PRINTF( "Event ID: %d, Missed: %d\r\n", event->event_type, event->missed_events );
 
         *event_pending_count = event_count - 1;
 
@@ -901,7 +901,7 @@ smtc_modem_return_code_t smtc_modem_set_joineui( uint8_t stack_id, const uint8_t
     if( get_join_state( ) != MODEM_NOT_JOINED )
     {
         return_code = SMTC_MODEM_RC_BUSY;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is already join\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is already join\r\n", __func__ );
     }
     else
     {
@@ -941,7 +941,7 @@ smtc_modem_return_code_t smtc_modem_set_deveui( uint8_t stack_id, const uint8_t 
     if( get_join_state( ) != MODEM_NOT_JOINED )
     {
         return_code = SMTC_MODEM_RC_BUSY;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is already join\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is already join\r\n", __func__ );
     }
     else
     {
@@ -965,7 +965,7 @@ smtc_modem_return_code_t smtc_modem_set_nwkkey( uint8_t stack_id, const uint8_t 
     if( get_join_state( ) != MODEM_NOT_JOINED )
     {
         return_code = SMTC_MODEM_RC_BUSY;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is already join\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is already join\r\n", __func__ );
     }
     else
     {
@@ -1368,13 +1368,13 @@ smtc_modem_return_code_t smtc_modem_set_region( uint8_t stack_id, smtc_modem_reg
 
     if( get_join_state( ) != MODEM_NOT_JOINED )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is already join\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is already join\r\n", __func__ );
         return SMTC_MODEM_RC_BUSY;
     }
 
     if( set_modem_region( region ) == DM_ERROR )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s call with region not valid\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s call with region not valid\r\n", __func__ );
         return SMTC_MODEM_RC_INVALID;
     }
 
@@ -1430,7 +1430,7 @@ smtc_modem_return_code_t smtc_modem_adr_set_profile( uint8_t stack_id, smtc_mode
     if( status == DM_ERROR )
     {
         return_code = SMTC_MODEM_RC_INVALID;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s call with adr profile not valid\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s call with adr profile not valid\r\n", __func__ );
     }
     return return_code;
 }
@@ -1464,7 +1464,7 @@ smtc_modem_return_code_t smtc_modem_dm_set_fport( uint8_t dm_fport )
     if( set_modem_dm_port( dm_fport ) == DM_ERROR )
     {
         return_code = SMTC_MODEM_RC_INVALID;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s call with DM port not valid\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s call with DM port not valid\r\n", __func__ );
     }
 
     return return_code;
@@ -1507,7 +1507,7 @@ smtc_modem_return_code_t smtc_modem_dm_set_info_interval( smtc_modem_dm_info_int
         if( set_modem_dm_interval( modem_interval ) == DM_ERROR )
         {
             return_code = SMTC_MODEM_RC_INVALID;
-            SMTC_MODEM_HAL_TRACE_ERROR( "%s call but interval not valid\n", __func__ );
+            SMTC_MODEM_HAL_TRACE_ERROR( "%s call but interval not valid\r\n", __func__ );
         }
         else
         {
@@ -1589,22 +1589,22 @@ smtc_modem_return_code_t smtc_modem_join_network( uint8_t stack_id )
     if( lorawan_api_get_activation_mode( ) == ACTIVATION_MODE_ABP )
     {
         return_code = SMTC_MODEM_RC_FAIL;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is configured in ABP mode\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is configured in ABP mode\r\n", __func__ );
     }
     else if( get_join_state( ) != MODEM_NOT_JOINED )  // the modem have to be leave from the network to join
     {
         return_code = SMTC_MODEM_RC_BUSY;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is already join\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is already join\r\n", __func__ );
     }
     else if( get_modem_muted( ) == MODEM_INFINITE_MUTE )
     {
         return_code = SMTC_MODEM_RC_FAIL;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s Modem is muted\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s Modem is muted\r\n", __func__ );
     }
     else if( get_modem_suspend( ) == MODEM_SUSPEND )
     {
         return_code = SMTC_MODEM_RC_FAIL;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s Modem is suspend\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s Modem is suspend\r\n", __func__ );
     }
     else
     {
@@ -1632,7 +1632,7 @@ smtc_modem_return_code_t smtc_modem_suspend_radio_communications( bool suspend )
     if( set_modem_suspend( suspend ) == DM_ERROR )
     {
         return_code = SMTC_MODEM_RC_INVALID;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but suspend value is not valid\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but suspend value is not valid\r\n", __func__ );
     }
     return return_code;
 }
@@ -1650,7 +1650,7 @@ smtc_modem_return_code_t smtc_modem_get_next_tx_max_payload( uint8_t stack_id, u
     }
     else
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is not join\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s call but the device is not join\r\n", __func__ );
         *tx_max_payload_size = 0;
         return_code          = SMTC_MODEM_RC_FAIL;
     }
@@ -1769,7 +1769,7 @@ smtc_modem_return_code_t smtc_modem_file_upload_init( uint8_t stack_id, uint8_t 
 
     if( file_length == 0 )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Upload initialization fails: size = 0 is not allowed\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Upload initialization fails: size = 0 is not allowed\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
     else if( cipher_mode > SMTC_MODEM_FILE_UPLOAD_AES_WITH_APPSKEY )
@@ -1779,12 +1779,12 @@ smtc_modem_return_code_t smtc_modem_file_upload_init( uint8_t stack_id, uint8_t 
     else if( ( modem_get_upload_state( ) == MODEM_UPLOAD_INIT_AND_FILLED ) ||
              ( modem_get_upload_state( ) == MODEM_UPLOAD_ON_GOING ) )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "File Upload still in going\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "File Upload still in going\r\n" );
         return SMTC_MODEM_RC_BUSY;
     }
     else if( file == NULL )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Upload file data is null\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Upload file data is null\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
     // save current file size and buff  (to keep hw modem compatiblity if needed)
@@ -1797,7 +1797,7 @@ smtc_modem_return_code_t smtc_modem_file_upload_init( uint8_t stack_id, uint8_t 
     if( file_upload_init( &( smtc_modem_services_ctx.file_upload_ctx ), UPLOAD_SID, ( uint32_t ) file_length,
                           average_delay_s, index, ( uint8_t ) cipher_mode, next_session_counter ) != FILE_UPLOAD_OK )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Upload initialization fails\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Upload initialization fails\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
     SMTC_MODEM_HAL_TRACE_PRINTF( "%s, cipher_mode: %d, size:%d, average_delay:%d, session counter:%d", __func__,
@@ -1825,12 +1825,12 @@ smtc_modem_return_code_t smtc_modem_file_upload_start( uint8_t stack_id )
     }
     if( modem_get_upload_state( ) == MODEM_UPLOAD_ON_GOING )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "FileUpload still in progress..\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "FileUpload still in progress..\r\n" );
         return SMTC_MODEM_RC_BUSY;
     }
     if( modem_get_upload_state( ) != MODEM_UPLOAD_INIT_AND_FILLED )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "File upload session not initialized\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "File upload session not initialized\r\n" );
         return SMTC_MODEM_RC_NOT_INIT;
     }
 
@@ -1859,11 +1859,11 @@ smtc_modem_return_code_t smtc_modem_file_upload_reset( uint8_t stack_id )
     if( ( modem_get_upload_state( ) == MODEM_UPLOAD_NOT_INIT ) ||
         ( modem_get_upload_state( ) == MODEM_UPLOAD_FINISHED ) )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "No file upload session is on going\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "No file upload session is on going\r\n" );
         return SMTC_MODEM_RC_NOT_INIT;
     }
 
-    SMTC_MODEM_HAL_TRACE_WARNING( "File Upload Cancel and session reset!\n" );
+    SMTC_MODEM_HAL_TRACE_WARNING( "File Upload Cancel and session reset!\r\n" );
     modem_set_upload_state( MODEM_UPLOAD_NOT_INIT );
 
     set_modem_status_file_upload( false );
@@ -1885,19 +1885,19 @@ smtc_modem_return_code_t smtc_modem_stream_init( uint8_t stack_id, uint8_t fport
     // Check parameters validity
     if( modem_port_reserved( fport ) )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "STREAM_INIT fport invalid\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "STREAM_INIT fport invalid\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
     if( cipher_mode > SMTC_MODEM_STREAM_AES_WITH_APPSKEY )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "STREAM_INIT encryption mode invalid\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "STREAM_INIT encryption mode invalid\r\n" );
         return SMTC_MODEM_RC_INVALID;
     }
 
     // If parameter fport is set to 0 => use current dm port
     if( fport == 0 )
     {
-        SMTC_MODEM_HAL_TRACE_MSG( "STREAM_INIT Using default DM port\n" );
+        SMTC_MODEM_HAL_TRACE_MSG( "STREAM_INIT Using default DM port\r\n" );
         fport = get_modem_dm_port( );
     }
 
@@ -1907,7 +1907,7 @@ smtc_modem_return_code_t smtc_modem_stream_init( uint8_t stack_id, uint8_t fport
     // initialize stream session
     if( stream_init( &( smtc_modem_services_ctx.stream_ROSE_ctx ) ) != STREAM_OK )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "STREAM_INIT FAILED\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "STREAM_INIT FAILED\r\n" );
         return SMTC_MODEM_RC_FAIL;
     }
     // enable encryption if needed
@@ -1915,7 +1915,7 @@ smtc_modem_return_code_t smtc_modem_stream_init( uint8_t stack_id, uint8_t fport
     {
         if( stream_enable_encryption( &( smtc_modem_services_ctx.stream_ROSE_ctx ) ) != STREAM_OK )
         {
-            SMTC_MODEM_HAL_TRACE_ERROR( "STREAM_INIT ENCRYPTION FAILED\n" );
+            SMTC_MODEM_HAL_TRACE_ERROR( "STREAM_INIT ENCRYPTION FAILED\r\n" );
             return SMTC_MODEM_RC_FAIL;
         }
     }
@@ -1955,7 +1955,7 @@ smtc_modem_return_code_t smtc_modem_stream_add_data( uint8_t stack_id, const uin
         rc = smtc_modem_stream_init( stack_id, get_modem_dm_port( ), SMTC_MODEM_STREAM_NO_CIPHER, 110 );
         if( rc != SMTC_MODEM_RC_OK )
         {
-            SMTC_MODEM_HAL_TRACE_ERROR( "Stream implicit init failed\n" );
+            SMTC_MODEM_HAL_TRACE_ERROR( "Stream implicit init failed\r\n" );
             return rc;
         }
     }
@@ -1965,13 +1965,13 @@ smtc_modem_return_code_t smtc_modem_stream_add_data( uint8_t stack_id, const uin
     switch( stream_rc )
     {
     case STREAM_BADSIZE:
-        SMTC_MODEM_HAL_TRACE_ERROR( "STREAM ADD DATA: Invalid length\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "STREAM ADD DATA: Invalid length\r\n" );
         return SMTC_MODEM_RC_INVALID;
     case STREAM_BUSY:
-        SMTC_MODEM_HAL_TRACE_ERROR( "STREAM ADD DATA: Buffer is full\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "STREAM ADD DATA: Buffer is full\r\n" );
         return SMTC_MODEM_RC_BUSY;
     case STREAM_FAIL:
-        SMTC_MODEM_HAL_TRACE_ERROR( "STREAM ADD DATA: No data record provided\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "STREAM ADD DATA: No data record provided\r\n" );
         return SMTC_MODEM_RC_FAIL;
     default:
         break;
@@ -1980,14 +1980,14 @@ smtc_modem_return_code_t smtc_modem_stream_add_data( uint8_t stack_id, const uin
 #ifdef LORAWAN_BYPASS_ENABLED
     if( stream_bypass_enabled == true )
     {
-        SMTC_MODEM_HAL_TRACE_INFO( "STREAM_SEND BYPASS [OK]\n" );
+        SMTC_MODEM_HAL_TRACE_INFO( "STREAM_SEND BYPASS [OK]\r\n" );
         return SMTC_MODEM_RC_OK;
     }
 #endif  // LORAWAN_BYPASS_ENABLED
 
     modem_supervisor_add_task_stream( );
 
-    SMTC_MODEM_HAL_TRACE_INFO( "STREAM_SEND [OK]\n" );
+    SMTC_MODEM_HAL_TRACE_INFO( "STREAM_SEND [OK]\r\n" );
     return SMTC_MODEM_RC_OK;
 #else   // ADD_SMTC_STREAM
     return SMTC_MODEM_RC_FAIL;
@@ -2026,7 +2026,7 @@ smtc_modem_return_code_t smtc_modem_stream_status( uint8_t stack_id, uint16_t* p
 void modem_stream_bypass_enable( bool enabled )
 {
     stream_bypass_enabled = enabled;
-    SMTC_MODEM_HAL_TRACE_PRINTF( "STREAM BYPASS %d\n", stream_bypass_enabled );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "STREAM BYPASS %d\r\n", stream_bypass_enabled );
 }
 
 /*
@@ -2240,7 +2240,7 @@ smtc_modem_return_code_t smtc_modem_suspend_before_user_radio_access( void )
     // Put modem in suspended mode to prevent scheduler to be called
     smtc_modem_suspend_radio_communications( true );
 
-    SMTC_MODEM_HAL_TRACE_PRINTF( "Suspend modem user radio access\n" );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "Suspend modem user radio access\r\n" );
 
     // Protect radio access with a suspension of all other task in radio planner (put an infinite empty task)
     return ( modem_context_suspend_user_radio_access( RP_TASK_TYPE_NONE ) == true ) ? SMTC_MODEM_RC_OK
@@ -2255,7 +2255,7 @@ smtc_modem_return_code_t smtc_modem_resume_after_user_radio_access( void )
 #if !defined( LR1110_MODEM_E )
     RETURN_BUSY_IF_TEST_MODE( );
 
-    SMTC_MODEM_HAL_TRACE_PRINTF( "Resume modem user radio access\n" );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "Resume modem user radio access\r\n" );
 
     // First stop the radio_planner suspension (always RC_OK)
     modem_context_resume_user_radio_access( );
@@ -2317,7 +2317,7 @@ smtc_modem_return_code_t smtc_modem_lbt_set_parameters( uint8_t stack_id, uint32
     UNUSED( stack_id );
     RETURN_BUSY_IF_TEST_MODE( );
 
-    SMTC_MODEM_HAL_TRACE_PRINTF( "LBT, duration:%d, threshold:%d, bw:%d\n", listen_duration_ms, threshold_dbm, bw_hz );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "LBT, duration:%d, threshold:%d, bw:%d\r\n", listen_duration_ms, threshold_dbm, bw_hz );
 
     lorawan_api_lbt_set_parameters( listen_duration_ms, threshold_dbm, bw_hz );
 
@@ -2354,7 +2354,7 @@ smtc_modem_return_code_t smtc_modem_lbt_set_state( uint8_t stack_id, bool enable
         }
         else
         {
-            SMTC_MODEM_HAL_TRACE_ERROR( "A configuration shall be set before starting LBT \n" );
+            SMTC_MODEM_HAL_TRACE_ERROR( "A configuration shall be set before starting LBT \r\n" );
             return SMTC_MODEM_RC_FAIL;
         }
     }
@@ -2490,7 +2490,7 @@ smtc_modem_return_code_t smtc_modem_d2d_class_b_request_uplink( uint8_t stack_id
 
     if( ( fport == 0 ) || ( fport >= 224 ) || ( fport == get_modem_dm_port( ) ) )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s port %d is forbidden \n", __func__, fport );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s port %d is forbidden \r\n", __func__, fport );
         return SMTC_MODEM_RC_INVALID;
     }
 
@@ -2815,7 +2815,7 @@ void empty_task_launch_callback_for_rp( void* rp_void )
     radio_planner_t* rp = ( radio_planner_t* ) rp_void;
     smtc_modem_hal_start_radio_tcxo( );
     rp_stats_set_none_timestamp( &rp->stats, smtc_modem_hal_get_time_in_ms( ) );
-    SMTC_MODEM_HAL_TRACE_PRINTF( "launch task empty\n" );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "launch task empty\r\n" );
 }
 
 void smtc_modem_suspend_rp( e_sniff_mode_t sniff_mode )
@@ -2859,7 +2859,7 @@ void smtc_modem_suspend_rp( e_sniff_mode_t sniff_mode )
 }
 void smtc_modem_resume_rp( void )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF( "Resume rp\n" );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "Resume rp\r\n" );
     rp_task_abort( &modem_radio_planner, 0 );
     smtc_modem_hal_stop_radio_tcxo( );
 }
@@ -2926,17 +2926,17 @@ static bool is_modem_connected( )
     if( get_modem_muted( ) != MODEM_NOT_MUTE )
     {
         ret = false;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s Modem is muted for %d day(s)\n", __func__, dm_get_number_of_days_mute( ) );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s Modem is muted for %d day(s)\r\n", __func__, dm_get_number_of_days_mute( ) );
     }
     else if( get_modem_suspend( ) == MODEM_SUSPEND )
     {
         ret = false;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s Modem is suspend\n", __func__ );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s Modem is suspend\r\n", __func__ );
     }
     else if( ( get_join_state( ) != MODEM_JOINED ) && ( lorawan_api_get_activation_mode( ) == ACTIVATION_MODE_OTAA ) )
     {
         ret = false;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s Stack not joined or OTA device %d \n", __func__, get_join_state( ) );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s Stack not joined or OTA device %d \r\n", __func__, get_join_state( ) );
     }
     return ( ret );
 }
@@ -2955,7 +2955,7 @@ static smtc_modem_return_code_t smtc_modem_send_empty_tx( uint8_t f_port, bool f
                ( f_port == get_modem_dm_port( ) ) ) )
     {
         return_code = SMTC_MODEM_RC_INVALID;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s port %d is forbidden \n", __func__, f_port );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s port %d is forbidden \r\n", __func__, f_port );
     }
     else
     {
@@ -2990,7 +2990,7 @@ static smtc_modem_return_code_t smtc_modem_send_tx( uint8_t f_port, bool confirm
              ( f_port == get_modem_dm_port( ) ) )
     {
         return_code = SMTC_MODEM_RC_INVALID;
-        SMTC_MODEM_HAL_TRACE_ERROR( "%s port %d is forbidden \n", __func__, f_port );
+        SMTC_MODEM_HAL_TRACE_ERROR( "%s port %d is forbidden \r\n", __func__, f_port );
     }
     else
     {
@@ -3029,7 +3029,7 @@ static smtc_modem_return_code_t smtc_modem_send_tx( uint8_t f_port, bool confirm
         task_send.sizeIn            = payload_length;
         task_send.time_to_execute_s = smtc_modem_hal_get_time_in_s( );
 
-        // SMTC_MODEM_HAL_TRACE_INFO( "add task user tx payload with payload size = %d \n ", payload_length );
+        // SMTC_MODEM_HAL_TRACE_INFO( "add task user tx payload with payload size = %d \r\n ", payload_length );
         if( modem_supervisor_add_task( &task_send ) != TASK_VALID )
         {
             return_code = SMTC_MODEM_RC_FAIL;
@@ -3139,7 +3139,7 @@ void user_radio_access_callback( void* ctx )
     switch( user_radio_irq_status )
     {
     case RP_STATUS_TASK_ABORTED:
-        SMTC_MODEM_HAL_TRACE_INFO( "User radio access callback: ignored ABORTED status \n" );
+        SMTC_MODEM_HAL_TRACE_INFO( "User radio access callback: ignored ABORTED status \r\n" );
         break;
     default:
         increment_asynchronous_msgnumber( SMTC_MODEM_EVENT_USER_RADIO_ACCESS, 0 );

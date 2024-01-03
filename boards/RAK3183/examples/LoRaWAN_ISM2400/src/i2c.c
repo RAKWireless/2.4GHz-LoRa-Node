@@ -46,7 +46,7 @@ void i2c_init()
 	am_hal_gpio_pinconfig(I2C_SDA, g_AM_BSP_GPIO_IOM2_SDA);
 	am_hal_gpio_pinconfig(I2C_SCL, g_AM_BSP_GPIO_IOM2_SCL);
 
-	am_util_stdio_printf("IIC initialize.\n");
+	am_util_stdio_printf("IIC initialize.\r\n");
 	// Try to initialize RAK1904
 	RAK1904();
 	// Try to initialize RAK1901
@@ -75,7 +75,7 @@ bool iom_slave_read_offset(uint32_t offset, uint32_t *pBuf, uint32_t size, uint8
 	ret = am_hal_iom_blocking_transfer(iom2_phandle, &Transaction);
 	if (ret != 0)
 	{
-		//am_util_stdio_printf("am_hal_iom_blocking_transfer error\n");
+		//am_util_stdio_printf("am_hal_iom_blocking_transfer error\r\n");
 		return false;
 	}
 	return true;
@@ -101,7 +101,7 @@ bool iom_slave_write_offset(uint32_t offset, uint32_t *pBuf, uint32_t size, uint
 	ret = am_hal_iom_blocking_transfer(iom2_phandle, &Transaction);
 	if (ret != 0)
 	{
-		am_util_stdio_printf("am_hal_iom_blocking_transfer error\n");
+		am_util_stdio_printf("am_hal_iom_blocking_transfer error\r\n");
 		return false;
 	}
 	return true;
@@ -127,7 +127,7 @@ bool iom_slave_read(uint32_t *pBuf, uint32_t size, uint8_t i2c_addr)
 	ret = am_hal_iom_blocking_transfer(iom2_phandle, &Transaction);
 	if (ret != 0)
 	{
-		am_util_stdio_printf("am_hal_iom_blocking_transfer error\n");
+		am_util_stdio_printf("am_hal_iom_blocking_transfer error\r\n");
 		return false;
 	}
 	return true;
@@ -153,7 +153,7 @@ bool iom_slave_write(uint32_t *pBuf, uint32_t size, uint8_t i2c_addr)
 	ret = am_hal_iom_blocking_transfer(iom2_phandle, &Transaction);
 	if (ret != 0)
 	{
-		//am_util_stdio_printf("am_hal_iom_blocking_transfer error\n");
+		//am_util_stdio_printf("am_hal_iom_blocking_transfer error\r\n");
 		return false;
 	}
 	return true;

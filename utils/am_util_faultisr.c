@@ -175,11 +175,11 @@ am_fault_isr(void)
 #endif // AM_CMSIS_REGS
 {
     __asm("    push    {r0,lr}");       // Always pushes to MSP stack
-    __asm("    tst     lr, #4\n"        // Check if we should use MSP or PSP
-          "    itet    eq\n"            // Instrs executed when: eq,ne,eq
-          "    mrseq   r0, msp\n"       //    bit2=0 indicating MSP stack
-          "    mrsne   r0, psp\n"       // e: bit2=1 indicating PSP stack
-          "    addseq  r0, r0, #8\n");  // t: bit2=0, adjust for pushes to MSP stack
+    __asm("    tst     lr, #4\r\n"        // Check if we should use MSP or PSP
+          "    itet    eq\r\n"            // Instrs executed when: eq,ne,eq
+          "    mrseq   r0, msp\r\n"       //    bit2=0 indicating MSP stack
+          "    mrsne   r0, psp\r\n"       // e: bit2=1 indicating PSP stack
+          "    addseq  r0, r0, #8\r\n");  // t: bit2=0, adjust for pushes to MSP stack
     __asm("    bl      am_util_faultisr_collect_data");
     __asm("    pop     {r0,pc}");       // Restore from MSP stack
 }
@@ -229,11 +229,11 @@ am_fault_isr(void)
 #endif // AM_CMSIS_REGS
 {
     __asm("push    {r0,lr}");       // Always pushes to MSP stack
-    __asm("tst     lr, #4\n"        // Check if we should use MSP or PSP
-          "itet    eq\n"            // Instrs executed when: eq,ne,eq
-          "mrseq   r0, msp\n"       //    bit2=0 indicating MSP stack
-          "mrsne   r0, psp\n"       // e: bit2=1 indicating PSP stack
-          "addseq  r0, r0, #8\n");  // t: bit2=0, adjust for pushes to MSP stack
+    __asm("tst     lr, #4\r\n"        // Check if we should use MSP or PSP
+          "itet    eq\r\n"            // Instrs executed when: eq,ne,eq
+          "mrseq   r0, msp\r\n"       //    bit2=0 indicating MSP stack
+          "mrsne   r0, psp\r\n"       // e: bit2=1 indicating PSP stack
+          "addseq  r0, r0, #8\r\n");  // t: bit2=0, adjust for pushes to MSP stack
     __asm("bl      am_util_faultisr_collect_data");
     __asm("pop     {r0,pc}");  // Restore from MSP stack
 }
@@ -373,21 +373,21 @@ am_util_faultisr_collect_data(uint32_t u32IsrSP)
     // If printf has previously been initialized in the application, we should
     // be able to print out the fault information.
     //
-    am_util_stdio_printf("Hard Fault stacked data:\n");
-    am_util_stdio_printf("    R0  = 0x%08X\n", sFaultData.u32R0);
-    am_util_stdio_printf("    R1  = 0x%08X\n", sFaultData.u32R1);
-    am_util_stdio_printf("    R2  = 0x%08X\n", sFaultData.u32R2);
-    am_util_stdio_printf("    R3  = 0x%08X\n", sFaultData.u32R3);
-    am_util_stdio_printf("    R12 = 0x%08X\n", sFaultData.u32R12);
-    am_util_stdio_printf("    LR  = 0x%08X\n", sFaultData.u32LR);
-    am_util_stdio_printf("    PC  = 0x%08X\n", sFaultData.u32PC);
-    am_util_stdio_printf("    PSR = 0x%08X\n", sFaultData.u32PSR);
-    am_util_stdio_printf("Other Hard Fault data:\n");
-    am_util_stdio_printf("    Fault address = 0x%08X\n", sFaultData.u32FaultAddr);
-    am_util_stdio_printf("    BFAR (Bus Fault Addr Reg) = 0x%08X\n", sFaultData.u32BFAR);
-    am_util_stdio_printf("    MMSR (Mem Mgmt Fault Status Reg) = 0x%02X\n", sFaultData.u8MMSR);
-    am_util_stdio_printf("    BFSR (Bus Fault Status Reg) = 0x%02X\n", sFaultData.u8BFSR);
-    am_util_stdio_printf("    UFSR (Usage Fault Status Reg) = 0x%04X\n", sFaultData.u16UFSR);
+    am_util_stdio_printf("Hard Fault stacked data:\r\n");
+    am_util_stdio_printf("    R0  = 0x%08X\r\n", sFaultData.u32R0);
+    am_util_stdio_printf("    R1  = 0x%08X\r\n", sFaultData.u32R1);
+    am_util_stdio_printf("    R2  = 0x%08X\r\n", sFaultData.u32R2);
+    am_util_stdio_printf("    R3  = 0x%08X\r\n", sFaultData.u32R3);
+    am_util_stdio_printf("    R12 = 0x%08X\r\n", sFaultData.u32R12);
+    am_util_stdio_printf("    LR  = 0x%08X\r\n", sFaultData.u32LR);
+    am_util_stdio_printf("    PC  = 0x%08X\r\n", sFaultData.u32PC);
+    am_util_stdio_printf("    PSR = 0x%08X\r\n", sFaultData.u32PSR);
+    am_util_stdio_printf("Other Hard Fault data:\r\n");
+    am_util_stdio_printf("    Fault address = 0x%08X\r\n", sFaultData.u32FaultAddr);
+    am_util_stdio_printf("    BFAR (Bus Fault Addr Reg) = 0x%08X\r\n", sFaultData.u32BFAR);
+    am_util_stdio_printf("    MMSR (Mem Mgmt Fault Status Reg) = 0x%02X\r\n", sFaultData.u8MMSR);
+    am_util_stdio_printf("    BFSR (Bus Fault Status Reg) = 0x%02X\r\n", sFaultData.u8BFSR);
+    am_util_stdio_printf("    UFSR (Usage Fault Status Reg) = 0x%04X\r\n", sFaultData.u16UFSR);
 
     //
     // Print out any bits set in the BFSR.
@@ -398,28 +398,28 @@ am_util_faultisr_collect_data(uint32_t u32IsrSP)
         switch (sFaultData.u8BFSR & u32Mask)
         {
             case 0x80:
-                am_util_stdio_printf("        BFSR bit7: BFARVALID\n");
+                am_util_stdio_printf("        BFSR bit7: BFARVALID\r\n");
                 break;
             case 0x40:
-                am_util_stdio_printf("        BFSR bit6: RESERVED\n");
+                am_util_stdio_printf("        BFSR bit6: RESERVED\r\n");
                 break;
             case 0x20:
-                am_util_stdio_printf("        BFSR bit5: LSPERR\n");
+                am_util_stdio_printf("        BFSR bit5: LSPERR\r\n");
                 break;
             case 0x10:
-                am_util_stdio_printf("        BFSR bit4: STKERR\n");
+                am_util_stdio_printf("        BFSR bit4: STKERR\r\n");
                 break;
             case 0x08:
-                am_util_stdio_printf("        BFSR bit3: UNSTKERR\n");
+                am_util_stdio_printf("        BFSR bit3: UNSTKERR\r\n");
                 break;
             case 0x04:
-                am_util_stdio_printf("        BFSR bit2: IMPRECISERR\n");
+                am_util_stdio_printf("        BFSR bit2: IMPRECISERR\r\n");
                 break;
             case 0x02:
-                am_util_stdio_printf("        BFSR bit1: PRECISEERR\n");
+                am_util_stdio_printf("        BFSR bit1: PRECISEERR\r\n");
                 break;
             case 0x01:
-                am_util_stdio_printf("        BFSR bit0: IBUSERR\n");
+                am_util_stdio_printf("        BFSR bit0: IBUSERR\r\n");
                 break;
             default:
                 break;
@@ -430,18 +430,18 @@ am_util_faultisr_collect_data(uint32_t u32IsrSP)
     //
     // Print out any Apollo* Internal fault information.
     //
-    am_util_stdio_printf("MCU Fault data:\n");
+    am_util_stdio_printf("MCU Fault data:\r\n");
     if (sHalFaultData.bICODE)
     {
-      am_util_stdio_printf("   ICODE Fault Address: 0x%08X\n", sHalFaultData.ui32ICODE);
+      am_util_stdio_printf("   ICODE Fault Address: 0x%08X\r\n", sHalFaultData.ui32ICODE);
     }
     if (sHalFaultData.bDCODE)
     {
-      am_util_stdio_printf("   DCODE Fault Address: 0x%08X\n", sHalFaultData.ui32DCODE);
+      am_util_stdio_printf("   DCODE Fault Address: 0x%08X\r\n", sHalFaultData.ui32DCODE);
     }
     if (sHalFaultData.bSYS)
     {
-      am_util_stdio_printf("   SYS Fault Address: 0x%08X\n", sHalFaultData.ui32SYS);
+      am_util_stdio_printf("   SYS Fault Address: 0x%08X\r\n", sHalFaultData.ui32SYS);
     }
 
 #endif
