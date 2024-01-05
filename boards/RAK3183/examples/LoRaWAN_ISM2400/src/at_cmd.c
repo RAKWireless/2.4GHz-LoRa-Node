@@ -1214,6 +1214,7 @@ void process_AT_Command(const char *input)
     {
         if (strcasecmp(cmd.cmd, handler_table[i].cmd) == 0)
         {
+            am_util_stdio_printf("\r\n");   // Add \r\n before returning the result of the AT command.
             handler_table[i].handler(&cmd);
             return;
         }
