@@ -62,7 +62,7 @@ extern "C" {
 #endif
 
 #ifndef MODEM_HAL_DBG_TRACE_COLOR
-#define MODEM_HAL_DBG_TRACE_COLOR                         MODEM_HAL_FEATURE_ON
+#define MODEM_HAL_DBG_TRACE_COLOR                         MODEM_HAL_FEATURE_OFF
 #endif
 
 #ifndef MODEM_HAL_DBG_TRACE_RP

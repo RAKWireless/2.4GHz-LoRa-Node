@@ -61,7 +61,7 @@ extern "C" {
 #endif
 
 #ifndef HAL_DBG_TRACE_COLOR
-#define HAL_DBG_TRACE_COLOR                         HAL_FEATURE_ON
+#define HAL_DBG_TRACE_COLOR                         HAL_FEATURE_OFF
 #endif
 
 #ifndef HAL_DBG_TRACE_RP
