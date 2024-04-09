@@ -241,24 +241,24 @@ void smtc_ping_slot_init_after_beacon( smtc_ping_slot_t* ping_slot_obj, uint32_t
  */
 void smtc_ping_slot_start( smtc_ping_slot_t* ping_slot_obj )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "Start Ping Slot\n" );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "Start Ping Slot\r\n" );
 
     if( ping_slot_obj->rx_callback == NULL )
     {
-        smtc_modem_hal_mcu_panic( "ping_slot_obj bad initialization \n" );
+        smtc_modem_hal_mcu_panic( "ping_slot_obj bad initialization \r\n" );
     }
 
     if( lr1mac_core_is_time_valid( ping_slot_obj->lr1_mac ) == false )
     {
         smtc_ping_slot_stop( ping_slot_obj );
-        SMTC_MODEM_HAL_TRACE_WARNING( "Ping Slot not started, time sync is not valid\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "Ping Slot not started, time sync is not valid\r\n" );
         return;
     }
 
     if( ping_slot_obj->lr1_mac->ping_slot_info_user_req != USER_MAC_REQ_ACKED )
     {
         smtc_ping_slot_stop( ping_slot_obj );
-        SMTC_MODEM_HAL_TRACE_WARNING( "Ping Slot not started, PinSlotInfoReq is needed\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "Ping Slot not started, PinSlotInfoReq is needed\r\n" );
         return;
     }
 
@@ -308,7 +308,7 @@ void smtc_ping_slot_start( smtc_ping_slot_t* ping_slot_obj )
         }
         else
         {
-            SMTC_MODEM_HAL_TRACE_WARNING( "Ping Slot unicast not started\n" );
+            SMTC_MODEM_HAL_TRACE_WARNING( "Ping Slot unicast not started\r\n" );
             return;
         }
 
@@ -316,7 +316,7 @@ void smtc_ping_slot_start( smtc_ping_slot_t* ping_slot_obj )
 
         if( ping_slot_obj->rx_session_index == RX_SESSION_COUNT )
         {
-            SMTC_MODEM_HAL_TRACE_PRINTF( "Ping Slot no more session\n" );
+            SMTC_MODEM_HAL_TRACE_PRINTF( "Ping Slot no more session\r\n" );
             return;
         }
 
@@ -372,7 +372,7 @@ void smtc_ping_slot_start( smtc_ping_slot_t* ping_slot_obj )
         }
         else if( modulation_type == FSK )
         {
-            SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "MODULATION FSK\n" );
+            SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "MODULATION FSK\r\n" );
             uint8_t kbitrate;
             smtc_real_fsk_dr_to_bitrate( ping_slot_obj->lr1_mac, ping_slot_dr, &kbitrate );
 
@@ -404,7 +404,7 @@ void smtc_ping_slot_start( smtc_ping_slot_t* ping_slot_obj )
         }
         else
         {
-            smtc_modem_hal_lr1mac_panic( "MODULATION NOT SUPPORTED\n" );
+            smtc_modem_hal_lr1mac_panic( "MODULATION NOT SUPPORTED\r\n" );
         }
 
         rp_task.hook_id                    = ping_slot_obj->ping_slot_id4rp;
@@ -437,11 +437,11 @@ void smtc_ping_slot_start( smtc_ping_slot_t* ping_slot_obj )
     } while( rp_status == RP_TASK_STATUS_SCHEDULE_TASK_IN_PAST );
     if( rp_status != RP_HOOK_STATUS_OK )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "ping_slot_obj START ERROR \n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "ping_slot_obj START ERROR \r\n" );
     }
     else
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "ping_slot_obj devaddr:%x START at %d, freq:%u, dr:%d, PingNb:%d\n",
+        SMTC_MODEM_HAL_TRACE_PRINTF( "ping_slot_obj devaddr:%x START at %d, freq:%u, dr:%d, PingNb:%d\r\n",
                                      RX_SESSION_PARAM_CURRENT->dev_addr,
                                      RX_SESSION_PARAM_CURRENT->ping_slot_parameters.ping_offset_time, ping_slot_freq,
                                      ping_slot_dr, RX_SESSION_PARAM_CURRENT->ping_slot_parameters.ping_number );
@@ -456,12 +456,12 @@ void smtc_ping_slot_start( smtc_ping_slot_t* ping_slot_obj )
 
 void smtc_ping_slot_rp_callback( smtc_ping_slot_t* ping_slot_obj )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\n", __func__ );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\r\n", __func__ );
 
     rp_status_t rp_status = ping_slot_obj->rp->status[ping_slot_obj->ping_slot_id4rp];
     if( rp_status == RP_STATUS_RX_PACKET )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "--> RP_STATUS_RX_PACKET\n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "--> RP_STATUS_RX_PACKET\r\n" );
         ping_slot_obj->rx_callback( ping_slot_obj->rx_context );
     }
     else
@@ -477,7 +477,7 @@ void smtc_ping_slot_rp_callback( smtc_ping_slot_t* ping_slot_obj )
                     smtc_ping_slot_get_duration_timeout_ms( ping_slot_obj, RX_SESSION_PARAM_CURRENT->rx_window_symb,
                                                             RX_SESSION_PARAM_CURRENT->rx_data_rate ) );
         }
-        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "--> %d\n", rp_status );
+        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "--> %d\r\n", rp_status );
     }
 
     if( ping_slot_obj->enabled == true )
@@ -488,7 +488,7 @@ void smtc_ping_slot_rp_callback( smtc_ping_slot_t* ping_slot_obj )
 
 void smtc_ping_slot_mac_rp_callback( smtc_ping_slot_t* ping_slot_obj )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\n", __func__ );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\r\n", __func__ );
 
     uint32_t tcurrent_ms;
     uint8_t  from_hook_id;
@@ -513,7 +513,7 @@ void smtc_ping_slot_mac_rp_callback( smtc_ping_slot_t* ping_slot_obj )
             ping_slot_obj->rp->radio_params[from_hook_id].rx.lora_pkt_status.rssi_pkt_in_dbm;
         ping_slot_obj->rx_payload_size = ( uint8_t ) ping_slot_obj->rp->payload_size[from_hook_id];
 
-        SMTC_MODEM_HAL_TRACE_PRINTF( "payload size receive = %u, snr = %d , rssi = %d\n",
+        SMTC_MODEM_HAL_TRACE_PRINTF( "payload size receive = %u, snr = %d , rssi = %d\r\n",
                                      ping_slot_obj->rx_payload_size,
                                      ping_slot_obj->rp->radio_params[from_hook_id].rx.lora_pkt_status.snr_pkt_in_db,
                                      ping_slot_obj->rp->radio_params[from_hook_id].rx.lora_pkt_status.rssi_pkt_in_dbm );
@@ -526,7 +526,7 @@ void smtc_ping_slot_mac_rp_callback( smtc_ping_slot_t* ping_slot_obj )
         {
             ping_slot_obj->valid_rx_packet = smtc_ping_slot_mac_rx_frame_decode( ping_slot_obj );
 
-            SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "Receive a downlink RXB for Hook Id = %d\n", from_hook_id );
+            SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "Receive a downlink RXB for Hook Id = %d\r\n", from_hook_id );
 
             if( ping_slot_obj->valid_rx_packet == USER_RX_PACKET )
             {
@@ -549,17 +549,17 @@ void smtc_ping_slot_mac_rp_callback( smtc_ping_slot_t* ping_slot_obj )
         break;
     }
     case RP_STATUS_RX_CRC_ERROR:
-        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxB CRC ERROR\n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxB CRC ERROR\r\n" );
         break;
 
     case RP_STATUS_RX_TIMEOUT:
-        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "lr1mac RxB Timeout \n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "lr1mac RxB Timeout \r\n" );
         break;
     case RP_STATUS_TASK_ABORTED:
-        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxB aborted by the radioplanner \n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxB aborted by the radioplanner \r\n" );
         break;
     default:
-        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxB receive It RADIO error %u\n", ping_slot_obj->planner_status );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxB receive It RADIO error %u\r\n", ping_slot_obj->planner_status );
         break;
     }
 }
@@ -687,7 +687,7 @@ smtc_multicast_config_rc_t smtc_ping_slot_multicast_b_get_session_status( smtc_p
 
 static int smtc_ping_slot_mac_downlink_check( smtc_ping_slot_t* ping_slot_obj )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\n", __func__ );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\r\n", __func__ );
     int status = OKLORAWAN;
 
     // check Mtype
@@ -696,7 +696,7 @@ static int smtc_ping_slot_mac_downlink_check( smtc_ping_slot_t* ping_slot_obj )
         ( rx_ftype_tmp == CONF_DATA_UP ) || ( rx_ftype_tmp == REJOIN_REQUEST ) || ( rx_ftype_tmp == PROPRIETARY ) )
     {
         status += ERRORLORAWAN;
-        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( " BAD Ftype = %u for RX Frame \n", rx_ftype_tmp );
+        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( " BAD Ftype = %u for RX Frame \r\n", rx_ftype_tmp );
     }
 
     // check devaddr
@@ -708,7 +708,7 @@ static int smtc_ping_slot_mac_downlink_check( smtc_ping_slot_t* ping_slot_obj )
         if( RX_SESSION_PARAM_CURRENT->dev_addr != dev_addr_tmp )
         {
             status += ERRORLORAWAN;
-            SMTC_MODEM_HAL_TRACE_INFO( " BAD DevAddr = %x for RX Frame and %x\n\n", RX_SESSION_PARAM_CURRENT->dev_addr,
+            SMTC_MODEM_HAL_TRACE_INFO( " BAD DevAddr = %x for RX Frame and %x\r\n\r\n", RX_SESSION_PARAM_CURRENT->dev_addr,
                                        dev_addr_tmp );
         }
     }
@@ -764,7 +764,7 @@ static void smtc_ping_slot_search_closest_ping_offset_time( smtc_ping_slot_t* pi
                     ping_slot_obj->rx_session_index = i;
 
                     SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "Ping Slot session %d enabled", i );
-                    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "--> offset %u, init\n",
+                    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "--> offset %u, init\r\n",
                                                        RX_SESSION_PARAM[i]->ping_slot_parameters.ping_offset_time );
                     break;
                 }
@@ -775,7 +775,7 @@ static void smtc_ping_slot_search_closest_ping_offset_time( smtc_ping_slot_t* pi
     // No more ping slot available
     if( ping_slot_obj->rx_session_index == RX_SESSION_COUNT )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( " No more ping slot available \n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( " No more ping slot available \r\n" );
         return;
     }
 
@@ -797,13 +797,13 @@ static void smtc_ping_slot_search_closest_ping_offset_time( smtc_ping_slot_t* pi
             if( ( ( int32_t )( RX_SESSION_PARAM[i]->ping_slot_parameters.ping_offset_time - timestamp_rtc ) < 0 ) &&
                 ( RX_SESSION_PARAM[i]->ping_slot_parameters.ping_number == 0 ) )
             {
-                SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( " no more ping slot for session %d\n", i );
+                SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( " no more ping slot for session %d\r\n", i );
                 continue;
             }
             if( ( int32_t )( ping_slot_obj->rx_session_param[i]->ping_slot_parameters.ping_offset_time -
                              ( ping_slot_obj->next_beacon_timestamp - ping_slot_obj->beacon_guard_ms ) ) >= 0 )
             {
-                SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( " no more ping slot for session (guard) %d\n", i );
+                SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( " no more ping slot for session (guard) %d\r\n", i );
                 continue;
             }
 
@@ -811,7 +811,7 @@ static void smtc_ping_slot_search_closest_ping_offset_time( smtc_ping_slot_t* pi
             if( ( int32_t )( RX_SESSION_PARAM[i]->ping_slot_parameters.ping_offset_time -
                              RX_SESSION_PARAM_CURRENT->ping_slot_parameters.ping_offset_time ) == 0 )
             {
-                SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "!!!Ping Slot collision t1 = t0 !!!!\n" );
+                SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "!!!Ping Slot collision t1 = t0 !!!!\r\n" );
 
                 // The new ping slot has more priority
                 if( RX_SESSION_PARAM_CURRENT->fpending_bit < RX_SESSION_PARAM[i]->fpending_bit )
@@ -848,7 +848,7 @@ static void smtc_ping_slot_search_closest_ping_offset_time( smtc_ping_slot_t* pi
                 }
                 else  // collision: t1 will end after t0 start
                 {
-                    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "!!!Ping Slot collision t1/t0 !!!!\n" );
+                    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "!!!Ping Slot collision t1/t0 !!!!\r\n" );
                     // The new ping slot is more priority
                     if( RX_SESSION_PARAM_CURRENT->fpending_bit < RX_SESSION_PARAM[i]->fpending_bit )
                     {
@@ -880,7 +880,7 @@ static void smtc_ping_slot_search_closest_ping_offset_time( smtc_ping_slot_t* pi
                 }
                 else  // collision: t0 will end after t1 start
                 {
-                    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "!!!Ping Slot collision t0/t1 !!!!\n" );
+                    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "!!!Ping Slot collision t0/t1 !!!!\r\n" );
                     // The new ping slot has more priority
                     if( RX_SESSION_PARAM_CURRENT->fpending_bit < RX_SESSION_PARAM[i]->fpending_bit )
                     {
@@ -899,14 +899,14 @@ static void smtc_ping_slot_search_closest_ping_offset_time( smtc_ping_slot_t* pi
                     }
                 }
             }
-            SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "\n" );
+            SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "\r\n" );
         }
     }
 }
 
 static rx_packet_type_t smtc_ping_slot_mac_rx_frame_decode( smtc_ping_slot_t* ping_slot_obj )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\n", __func__ );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\r\n", __func__ );
     int              status         = OKLORAWAN;
     rx_packet_type_t rx_packet_type = NO_MORE_VALID_RX_PACKET;
     uint32_t         mic_in;
@@ -977,7 +977,7 @@ static rx_packet_type_t smtc_ping_slot_mac_rx_frame_decode( smtc_ping_slot_t* pi
     if( status == OKLORAWAN )
     {
         RX_SESSION_PARAM_CURRENT->fcnt_dwn = fcnt_dwn_stack_tmp;
-        SMTC_MODEM_HAL_TRACE_WARNING( " fcnt_tmp = %d\n ", RX_SESSION_PARAM_CURRENT->fcnt_dwn );
+        SMTC_MODEM_HAL_TRACE_WARNING( " fcnt_tmp = %d\r\n ", RX_SESSION_PARAM_CURRENT->fcnt_dwn );
         ping_slot_obj->lr1_mac->fcnt_dwn = ping_slot_obj->rx_session_param[RX_SESSION_UNICAST]->fcnt_dwn;
 
         // Set FPending bit in metadata
@@ -1015,7 +1015,7 @@ static rx_packet_type_t smtc_ping_slot_mac_rx_frame_decode( smtc_ping_slot_t* pi
             if( ping_slot_obj->rx_metadata.rx_fport == 0 )
             {  // receive a mac management frame Fport 0
 
-                SMTC_MODEM_HAL_TRACE_WARNING( " Receive an not valid packet RxB on port zero\n" );
+                SMTC_MODEM_HAL_TRACE_WARNING( " Receive an not valid packet RxB on port zero\r\n" );
             }
             else
             {
@@ -1025,11 +1025,11 @@ static rx_packet_type_t smtc_ping_slot_mac_rx_frame_decode( smtc_ping_slot_t* pi
                         RX_SESSION_PARAM_CURRENT->dev_addr, 1, RX_SESSION_PARAM_CURRENT->fcnt_dwn,
                         &ping_slot_obj->rx_payload[0] ) != SMTC_MODEM_CRYPTO_RC_SUCCESS )
                 {
-                    smtc_modem_hal_lr1mac_panic( "Crypto error during payload decryption\n" );
+                    smtc_modem_hal_lr1mac_panic( "Crypto error during payload decryption\r\n" );
                 }
                 if( ping_slot_obj->rx_fopts_length != 0 )
                 {
-                    SMTC_MODEM_HAL_TRACE_WARNING( " Receive an not valid packet RxB FOpts\n" );
+                    SMTC_MODEM_HAL_TRACE_WARNING( " Receive an not valid packet RxB FOpts\r\n" );
                     status = ERRORLORAWAN;
                 }
                 else
@@ -1048,7 +1048,7 @@ static rx_packet_type_t smtc_ping_slot_mac_rx_frame_decode( smtc_ping_slot_t* pi
         {
             if( ping_slot_obj->rx_fopts_length != 0 )
             {
-                SMTC_MODEM_HAL_TRACE_WARNING( " Receive an not valid packet RxB FOpts\n" );
+                SMTC_MODEM_HAL_TRACE_WARNING( " Receive an not valid packet RxB FOpts\r\n" );
                 status = ERRORLORAWAN;
             }
             else
@@ -1071,7 +1071,7 @@ static rx_packet_type_t smtc_ping_slot_mac_rx_frame_decode( smtc_ping_slot_t* pi
         }
     }
 
-    SMTC_MODEM_HAL_TRACE_PRINTF( " RxB rx_packet_type = %d \n", rx_packet_type );
+    SMTC_MODEM_HAL_TRACE_PRINTF( " RxB rx_packet_type = %d \r\n", rx_packet_type );
 
     return ( rx_packet_type );
 }
@@ -1130,10 +1130,10 @@ static uint32_t smtc_ping_slot_compute_downlink_toa( lr1_stack_mac_t* lr1_mac, u
     }
     else
     {
-        smtc_modem_hal_lr1mac_panic( "TX MODULATION NOT SUPPORTED\n" );
+        smtc_modem_hal_lr1mac_panic( "TX MODULATION NOT SUPPORTED\r\n" );
     }
 
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "Toa = %d\n", toa );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "Toa = %d\r\n", toa );
     return toa;
 }
 

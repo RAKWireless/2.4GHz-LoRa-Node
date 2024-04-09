@@ -121,13 +121,13 @@ smtc_class_b_d2d_status_t smtc_class_b_d2d_request_tx( smtc_class_b_d2d_t* class
 {
     if( ( multi_cast_group_id < RX_SESSION_MULTICAST_G0 ) || ( multi_cast_group_id >= RX_SESSION_COUNT ) )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid multi_cast_group_id\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid multi_cast_group_id\r\n" );
         return SMTC_CLASS_B_D2D_ERROR;
     }
 
     if( class_b_d2d_obj->ping_slot_obj->rx_session_param[multi_cast_group_id]->enabled == false )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "CLASS B ping slot not running\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "CLASS B ping slot not running\r\n" );
         return SMTC_CLASS_B_D2D_ERROR;
     }
 
@@ -136,13 +136,13 @@ smtc_class_b_d2d_status_t smtc_class_b_d2d_request_tx( smtc_class_b_d2d_t* class
         LR1MAC->uplink_dwell_time );
     if( status == ERRORLORAWAN )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "PAYLOAD SIZE TOO HIGH\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "PAYLOAD SIZE TOO HIGH\r\n" );
         return SMTC_CLASS_B_D2D_ERROR;
     }
 
     if( ping_slots_mask_size > 16 )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "MASK SIZE TOO HIGH\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "MASK SIZE TOO HIGH\r\n" );
         return SMTC_CLASS_B_D2D_ERROR;
     }
 
@@ -150,7 +150,7 @@ smtc_class_b_d2d_status_t smtc_class_b_d2d_request_tx( smtc_class_b_d2d_t* class
     if( SMTC_ARE_CLR_BYTE8( ping_slots_mask, MAX( ( 1 << ( 7 - MULTICAST_OBJ->ping_slot_periodicity ) / 8 ), 1 ) ) ==
         true )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "ping_slots_mask set to 0\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "ping_slots_mask set to 0\r\n" );
         return SMTC_CLASS_B_D2D_ERROR;
     }
     memcpy( class_b_d2d_obj->ping_slots_mask, ping_slots_mask, ping_slots_mask_size );
@@ -159,7 +159,7 @@ smtc_class_b_d2d_status_t smtc_class_b_d2d_request_tx( smtc_class_b_d2d_t* class
     smtc_duty_cycle_update( LR1MAC->dtc_obj );
     if( smtc_duty_cycle_is_channel_free( LR1MAC->dtc_obj, MULTICAST_OBJ->rx_frequency ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "Duty Cycle is full\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "Duty Cycle is full\r\n" );
         return SMTC_CLASS_B_D2D_ERROR;
     }
 
@@ -221,7 +221,7 @@ status_lorawan_t smtc_class_b_d2d_fcnt_down( void* ping_slot_obj_void, uint32_t*
     // fcnt down for d2d transaction
     fcnt_tmp = ( uint32_t )( ( number_of_beacon_period_since_gps_epoch * number_ping_per_beacon ) +
                              number_ping_since_begin_of_current_beacon );
-    SMTC_MODEM_HAL_TRACE_WARNING( " fcnt_tmp = %d\n ", fcnt_tmp );
+    SMTC_MODEM_HAL_TRACE_WARNING( " fcnt_tmp = %d\r\n ", fcnt_tmp );
     if( smtc_modem_crypto_verify_mic( &ping_slot_obj->rx_payload[0], ping_slot_obj->rx_payload_size,
                                       ping_slot_obj->rx_session_param[ping_slot_obj->rx_session_index]->nwk_skey,
                                       ping_slot_obj->rx_session_param[ping_slot_obj->rx_session_index]->dev_addr, 1,
@@ -229,7 +229,7 @@ status_lorawan_t smtc_class_b_d2d_fcnt_down( void* ping_slot_obj_void, uint32_t*
     {
         status              = OKLORAWAN;
         *fcnt_dwn_stack_tmp = fcnt_tmp;
-        SMTC_MODEM_HAL_TRACE_WARNING( " mic 1 ok \n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( " mic 1 ok \r\n" );
     }
     else
     {
@@ -276,11 +276,11 @@ static void class_b_d2d_call_by_ping_slot( void* class_b_d2d_obj_void )
     smtc_duty_cycle_update( LR1MAC->dtc_obj );
     if( smtc_duty_cycle_is_channel_free( LR1MAC->dtc_obj, MULTICAST_OBJ->rx_frequency ) == false )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "Duty Cycle is full\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "Duty Cycle is full\r\n" );
         return;
     }
     // by reaching this part of code meaning have to set a tx on this next ping slot opportunity
-    SMTC_D2D_HAL_TRACE_PRINTF( "launch a tx phase in d2d\n" );
+    SMTC_D2D_HAL_TRACE_PRINTF( "launch a tx phase in d2d\r\n" );
     class_b_d2d_rp_request( class_b_d2d_obj );
 }
 
@@ -300,7 +300,7 @@ static void class_b_d2d_rp_request( smtc_class_b_d2d_t* class_b_d2d_obj )
                                            &class_b_d2d_obj->tx_payload_encrypt[D2D_HEADER_LORAWAN_SIZE] ) !=
         SMTC_MODEM_CRYPTO_RC_SUCCESS )
     {
-        smtc_modem_hal_lr1mac_panic( "Crypto error during payload encryption\n" );
+        smtc_modem_hal_lr1mac_panic( "Crypto error during payload encryption\r\n" );
     }
 
     // add mic
@@ -309,7 +309,7 @@ static void class_b_d2d_rp_request( smtc_class_b_d2d_t* class_b_d2d_obj )
                                                class_b_d2d_obj->tx_payload_size - D2D_MIC_SIZE, MULTICAST_OBJ->nwk_skey,
                                                MULTICAST_OBJ->dev_addr, 1, fcnt_down ) != SMTC_MODEM_CRYPTO_RC_SUCCESS )
     {
-        smtc_modem_hal_lr1mac_panic( "Crypto error during mic computation\n" );
+        smtc_modem_hal_lr1mac_panic( "Crypto error during mic computation\r\n" );
     }
 
     // add this step the app payload is encapsuled and encrypted as a lorawan packet
@@ -379,7 +379,7 @@ static void class_b_d2d_rp_request( smtc_class_b_d2d_t* class_b_d2d_obj )
 
     if( rp_task_enqueue( class_b_d2d_obj->ping_slot_obj->rp, &rp_task, NULL, 0, &radio_params ) != RP_HOOK_STATUS_OK )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "d2d task not enqueued\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "d2d task not enqueued\r\n" );
         return;
     }
 
@@ -420,7 +420,7 @@ static void class_b_d2d_launch_callback_for_rp( void* rp_void )
     {
         smtc_modem_hal_mcu_panic( );
     }
-    SMTC_D2D_HAL_TRACE_PRINTF( "launch cad  \n" );
+    SMTC_D2D_HAL_TRACE_PRINTF( "launch cad  \r\n" );
 }
 
 static void class_b_d2d_rp_callback( smtc_class_b_d2d_t* class_b_d2d_obj )
@@ -434,14 +434,14 @@ static void class_b_d2d_rp_callback( smtc_class_b_d2d_t* class_b_d2d_obj )
     }
     if( rp_status == RP_STATUS_CAD_POSITIVE )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "d2d RP_STATUS_CAD_POSITIVE\n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "d2d RP_STATUS_CAD_POSITIVE\r\n" );
 
         class_b_d2d_obj->nb_trans_trial_cnt++;
         // radio task is aborted by the rp itself
     }
     else if( rp_status == RP_STATUS_TX_DONE )
     {
-        SMTC_D2D_HAL_TRACE_PRINTF( "d2d RP_STATUS_TX_DONE\n" );
+        SMTC_D2D_HAL_TRACE_PRINTF( "d2d RP_STATUS_TX_DONE\r\n" );
         if( class_b_d2d_obj->nb_trans_cnt > 0 )
         {
             class_b_d2d_obj->nb_trans_cnt--;
@@ -456,12 +456,12 @@ static void class_b_d2d_rp_callback( smtc_class_b_d2d_t* class_b_d2d_obj )
     {
         // relaunch taskonly if max nb retry not reached
         class_b_d2d_obj->nb_trans_trial_cnt++;
-        SMTC_MODEM_HAL_TRACE_PRINTF( "d2d aborted in the radioplanner\n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "d2d aborted in the radioplanner\r\n" );
         // class_b_d2d_cad_to_tx( class_b_d2d_obj );
     }
     else
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "d2d receive an unknown status from the radioplanner\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "d2d receive an unknown status from the radioplanner\r\n" );
         smtc_modem_hal_mcu_panic( )
     }
     class_b_d2d_obj->tx_on_going = false;
@@ -516,7 +516,7 @@ static void class_b_d2d_cad_to_tx( smtc_class_b_d2d_t* class_b_d2d_obj )
     {
         smtc_modem_hal_mcu_panic( );
     }
-    SMTC_MODEM_HAL_TRACE_PRINTF( "launch TX , Freq = %d Hz, SF = %d BW = %d preamble length =  %d \n",
+    SMTC_MODEM_HAL_TRACE_PRINTF( "launch TX , Freq = %d Hz, SF = %d BW = %d preamble length =  %d \r\n",
                                  RP->radio_params[id].tx.lora.rf_freq_in_hz, RP->radio_params[id].tx.lora.mod_params.sf,
                                  RP->radio_params[id].tx.lora.mod_params.bw,
                                  RP->radio_params[id].tx.lora.pkt_params.preamble_len_in_symb );

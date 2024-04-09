@@ -173,14 +173,14 @@ smtc_multicast_config_rc_t smtc_multicast_set_group_keys( smtc_multicast_t* mult
     if( smtc_modem_crypto_set_key( smtc_mc_skey_tab[mc_group_id].mc_ntw_skey, mc_ntw_skey ) !=
         SMTC_MODEM_CRYPTO_RC_SUCCESS )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Error setting multicast ntw_skey for group:%d\n", mc_group_id );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Error setting multicast ntw_skey for group:%d\r\n", mc_group_id );
         return SMTC_MC_RC_ERROR_CRYPTO;
     }
 
     if( smtc_modem_crypto_set_key( smtc_mc_skey_tab[mc_group_id].mc_app_skey, mc_app_skey ) !=
         SMTC_MODEM_CRYPTO_RC_SUCCESS )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Error setting multicast ntw_skey for group:%d\n", mc_group_id );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Error setting multicast ntw_skey for group:%d\r\n", mc_group_id );
         return SMTC_MC_RC_ERROR_CRYPTO;
     }
 

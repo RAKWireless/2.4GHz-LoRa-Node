@@ -203,7 +203,7 @@ status_lorawan_t region_eu_868_get_next_channel( lr1_stack_mac_t* lr1_mac )
 
     if( active_channel_nb == 0 )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "NO CHANNELS AVAILABLE \n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "NO CHANNELS AVAILABLE \r\n" );
         return ERRORLORAWAN;
     }
     uint8_t temp        = ( smtc_modem_hal_get_random_nb_in_range( 0, ( active_channel_nb - 1 ) ) ) % active_channel_nb;
@@ -211,7 +211,7 @@ status_lorawan_t region_eu_868_get_next_channel( lr1_stack_mac_t* lr1_mac )
     channel_idx         = active_channel_index[temp];
     if( channel_idx >= const_number_of_tx_channel )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "INVALID CHANNEL  active channel = %d and random channel = %d \n",
+        SMTC_MODEM_HAL_TRACE_PRINTF( "INVALID CHANNEL  active channel = %d and random channel = %d \r\n",
                                      active_channel_nb, temp );
         return ERRORLORAWAN;
     }
@@ -235,7 +235,7 @@ void region_eu_868_set_rx_config( lr1_stack_mac_t* lr1_mac, rx_win_type_t type )
     }
     else
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "INVALID RX TYPE \n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "INVALID RX TYPE \r\n" );
     }
 }
 void region_eu_868_set_channel_mask( lr1_stack_mac_t* lr1_mac )
@@ -247,7 +247,7 @@ void region_eu_868_set_channel_mask( lr1_stack_mac_t* lr1_mac )
     {
         SMTC_MODEM_HAL_TRACE_PRINTF( " %d ", SMTC_GET_BIT8( channel_index_enabled, i ) );
     }
-    SMTC_MODEM_HAL_TRACE_MSG( " \n" );
+    SMTC_MODEM_HAL_TRACE_MSG( " \r\n" );
 }
 
 status_channel_t region_eu_868_build_channel_mask( lr1_stack_mac_t* lr1_mac, uint8_t channel_mask_cntl,
@@ -274,7 +274,7 @@ status_channel_t region_eu_868_build_channel_mask( lr1_stack_mac_t* lr1_mac, uin
         {
             SMTC_MODEM_HAL_TRACE_PRINTF( "%x ", unwrapped_channel_mask[i] );
         }
-        SMTC_MODEM_HAL_TRACE_PRINTF( ", ChMask = 0x%x\n", channel_mask );
+        SMTC_MODEM_HAL_TRACE_PRINTF( ", ChMask = 0x%x\r\n", channel_mask );
         break;
 
     // All channels ON

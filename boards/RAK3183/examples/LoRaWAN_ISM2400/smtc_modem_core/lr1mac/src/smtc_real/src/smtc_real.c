@@ -100,7 +100,7 @@ smtc_real_status_t smtc_real_is_supported_region( smtc_real_region_types_t regio
         }
     }
 
-    SMTC_MODEM_HAL_TRACE_ERROR( "Invalid Region 0x%02x\n", region_type );
+    SMTC_MODEM_HAL_TRACE_ERROR( "Invalid Region 0x%02x\r\n", region_type );
     return SMTC_REAL_STATUS_UNSUPPORTED_FEATURE;
 }
 
@@ -484,7 +484,7 @@ status_lorawan_t smtc_real_update_cflist( lr1_stack_mac_t* lr1_mac )
 
     if( smtc_real_cf_list_type_supported( lr1_mac ) != cf_list_type )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "INVALID CFList type for this region (%d)\n", cf_list_type );
+        SMTC_MODEM_HAL_TRACE_WARNING( "INVALID CFList type for this region (%d)\r\n", cf_list_type );
         status = ERRORLORAWAN;
     }
 
@@ -511,7 +511,7 @@ status_lorawan_t smtc_real_update_cflist( lr1_stack_mac_t* lr1_mac )
                     SMTC_PUT_BIT8( channel_index_enabled_ctx, ( const_number_of_boot_tx_channel + i ),
                                    CHANNEL_ENABLED );
 
-                    SMTC_MODEM_HAL_TRACE_PRINTF( "MacTxFrequency [%d] = %d \n", i,
+                    SMTC_MODEM_HAL_TRACE_PRINTF( "MacTxFrequency [%d] = %d \r\n", i,
                                                  tx_frequency_channel_ctx[const_number_of_boot_tx_channel + i] );
 
                     SMTC_MODEM_HAL_TRACE_PRINTF( "MacDataRateChannel [%d] = ", i );
@@ -521,10 +521,10 @@ status_lorawan_t smtc_real_update_cflist( lr1_stack_mac_t* lr1_mac )
                             " %d",
                             SMTC_GET_BIT16( &dr_bitfield_tx_channel_ctx[const_number_of_boot_tx_channel + i], dr ) );
                     }
-                    SMTC_MODEM_HAL_TRACE_PRINTF( " \n" );
+                    SMTC_MODEM_HAL_TRACE_PRINTF( " \r\n" );
 
                     SMTC_MODEM_HAL_TRACE_PRINTF(
-                        "MacChannelIndexEnabled [%d] = %d \n", i,
+                        "MacChannelIndexEnabled [%d] = %d \r\n", i,
                         SMTC_GET_BIT8( channel_index_enabled_ctx, ( const_number_of_boot_tx_channel + i ) ) );
                 }
                 else
@@ -534,7 +534,7 @@ status_lorawan_t smtc_real_update_cflist( lr1_stack_mac_t* lr1_mac )
                     SMTC_PUT_BIT8( channel_index_enabled_ctx, ( const_number_of_boot_tx_channel + i ),
                                    CHANNEL_DISABLED );
 
-                    SMTC_MODEM_HAL_TRACE_WARNING( "INVALID TX FREQUENCY IN CFLIST OR CFLIST EMPTY \n" );
+                    SMTC_MODEM_HAL_TRACE_WARNING( "INVALID TX FREQUENCY IN CFLIST OR CFLIST EMPTY \r\n" );
                 }
             }
         }
@@ -553,13 +553,13 @@ status_lorawan_t smtc_real_update_cflist( lr1_stack_mac_t* lr1_mac )
 
                 if( channel_status == ERROR_CHANNEL_CNTL )
                 {  // Test ChannelCNTL not defined
-                    SMTC_MODEM_HAL_TRACE_MSG( "INVALID CHANNEL CNTL IN JOIN\n" );
+                    SMTC_MODEM_HAL_TRACE_MSG( "INVALID CHANNEL CNTL IN JOIN\r\n" );
                     break;
                 }
                 // Valid global channel mask
                 if( channel_status == ERROR_CHANNEL_MASK )
                 {  // Test Channelmask enables a not defined channel or Channelmask = 0
-                    SMTC_MODEM_HAL_TRACE_MSG( "INVALID CHANNEL MASK IN JOIN\n" );
+                    SMTC_MODEM_HAL_TRACE_MSG( "INVALID CHANNEL MASK IN JOIN\r\n" );
                     break;
                 }
             }
@@ -570,7 +570,7 @@ status_lorawan_t smtc_real_update_cflist( lr1_stack_mac_t* lr1_mac )
             break;
         }
         default:
-            SMTC_MODEM_HAL_TRACE_WARNING( "INVALID CFLIST, MUST CONTAINS FREQ OR CHMASK \n" );
+            SMTC_MODEM_HAL_TRACE_WARNING( "INVALID CFLIST, MUST CONTAINS FREQ OR CHMASK \r\n" );
             status = ERRORLORAWAN;
             break;
         }
@@ -854,7 +854,7 @@ void smtc_real_set_power( lr1_stack_mac_t* lr1_mac, uint8_t power_cmd )
     if( power_cmd > const_max_tx_power_idx )
     {
         lr1_mac->tx_power = lr1_mac->max_erp_dbm;
-        SMTC_MODEM_HAL_TRACE_WARNING( "INVALID %d \n", power_cmd );
+        SMTC_MODEM_HAL_TRACE_WARNING( "INVALID %d \r\n", power_cmd );
     }
     else
     {
@@ -1267,7 +1267,7 @@ status_lorawan_t smtc_real_is_rx1_dr_offset_valid( lr1_stack_mac_t* lr1_mac, uin
     if( rx1_dr_offset >= const_number_rx1_dr_offset )
     {
         status = ERRORLORAWAN;
-        SMTC_MODEM_HAL_TRACE_MSG( "RECEIVE AN INVALID RX1 DR OFFSET \n" );
+        SMTC_MODEM_HAL_TRACE_MSG( "RECEIVE AN INVALID RX1 DR OFFSET \r\n" );
     }
     return ( status );
 }
@@ -1281,7 +1281,7 @@ status_lorawan_t smtc_real_is_rx_dr_valid( lr1_stack_mac_t* lr1_mac, uint8_t dr 
             return ( OKLORAWAN );
         }
     }
-    SMTC_MODEM_HAL_TRACE_WARNING( "Invalid Rx datarate %d\n", dr );
+    SMTC_MODEM_HAL_TRACE_WARNING( "Invalid Rx datarate %d\r\n", dr );
 
     return ( ERRORLORAWAN );
 }
@@ -1295,7 +1295,7 @@ status_lorawan_t smtc_real_is_tx_dr_valid( lr1_stack_mac_t* lr1_mac, uint8_t dr 
             return ( OKLORAWAN );
         }
     }
-    SMTC_MODEM_HAL_TRACE_WARNING( "Invalid Tx datarate %d\n", dr );
+    SMTC_MODEM_HAL_TRACE_WARNING( "Invalid Tx datarate %d\r\n", dr );
 
     return ( ERRORLORAWAN );
 }
@@ -1352,7 +1352,7 @@ status_lorawan_t smtc_real_is_tx_dr_acceptable( lr1_stack_mac_t* lr1_mac, uint8_
         {
             if( SMTC_GET_BIT8( ch_mask_to_check, i ) == CHANNEL_ENABLED )
             {
-                SMTC_MODEM_HAL_TRACE_PRINTF( "ch%d - dr field 0x%04x\n", i, dr_bitfield_tx_channel_ctx[i] );
+                SMTC_MODEM_HAL_TRACE_PRINTF( "ch%d - dr field 0x%04x\r\n", i, dr_bitfield_tx_channel_ctx[i] );
                 if( SMTC_GET_BIT16( &dr_bitfield_tx_channel_ctx[i], dr ) == 1 )
                 {
                     return ( OKLORAWAN );
@@ -1360,7 +1360,7 @@ status_lorawan_t smtc_real_is_tx_dr_acceptable( lr1_stack_mac_t* lr1_mac, uint8_
             }
         }
 
-        SMTC_MODEM_HAL_TRACE_WARNING( "Not acceptable data rate\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "Not acceptable data rate\r\n" );
         return ( ERRORLORAWAN );
     }
 #endif
@@ -1476,7 +1476,7 @@ status_lorawan_t smtc_real_is_channel_index_valid( lr1_stack_mac_t* lr1_mac, uin
         if( ( channel_index < const_number_of_boot_tx_channel ) || ( channel_index >= const_number_of_tx_channel ) )
         {
             status = ERRORLORAWAN;
-            SMTC_MODEM_HAL_TRACE_WARNING( "RECEIVE AN INVALID Channel Index Cmd = %d\n", channel_index );
+            SMTC_MODEM_HAL_TRACE_WARNING( "RECEIVE AN INVALID Channel Index Cmd = %d\r\n", channel_index );
         }
         return ( status );
     }
@@ -1528,7 +1528,7 @@ status_lorawan_t smtc_real_is_payload_size_valid( lr1_stack_mac_t* lr1_mac, uint
         ( ( size + lr1_mac->tx_fopts_current_length ) > ( const_max_payload_m[index] - 8 ) ) ? ERRORLORAWAN : OKLORAWAN;
     if( status == ERRORLORAWAN )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "Invalid size (data:%d + FOpts:%d) > %d for dr: %d\n", size,
+        SMTC_MODEM_HAL_TRACE_PRINTF( "Invalid size (data:%d + FOpts:%d) > %d for dr: %d\r\n", size,
                                      lr1_mac->tx_fopts_current_length, ( const_max_payload_m[index] - 8 ), dr );
     }
     return ( status );
@@ -2081,7 +2081,7 @@ status_lorawan_t smtc_real_is_channel_mask_for_mobile_mode( const lr1_stack_mac_
             }
         }
     }
-    SMTC_MODEM_HAL_TRACE_WARNING( "Not acceptable data rate in mobile mode\n" );
+    SMTC_MODEM_HAL_TRACE_WARNING( "Not acceptable data rate in mobile mode\r\n" );
     return ( status );
 }
 
@@ -2770,7 +2770,7 @@ status_lorawan_t smtc_real_is_frequency_valid( lr1_stack_mac_t* lr1_mac, uint32_
     if( ( frequency > const_freq_max ) || ( frequency < const_freq_min ) )
     {
         status = ERRORLORAWAN;
-        SMTC_MODEM_HAL_TRACE_WARNING( "INVALID FREQUENCY = %d\n", frequency );
+        SMTC_MODEM_HAL_TRACE_WARNING( "INVALID FREQUENCY = %d\r\n", frequency );
     }
     return ( status );
 }
@@ -2781,7 +2781,7 @@ status_lorawan_t smtc_real_is_tx_power_valid( lr1_stack_mac_t* lr1_mac, uint8_t 
     if( ( power > const_max_tx_power_idx ) )
     {
         status = ERRORLORAWAN;
-        SMTC_MODEM_HAL_TRACE_WARNING( "RECEIVE AN INVALID Power Cmd = %d\n", power );
+        SMTC_MODEM_HAL_TRACE_WARNING( "RECEIVE AN INVALID Power Cmd = %d\r\n", power );
     }
     return ( status );
 }
@@ -2887,6 +2887,6 @@ void smtc_real_get_rx_start_time_offset_ms( lr1_stack_mac_t* lr1_mac, uint8_t da
             ( int32_t ) board_delay_ms;
     }
     // SMTC_MODEM_HAL_TRACE_PRINTF(
-    //    "rx_start_target -> datarate:%d, rx_window_symb:%u, rx_offset_ms:%d, board_delay_ms:%d\n", datarate,
+    //    "rx_start_target -> datarate:%d, rx_window_symb:%u, rx_offset_ms:%d, board_delay_ms:%d\r\n", datarate,
     //   rx_window_symb, *rx_offset_ms, board_delay_ms );
 }
