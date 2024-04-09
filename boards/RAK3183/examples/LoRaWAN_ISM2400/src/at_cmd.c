@@ -170,7 +170,7 @@ void handle_joineui(const AT_Command *cmd)
         }
         memcpy(lora_params.join_eui, bytes, sizeof(lora_params.join_eui));
 
-        am_util_stdio_printf("\r\nOK\r\n");
+        am_util_stdio_printf("OK\r\n");
         save_lora_params();
 
         smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);

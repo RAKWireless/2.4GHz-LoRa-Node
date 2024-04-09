@@ -175,7 +175,7 @@ dm_rc_t dm_downlink( uint8_t* data, uint8_t length )
     dm_cmd_msg_t dm_input;
     if( length <= DM_DOWNLINK_HEADER_LENGTH )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "DM Downlink must contain at least 4 bytes\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "DM Downlink must contain at least 4 bytes\r\n" );
         return DM_ERROR;
     }
 
@@ -208,7 +208,7 @@ dm_rc_t dm_parse_cmd( dm_cmd_msg_t* cmd_input )
         return DM_ERROR;
     }
 #if MODEM_HAL_DBG_TRACE == MODEM_HAL_FEATURE_ON
-    SMTC_MODEM_HAL_TRACE_WARNING( "DM_%s (0x%02x)\n", dm_cmd_str[cmd_input->request_code], cmd_input->request_code );
+    SMTC_MODEM_HAL_TRACE_WARNING( "DM_%s (0x%02x)\r\n", dm_cmd_str[cmd_input->request_code], cmd_input->request_code );
 #endif
 
     switch( cmd_input->request_code )
@@ -218,7 +218,7 @@ dm_rc_t dm_parse_cmd( dm_cmd_msg_t* cmd_input )
         if( dm_reset( ( dm_reset_code_t ) cmd_input->buffer[0],
                       cmd_input->buffer[1] | ( cmd_input->buffer[2] << 8 ) ) != DM_OK )
         {
-            SMTC_MODEM_HAL_TRACE_ERROR( "NOT RESET !!!\n" );
+            SMTC_MODEM_HAL_TRACE_ERROR( "NOT RESET !!!\r\n" );
             ret = DM_ERROR;
             break;
         }
@@ -228,11 +228,11 @@ dm_rc_t dm_parse_cmd( dm_cmd_msg_t* cmd_input )
         break;
 #if defined( ADD_SMTC_FILE_UPLOAD )
     case DM_FILE_DONE:
-        SMTC_MODEM_HAL_TRACE_WARNING( "DM_FILE_DONE donwlink\n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "DM_FILE_DONE donwlink\r\n" );
 
         if( modem_get_upload_state( ) != MODEM_UPLOAD_ON_GOING )
         {
-            SMTC_MODEM_HAL_TRACE_ERROR( "No FileUpload ongoing\n" );
+            SMTC_MODEM_HAL_TRACE_ERROR( "No FileUpload ongoing\r\n" );
             break;
         }
 
@@ -240,12 +240,12 @@ dm_rc_t dm_parse_cmd( dm_cmd_msg_t* cmd_input )
         if( file_upload_process_file_done_frame( &( smtc_modem_services_ctx.file_upload_ctx ), cmd_input->buffer,
                                                  cmd_input->buffer_len ) != FILE_UPLOAD_OK )
         {
-            SMTC_MODEM_HAL_TRACE_ERROR( "DM_FILE_DONE bad session_counter or bad message\n" );
+            SMTC_MODEM_HAL_TRACE_ERROR( "DM_FILE_DONE bad session_counter or bad message\r\n" );
         }
         else
         {
             // file upload is done with server confirmation
-            SMTC_MODEM_HAL_TRACE_INFO( "File upload DONE with server confirmation \n" );
+            SMTC_MODEM_HAL_TRACE_INFO( "File upload DONE with server confirmation \r\n" );
             increment_asynchronous_msgnumber( SMTC_MODEM_EVENT_UPLOADDONE, 0x01 );
             set_modem_status_file_upload( false );
             modem_set_upload_state( MODEM_UPLOAD_FINISHED );
@@ -459,7 +459,7 @@ dm_rc_t dm_parse_cmd( dm_cmd_msg_t* cmd_input )
         }
         else
         {
-            SMTC_MODEM_HAL_TRACE_PRINTF( "modem_supervisor_add_task_alm_dbg_ans\n" );
+            SMTC_MODEM_HAL_TRACE_PRINTF( "modem_supervisor_add_task_alm_dbg_ans\r\n" );
 
             // Prepare the task to send answers
             modem_supervisor_add_task_alm_dbg_ans( 1 );
@@ -505,19 +505,19 @@ static dm_cmd_length_valid_t dm_check_cmd_size( dm_opcode_t cmd, uint8_t length 
 {
     if( cmd >= DM_CMD_MAX )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid DM command %x\n", cmd );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid DM command %x\r\n", cmd );
         return DM_CMD_NOT_VALID;
     }
     // cmd len too small
     if( length < dm_cmd_len[cmd][0] )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid DM command size (too small)\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid DM command size (too small)\r\n" );
         return DM_CMD_LENGTH_NOT_VALID;
     }
     // cmd len too long
     if( length > dm_cmd_len[cmd][1] )
     {
-        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid DM command size (too long)\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "Invalid DM command size (too long)\r\n" );
         return DM_CMD_LENGTH_NOT_VALID;
     }
     return DM_CMD_LENGTH_VALID;
@@ -539,7 +539,7 @@ static dm_rc_t dm_reset( dm_reset_code_t reset_code, uint16_t reset_session )
             break;
         default:
             ret = DM_ERROR;
-            SMTC_MODEM_HAL_TRACE_ERROR( "invalid DM reset code (0x%02x)\n", reset_code );
+            SMTC_MODEM_HAL_TRACE_ERROR( "invalid DM reset code (0x%02x)\r\n", reset_code );
             break;
         }
     }
@@ -552,7 +552,7 @@ static dm_rc_t dm_reset( dm_reset_code_t reset_code, uint16_t reset_session )
             modem_supervisor_add_task_dm_status_now( );
         }
         ret = DM_ERROR;
-        SMTC_MODEM_HAL_TRACE_ERROR( "invalid DM reset session code\n" );
+        SMTC_MODEM_HAL_TRACE_ERROR( "invalid DM reset session code\r\n" );
     }
 
     return ret;

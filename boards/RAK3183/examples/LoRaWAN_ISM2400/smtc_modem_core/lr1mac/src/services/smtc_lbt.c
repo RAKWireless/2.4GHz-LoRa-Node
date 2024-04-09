@@ -47,7 +47,7 @@ void smtc_lbt_init( smtc_lbt_t* lbt_obj, radio_planner_t* rp, uint8_t lbt_id_rp,
 {
     if( ( free_callback == NULL ) || ( busy_callback == NULL ) || ( abort_callback == NULL ) )
     {
-        smtc_modem_hal_mcu_panic( "lbt bad init\n" );
+        smtc_modem_hal_mcu_panic( "lbt bad init\r\n" );
     }
     lbt_obj->rp                 = rp;
     lbt_obj->lbt_id4rp          = lbt_id_rp;  //@none protection if this id already used by un other task
@@ -123,7 +123,7 @@ void smtc_lbt_launch_callback_for_rp( void* rp_void )
         ( ( smtc_lbt_t* ) rp->hooks[id] )->rssi_nb_of_meas++;
         if( rssi_tmp >= rp->radio_params[id].lbt_threshold )
         {
-            SMTC_MODEM_HAL_TRACE_PRINTF( "lbt rssi: %d dBm\n", rssi_tmp );
+            SMTC_MODEM_HAL_TRACE_PRINTF( "lbt rssi: %d dBm\r\n", rssi_tmp );
             rp->status[id] = RP_STATUS_LBT_BUSY_CHANNEL;
             rp_radio_irq_callback( rp_void );
             return;
@@ -142,7 +142,7 @@ void smtc_lbt_listen_channel( smtc_lbt_t* lbt_obj, uint32_t freq, bool is_at_tim
     if( ( lbt_obj->free_callback == NULL ) || ( lbt_obj->busy_callback == NULL ) ||
         ( lbt_obj->abort_callback == NULL ) )
     {
-        smtc_modem_hal_mcu_panic( "lbt_obj bad initialization \n" );
+        smtc_modem_hal_mcu_panic( "lbt_obj bad initialization \r\n" );
     }
 
     ralf_params_gfsk_t gfsk_param;
@@ -168,7 +168,7 @@ void smtc_lbt_listen_channel( smtc_lbt_t* lbt_obj, uint32_t freq, bool is_at_tim
     uint8_t my_hook_id;
     if( rp_hook_get_id( lbt_obj->rp, lbt_obj, &my_hook_id ) != RP_HOOK_STATUS_OK )
     {
-        smtc_modem_hal_mcu_panic( "radioplanner isn't initialized for lbt obj \n" );
+        smtc_modem_hal_mcu_panic( "radioplanner isn't initialized for lbt obj \r\n" );
     }
     rp_task.hook_id               = my_hook_id;
     rp_task.duration_time_ms      = lbt_obj->listen_duration_ms + tx_duration_ms;
@@ -187,11 +187,11 @@ void smtc_lbt_listen_channel( smtc_lbt_t* lbt_obj, uint32_t freq, bool is_at_tim
 
     if( rp_task_enqueue( lbt_obj->rp, &rp_task, NULL, 0, &radio_params ) != RP_HOOK_STATUS_OK )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "Radio planner hook %d is busy \n", my_hook_id );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "Radio planner hook %d is busy \r\n", my_hook_id );
     }
     else
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "  Listen Frequency = %u during %d ms \n", freq,
+        SMTC_MODEM_HAL_TRACE_PRINTF( "  Listen Frequency = %u during %d ms \r\n", freq,
                                      lbt_obj->listen_duration_ms - LAP_OF_TIME_TO_GET_A_RSSI_VALID );
     }
 }
@@ -211,7 +211,7 @@ void smtc_lbt_rp_callback( smtc_lbt_t* lbt_obj )
     {
         if( lbt_obj->is_at_time == true )
         {
-            SMTC_MODEM_HAL_TRACE_PRINTF( "lbt abort max retry reach \n" );
+            SMTC_MODEM_HAL_TRACE_PRINTF( "lbt abort max retry reach \r\n" );
             lbt_obj->abort_callback( lbt_obj->abort_context );
         }
         else

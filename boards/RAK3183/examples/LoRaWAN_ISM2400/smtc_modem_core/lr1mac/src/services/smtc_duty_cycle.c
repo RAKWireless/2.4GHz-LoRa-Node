@@ -380,7 +380,7 @@ int32_t smtc_duty_cycle_get_next_free_time_ms( smtc_dtc_t* dtc_obj, uint8_t numb
 
     if( ( tmp_band_dtc_full_index == 0 ) && ( tmp_band_dtc_free_index == 0 ) )
     {
-        smtc_modem_hal_mcu_panic( "Empty frequency list\n" );
+        smtc_modem_hal_mcu_panic( "Empty frequency list\r\n" );
     }
 
     if( tmp_band_dtc_free_index > 0 )

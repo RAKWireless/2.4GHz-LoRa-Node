@@ -100,7 +100,7 @@ void lr1mac_class_c_init( lr1mac_class_c_t* class_c_obj, lr1_stack_mac_t* lr1_ma
                           radio_planner_t* rp, uint8_t class_c_id_rp, void ( *rx_callback )( void* rx_context ),
                           void* rx_context, void ( *push_callback )( void* push_context ), void* push_context )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "class_c_obj INIT\n" );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "class_c_obj INIT\r\n" );
     memset( class_c_obj, 0, sizeof( lr1mac_class_c_t ) );
 
     class_c_obj->lr1_mac       = lr1_mac;
@@ -167,15 +167,15 @@ void lr1mac_class_c_start( lr1mac_class_c_t* class_c_obj )
 
 void lr1mac_class_c_launch( lr1mac_class_c_t* class_c_obj )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "class_c_obj START (%d)\n", class_c_obj->started );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "class_c_obj START (%d)\r\n", class_c_obj->started );
     if( class_c_obj->enabled == false )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "class_c_obj disabled\n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "class_c_obj disabled\r\n" );
         return;
     }
     if( class_c_obj->rx_callback == NULL )
     {
-        smtc_modem_hal_mcu_panic( "class_c_obj bad initialization \n" );
+        smtc_modem_hal_mcu_panic( "class_c_obj bad initialization \r\n" );
     }
 
     // copy context from LR1MAC class A for the unicast session
@@ -195,7 +195,7 @@ void lr1mac_class_c_launch( lr1mac_class_c_t* class_c_obj )
 
     if( class_c_obj->rx_session_index == RX_SESSION_COUNT )
     {
-        smtc_modem_hal_lr1mac_panic( "no RxC session enabled\n" );
+        smtc_modem_hal_lr1mac_panic( "no RxC session enabled\r\n" );
     }
 
     rp_radio_params_t rp_radio_params = { 0 };
@@ -234,7 +234,7 @@ void lr1mac_class_c_launch( lr1mac_class_c_t* class_c_obj )
     }
     else if( modulation_type == FSK )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "MODULATION FSK\n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "MODULATION FSK\r\n" );
         uint8_t kbitrate;
         smtc_real_fsk_dr_to_bitrate( class_c_obj->lr1_mac, RX_SESSION_PARAM_CURRENT->rx_data_rate, &kbitrate );
         ralf_params_gfsk_t gfsk_param;
@@ -264,7 +264,7 @@ void lr1mac_class_c_launch( lr1mac_class_c_t* class_c_obj )
     }
     else
     {
-        smtc_modem_hal_lr1mac_panic( "MODULATION NOT SUPPORTED\n" );
+        smtc_modem_hal_lr1mac_panic( "MODULATION NOT SUPPORTED\r\n" );
     }
 
     rp_task_t rp_task        = { 0 };
@@ -287,7 +287,7 @@ void lr1mac_class_c_launch( lr1mac_class_c_t* class_c_obj )
     if( rp_task_enqueue( class_c_obj->rp, &rp_task, class_c_obj->rx_payload, 255, &rp_radio_params ) !=
         RP_HOOK_STATUS_OK )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "class_c_obj START ERREUR \n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "class_c_obj START ERREUR \r\n" );
     }
     else
     {
@@ -298,17 +298,17 @@ void lr1mac_class_c_launch( lr1mac_class_c_t* class_c_obj )
 
 static void lr1mac_class_c_rp_callback( lr1mac_class_c_t* class_c_obj )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\n", __func__ );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\r\n", __func__ );
 
     rp_status_t rp_status = class_c_obj->rp->status[class_c_obj->class_c_id4rp];
     if( rp_status == RP_STATUS_RX_PACKET )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "--> RP_STATUS_RX_PACKET\n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "--> RP_STATUS_RX_PACKET\r\n" );
         class_c_obj->rx_callback( class_c_obj->rx_context );
     }
     else
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "--> %d\n", rp_status );
+        SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "--> %d\r\n", rp_status );
     }
 
     if( class_c_obj->started == true )
@@ -319,7 +319,7 @@ static void lr1mac_class_c_rp_callback( lr1mac_class_c_t* class_c_obj )
 
 void lr1mac_class_c_mac_rp_callback( lr1mac_class_c_t* class_c_obj )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\n", __func__ );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\r\n", __func__ );
 
     int      status = OKLORAWAN;
     uint32_t tcurrent_ms;
@@ -342,7 +342,7 @@ void lr1mac_class_c_mac_rp_callback( lr1mac_class_c_t* class_c_obj )
             class_c_obj->rp->radio_params[from_hook_id].rx.lora_pkt_status.rssi_pkt_in_dbm;
         class_c_obj->rx_payload_size = ( uint8_t ) class_c_obj->rp->payload_size[from_hook_id];
 
-        SMTC_MODEM_HAL_TRACE_PRINTF( "payload size receive = %u, snr = %d , rssi = %d\n", class_c_obj->rx_payload_size,
+        SMTC_MODEM_HAL_TRACE_PRINTF( "payload size receive = %u, snr = %d , rssi = %d\r\n", class_c_obj->rx_payload_size,
                                      class_c_obj->rp->radio_params[from_hook_id].rx.lora_pkt_status.snr_pkt_in_db,
                                      class_c_obj->rp->radio_params[from_hook_id].rx.lora_pkt_status.rssi_pkt_in_dbm );
 
@@ -354,7 +354,7 @@ void lr1mac_class_c_mac_rp_callback( lr1mac_class_c_t* class_c_obj )
         {
             class_c_obj->valid_rx_packet = lr1mac_class_c_mac_rx_frame_decode( class_c_obj );
 
-            SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "Receive a downlink RXC for Hook Id = %d\n", from_hook_id );
+            SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "Receive a downlink RXC for Hook Id = %d\r\n", from_hook_id );
 
             if( class_c_obj->valid_rx_packet == USER_RX_PACKET )
             {
@@ -372,17 +372,17 @@ void lr1mac_class_c_mac_rp_callback( lr1mac_class_c_t* class_c_obj )
 
         break;
     case RP_STATUS_RX_CRC_ERROR:
-        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxC CRC ERROR\n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxC CRC ERROR\r\n" );
         break;
 
     case RP_STATUS_RX_TIMEOUT:
-        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxC Timeout \n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxC Timeout \r\n" );
         break;
     case RP_STATUS_TASK_ABORTED:
-        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxC aborted by the radioplanner \n" );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxC aborted by the radioplanner \r\n" );
         break;
     default:
-        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxC receive It RADIO error %u\n", class_c_obj->planner_status );
+        SMTC_MODEM_HAL_TRACE_PRINTF( "lr1mac RxC receive It RADIO error %u\r\n", class_c_obj->planner_status );
         break;
     }
 }
@@ -559,7 +559,7 @@ smtc_multicast_config_rc_t lr1mac_class_c_multicast_get_session_status( lr1mac_c
 
 static int lr1mac_class_c_mac_downlink_check_under_it( lr1mac_class_c_t* class_c_obj )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\n", __func__ );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\r\n", __func__ );
     int status = OKLORAWAN;
 
     class_c_obj->rx_session_index = RX_SESSION_COUNT;
@@ -570,7 +570,7 @@ static int lr1mac_class_c_mac_downlink_check_under_it( lr1mac_class_c_t* class_c
         ( rx_ftype_tmp == CONF_DATA_UP ) || ( rx_ftype_tmp == REJOIN_REQUEST ) || ( rx_ftype_tmp == PROPRIETARY ) )
     {
         status += ERRORLORAWAN;
-        SMTC_MODEM_HAL_TRACE_PRINTF( " BAD Ftype = %u for RX Frame \n", rx_ftype_tmp );
+        SMTC_MODEM_HAL_TRACE_PRINTF( " BAD Ftype = %u for RX Frame \r\n", rx_ftype_tmp );
     }
     // check devaddr
     if( ( class_c_obj->lr1_mac->join_status == JOINED ) && ( status == OKLORAWAN ) )
@@ -594,7 +594,7 @@ static int lr1mac_class_c_mac_downlink_check_under_it( lr1mac_class_c_t* class_c
             class_c_obj->rx_session_index = RX_SESSION_COUNT;
             for( rx_session_type_t i = 0; i < LR1MAC_NUMBER_OF_RXC_SESSION; i++ )
             {
-                SMTC_MODEM_HAL_TRACE_INFO( " BAD DevAddr = %x for RX Frame and %x \n \n",
+                SMTC_MODEM_HAL_TRACE_INFO( " BAD DevAddr = %x for RX Frame and %x \r\n \r\n",
                                            class_c_obj->rx_session_param[i]->dev_addr, dev_addr_tmp );
             }
         }
@@ -610,7 +610,7 @@ static int lr1mac_class_c_mac_downlink_check_under_it( lr1mac_class_c_t* class_c
 
 static rx_packet_type_t lr1mac_class_c_mac_rx_frame_decode( lr1mac_class_c_t* class_c_obj )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\n", __func__ );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( "%s\r\n", __func__ );
     int              status         = OKLORAWAN;
     rx_packet_type_t rx_packet_type = NO_MORE_VALID_RX_PACKET;
     uint32_t         mic_in;
@@ -688,7 +688,7 @@ static rx_packet_type_t lr1mac_class_c_mac_rx_frame_decode( lr1mac_class_c_t* cl
             if( class_c_obj->rx_metadata.rx_fport == 0 )
             {  // receive a mac management frame Fport 0
 
-                SMTC_MODEM_HAL_TRACE_WARNING( " Receive an not valid packet RxC on port zero\n" );
+                SMTC_MODEM_HAL_TRACE_WARNING( " Receive an not valid packet RxC on port zero\r\n" );
             }
             else
             {
@@ -698,11 +698,11 @@ static rx_packet_type_t lr1mac_class_c_mac_rx_frame_decode( lr1mac_class_c_t* cl
                         RX_SESSION_PARAM_CURRENT->dev_addr, 1, RX_SESSION_PARAM_CURRENT->fcnt_dwn,
                         &class_c_obj->rx_payload[0] ) != SMTC_MODEM_CRYPTO_RC_SUCCESS )
                 {
-                    smtc_modem_hal_lr1mac_panic( "Crypto error during payload decryption\n" );
+                    smtc_modem_hal_lr1mac_panic( "Crypto error during payload decryption\r\n" );
                 }
                 if( class_c_obj->rx_fopts_length != 0 )
                 {
-                    SMTC_MODEM_HAL_TRACE_WARNING( " Receive an not valid packet RxC FOpts\n" );
+                    SMTC_MODEM_HAL_TRACE_WARNING( " Receive an not valid packet RxC FOpts\r\n" );
                     status = ERRORLORAWAN;
                 }
                 else
@@ -721,7 +721,7 @@ static rx_packet_type_t lr1mac_class_c_mac_rx_frame_decode( lr1mac_class_c_t* cl
         {
             if( class_c_obj->rx_fopts_length != 0 )
             {
-                SMTC_MODEM_HAL_TRACE_WARNING( " Receive an not valid packet RxC FOpts\n" );
+                SMTC_MODEM_HAL_TRACE_WARNING( " Receive an not valid packet RxC FOpts\r\n" );
                 status = ERRORLORAWAN;
             }
             else
@@ -741,7 +741,7 @@ static rx_packet_type_t lr1mac_class_c_mac_rx_frame_decode( lr1mac_class_c_t* cl
         }
     }
 
-    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( " RxC rx_packet_type = %d \n", rx_packet_type );
+    SMTC_MODEM_HAL_TRACE_PRINTF_DEBUG( " RxC rx_packet_type = %d \r\n", rx_packet_type );
     return ( rx_packet_type );
 }
 /* --- EOF ------------------------------------------------------------------ */

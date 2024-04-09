@@ -177,9 +177,9 @@ void region_cn_470_init( lr1_stack_mac_t* lr1_mac )
             dr_bitfield_tx_channel[i] = const_default_tx_dr_bit_field;
 
             SMTC_MODEM_HAL_TRACE_PRINTF(
-                "join: idx:%u, TxFreq: %d, Rx1freq: %d, MaskDrRx1: 0x%x, freqRx2: %d, DrRx2: 0x%x\n%s", i,
+                "join: idx:%u, TxFreq: %d, Rx1freq: %d, MaskDrRx1: 0x%x, freqRx2: %d, DrRx2: 0x%x\r\n%s", i,
                 common_join_channel_cn_470[i][0], common_join_channel_cn_470[i][1], dr_bitfield_tx_channel[i],
-                common_join_channel_cn_470[i][2], const_rx2_dr_init, ( ( i % 8 ) == 7 ) ? "---\n" : "" );
+                common_join_channel_cn_470[i][2], const_rx2_dr_init, ( ( i % 8 ) == 7 ) ? "---\r\n" : "" );
 #if defined( HYBRID_CN470_MONO_CHANNEL )
         }
 #endif
@@ -194,7 +194,7 @@ void region_cn_470_init( lr1_stack_mac_t* lr1_mac )
 
 void region_cn_470_init_session( lr1_stack_mac_t* lr1_mac )
 {
-    SMTC_MODEM_HAL_TRACE_PRINTF( "Plan %s\n", smtc_real_channel_plan_cn470_str[activated_channel_plan] );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "Plan %s\r\n", smtc_real_channel_plan_cn470_str[activated_channel_plan] );
 
 #if defined( HYBRID_CN470_MONO_CHANNEL )
     uint8_t err = true;
@@ -219,10 +219,10 @@ void region_cn_470_init_session( lr1_stack_mac_t* lr1_mac )
             {
                 err = false;
 #endif
-                SMTC_MODEM_HAL_TRACE_PRINTF( "idx:%u, TxFreq: %d, RxFreq: %d, dr: 0x%x,\n%s", i,
+                SMTC_MODEM_HAL_TRACE_PRINTF( "idx:%u, TxFreq: %d, RxFreq: %d, dr: 0x%x,\r\n%s", i,
                                              region_cn_470_get_tx_frequency_channel( lr1_mac, i ),
                                              region_cn_470_get_rx1_frequency_channel( lr1_mac, i ),
-                                             dr_bitfield_tx_channel[i], ( ( i % 8 ) == 7 ) ? "---\n" : "" );
+                                             dr_bitfield_tx_channel[i], ( ( i % 8 ) == 7 ) ? "---\r\n" : "" );
                 SMTC_PUT_BIT8( channel_index_enabled, i, CHANNEL_ENABLED );
                 dr_bitfield_tx_channel[i] = const_default_tx_dr_bit_field;
 #if defined( HYBRID_CN470_MONO_CHANNEL )
@@ -248,9 +248,9 @@ void region_cn_470_init_session( lr1_stack_mac_t* lr1_mac )
             {
                 err = false;
 #endif
-                SMTC_MODEM_HAL_TRACE_PRINTF( "idx:%u, TxFreq: %d, dr: 0x%x,\n%s", i,
+                SMTC_MODEM_HAL_TRACE_PRINTF( "idx:%u, TxFreq: %d, dr: 0x%x,\r\n%s", i,
                                              region_cn_470_get_tx_frequency_channel( lr1_mac, i ),
-                                             dr_bitfield_tx_channel[i], ( ( i % 8 ) == 7 ) ? "---\n" : "" );
+                                             dr_bitfield_tx_channel[i], ( ( i % 8 ) == 7 ) ? "---\r\n" : "" );
                 SMTC_PUT_BIT8( channel_index_enabled, i, CHANNEL_ENABLED );
                 dr_bitfield_tx_channel[i] = const_default_tx_dr_bit_field;
 #if defined( HYBRID_CN470_MONO_CHANNEL )
@@ -265,9 +265,9 @@ void region_cn_470_init_session( lr1_stack_mac_t* lr1_mac )
             if( freq_tx_cn470_mono_channel_mhz == region_cn_470_get_tx_frequency_channel( lr1_mac, i ) )
             {
 #endif
-                SMTC_MODEM_HAL_TRACE_PRINTF( "idx:%u, RxFreq: %d, dr: 0x%x,\n%s", i,
+                SMTC_MODEM_HAL_TRACE_PRINTF( "idx:%u, RxFreq: %d, dr: 0x%x,\r\n%s", i,
                                              region_cn_470_get_rx1_frequency_channel( lr1_mac, i ),
-                                             dr_bitfield_tx_channel[i], ( ( i % 8 ) == 7 ) ? "---\n" : "" );
+                                             dr_bitfield_tx_channel[i], ( ( i % 8 ) == 7 ) ? "---\r\n" : "" );
 #if defined( HYBRID_CN470_MONO_CHANNEL )
             }
 #endif
@@ -308,7 +308,7 @@ status_lorawan_t region_cn_470_get_join_next_channel( lr1_stack_mac_t* lr1_mac )
 
     if( active_channel_nb == 0 )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "NO CHANNELS AVAILABLE \n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "NO CHANNELS AVAILABLE \r\n" );
         return ERRORLORAWAN;
     }
     uint8_t temp        = ( smtc_modem_hal_get_random_nb_in_range( 0, ( active_channel_nb - 1 ) ) ) % active_channel_nb;
@@ -316,7 +316,7 @@ status_lorawan_t region_cn_470_get_join_next_channel( lr1_stack_mac_t* lr1_mac )
     channel_idx         = active_channel_index[temp];
     if( channel_idx >= const_number_of_tx_channel )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "INVALID CHANNEL  active channel = %d and random channel = %d \n",
+        SMTC_MODEM_HAL_TRACE_PRINTF( "INVALID CHANNEL  active channel = %d and random channel = %d \r\n",
                                      active_channel_nb, temp );
         return ERRORLORAWAN;
     }
@@ -351,7 +351,7 @@ status_lorawan_t region_cn_470_get_next_channel( lr1_stack_mac_t* lr1_mac )
 
     if( active_channel_nb == 0 )
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "NO CHANNELS AVAILABLE \n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "NO CHANNELS AVAILABLE \r\n" );
         return ERRORLORAWAN;
     }
     uint8_t temp        = ( smtc_modem_hal_get_random_nb_in_range( 0, ( active_channel_nb - 1 ) ) ) % active_channel_nb;
@@ -359,7 +359,7 @@ status_lorawan_t region_cn_470_get_next_channel( lr1_stack_mac_t* lr1_mac )
     channel_idx         = active_channel_index[temp];
     if( channel_idx >= const_number_of_tx_channel )
     {
-        SMTC_MODEM_HAL_TRACE_PRINTF( "INVALID CHANNEL  active channel = %d and random channel = %d \n",
+        SMTC_MODEM_HAL_TRACE_PRINTF( "INVALID CHANNEL  active channel = %d and random channel = %d \r\n",
                                      active_channel_nb, temp );
         return ERRORLORAWAN;
     }
@@ -395,7 +395,7 @@ void region_cn_470_set_rx_config( lr1_stack_mac_t* lr1_mac, rx_win_type_t type )
     }
     else
     {
-        SMTC_MODEM_HAL_TRACE_WARNING( "INVALID RX TYPE \n" );
+        SMTC_MODEM_HAL_TRACE_WARNING( "INVALID RX TYPE \r\n" );
     }
 }
 
@@ -404,19 +404,19 @@ void region_cn_470_set_channel_mask( lr1_stack_mac_t* lr1_mac )
     // Copy all unwrapped channels in channel enable
     memcpy1( channel_index_enabled, unwrapped_channel_mask, BANK_MAX_CN470 );
 
-    SMTC_MODEM_HAL_TRACE_MSG( "Ch Mask\n" );
+    SMTC_MODEM_HAL_TRACE_MSG( "Ch Mask\r\n" );
     for( uint8_t i = 0; i < const_number_of_tx_channel; i++ )
     {
         SMTC_MODEM_HAL_TRACE_PRINTF( " %d ", SMTC_GET_BIT8( channel_index_enabled, i ) );
     }
-    SMTC_MODEM_HAL_TRACE_MSG( " \n" );
+    SMTC_MODEM_HAL_TRACE_MSG( " \r\n" );
 }
 
 status_channel_t region_cn_470_build_channel_mask( lr1_stack_mac_t* lr1_mac, uint8_t channel_mask_cntl,
                                                    uint16_t channel_mask )
 {
     status_channel_t status = OKCHANNEL;
-    SMTC_MODEM_HAL_TRACE_PRINTF( "ChCtrl = 0x%u, ChMask = 0x%04x\n", channel_mask_cntl, channel_mask );
+    SMTC_MODEM_HAL_TRACE_PRINTF( "ChCtrl = 0x%u, ChMask = 0x%04x\r\n", channel_mask_cntl, channel_mask );
     switch( channel_mask_cntl )
     {
     case 0:  // Channels 0 to 15
@@ -508,7 +508,7 @@ status_channel_t region_cn_470_build_channel_mask( lr1_stack_mac_t* lr1_mac, uin
     {
         SMTC_MODEM_HAL_TRACE_PRINTF( "%02x ", unwrapped_channel_mask[i] );
     }
-    SMTC_MODEM_HAL_TRACE_PRINTF( " \n" );
+    SMTC_MODEM_HAL_TRACE_PRINTF( " \r\n" );
 #endif
 
     // check if all channels are disabled, return ERROR_CHANNEL_MASK
@@ -716,7 +716,7 @@ uint32_t region_cn_470_get_rx_beacon_frequency_channel( lr1_stack_mac_t* lr1_mac
         freq = 504900000;
         break;
     default:
-        smtc_modem_hal_lr1mac_panic( "no case\n" );
+        smtc_modem_hal_lr1mac_panic( "no case\r\n" );
         break;
     }
     return freq;
@@ -757,7 +757,7 @@ uint32_t region_cn_470_get_rx_ping_slot_frequency_channel( lr1_stack_mac_t* lr1_
         freq = 504900000;
         break;
     default:
-        smtc_modem_hal_lr1mac_panic( "no case\n" );
+        smtc_modem_hal_lr1mac_panic( "no case\r\n" );
         break;
     }
     return freq;
