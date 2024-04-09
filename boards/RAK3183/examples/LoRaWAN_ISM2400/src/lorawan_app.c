@@ -84,7 +84,8 @@ LoRaWAN_Params lora_params = {
 	.sf = 1,
 	.bw = 3,
 	.cr = 0,
-	.preamble_size = 14
+	.preamble_size = 14,
+	.interval = 0
 };
 
 uint8_t rx_payload_size;
@@ -130,7 +131,7 @@ void load_lora_params(void)
 		lora_params.bw = 3;
 		lora_params.cr = 0;
 		lora_params.preamble_size = 14;
-
+		lora_params.interval = 0;
     }
 }
 
