@@ -66,9 +66,15 @@
 // UART handle.
 //
 //*****************************************************************************
-char uart_input(void);
+static uint32_t uart_input(uint8_t *buf, uint32_t *len);
+
 void *phUART;
 
+//*****************************************************************************
+//
+// Catch HAL errors.
+//
+//*****************************************************************************
 #define CHECK_ERRORS(x)               \
     if ((x) != AM_HAL_STATUS_SUCCESS) \
     {                                 \
@@ -76,11 +82,6 @@ void *phUART;
     }
 volatile uint32_t ui32LastError;
 
-//*****************************************************************************
-//
-// Catch HAL errors.
-//
-//*****************************************************************************
 void error_handler(uint32_t ui32ErrorStatus)
 {
     ui32LastError = ui32ErrorStatus;
@@ -88,15 +89,65 @@ void error_handler(uint32_t ui32ErrorStatus)
     while (1)
         ;
 }
-
 //*****************************************************************************
 //
 // UART buffers.
 //
 //*****************************************************************************
-uint8_t g_pui8TxBuffer[1024];
-uint8_t g_pui8RxBuffer[2];
+#define UART_FIFO_MAX 32
+#define RING_BUFFER_SIZE 512
 
+typedef struct
+{
+    char buffer[RING_BUFFER_SIZE];
+    int head;
+    int tail;
+} RingBuffer;
+
+uint8_t g_pui8TxBuffer[512];
+uint8_t g_pui8RxBuffer[UART_FIFO_MAX]; // FIFO MIX 32 Byte
+static RingBuffer rxRingBuffer = {{0}, 0, 0};
+
+// 单字符存储函数
+void ringBufferPutChar(RingBuffer *buffer, uint8_t c)
+{
+    int next = (buffer->head + 1) % RING_BUFFER_SIZE;
+    if (next != buffer->tail)
+    { // Check buffer overflow
+        buffer->buffer[buffer->head] = c;
+        buffer->head = next;
+    }
+}
+
+// 多字符存储函数
+void ringBufferPutChars(RingBuffer *buffer, const uint8_t *c, int length)
+{
+    for (int i = 0; i < length; i++)
+    {
+        int next = (buffer->head + 1) % RING_BUFFER_SIZE;
+        if (next != buffer->tail)
+        { // Check buffer overflow
+            buffer->buffer[buffer->head] = c[i];
+            buffer->head = next;
+        }
+        else
+        {
+            // 如果没有足够的空间，可以选择停止或者处理错误
+            break;
+        }
+    }
+}
+
+bool ringBufferGetChar(RingBuffer *buffer, uint8_t *c)
+{
+    if (buffer->tail == buffer->head)
+    {
+        return false; // Buffer is empty
+    }
+    *c = buffer->buffer[buffer->tail];
+    buffer->tail = (buffer->tail + 1) % RING_BUFFER_SIZE;
+    return true;
+}
 //*****************************************************************************
 //
 // UART configuration.
@@ -117,7 +168,7 @@ const am_hal_uart_config_t g_sUartConfig =
         // Set TX and RX FIFOs to interrupt at half-full.
         //
         .ui32FifoLevels = (AM_HAL_UART_TX_FIFO_7_8 |
-                           AM_HAL_UART_TX_FIFO_7_8),
+                           AM_HAL_UART_RX_FIFO_7_8),
 
         //
         // Buffers
@@ -138,12 +189,22 @@ void am_uart_isr(void)
     //
     // Service the FIFOs as necessary, and clear the interrupts.
     //
-    uint32_t ui32Status, ui32Idle;
+    uint32_t ui32Status, ui32Idle, receivedByte;
+    uint8_t rxBuffer[UART_FIFO_MAX];
+
     am_hal_uart_interrupt_status_get(phUART, &ui32Status, true);
     am_hal_uart_interrupt_clear(phUART, ui32Status);
     am_hal_uart_interrupt_service(phUART, ui32Status, &ui32Idle);
 
-    //am_hal_gpio_state_write(LED1, AM_HAL_GPIO_OUTPUT_TOGGLE);
+    if (ui32Status & (AM_HAL_UART_INT_RX_TMOUT | AM_HAL_UART_INT_RX)) // 这里这个超时中断类似STM32空闲中断
+    {
+        uart_input(rxBuffer, &receivedByte); // 测试这个函数单次只能拿28个字节   可能是设置了FIFO的原因  寄存器最大FIFO是32个字节
+        // am_util_stdio_printf("[%d]", receivedByte);
+        rxBuffer[receivedByte] = 0;
+        // am_util_stdio_printf("[%s]\r\n", rxBuffer);
+
+        ringBufferPutChars(&rxRingBuffer, rxBuffer, receivedByte);
+    }
 }
 
 //*****************************************************************************
@@ -178,20 +239,20 @@ void uart_print(char *pcStr)
 
     CHECK_ERRORS(am_hal_uart_transfer(phUART, &sUartWrite));
 
-//    if (ui32BytesWritten != ui32StrLen)
-//    {
-//        //
-//        // Couldn't send the whole string!!
-//        //
-//        while (1)
-//            ;
-//    }
+    if (ui32BytesWritten != ui32StrLen)
+    {
+        //
+        // Couldn't send the whole string!!
+        //
+        while (1)
+            ;
+    }
 }
 
 void init_rak3183_led()
 {
-    hal_gpio_init_out(LED1, 0);
-    hal_gpio_init_out(LED2, 0);
+    hal_gpio_init_out(LED1, 1);
+    hal_gpio_init_out(LED2, 1);
 }
 
 //*****************************************************************************
@@ -217,19 +278,18 @@ int main(void)
     //
     // am_bsp_low_power_init();
 
-	  am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_XTAL_START, 0);
+    am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_XTAL_START, 0);
 
     //
     // Wait for 1 second for the 32KHz XTAL to startup and stabilize.
     //
     am_util_delay_ms(100);
-		
-	//
+
+    //
     // Enable HFADJ.
     //
     am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_HFADJ_ENABLE, 0);
-		
-		  
+
     //
     // Initialize the printf interface for UART output.
     //
@@ -275,20 +335,27 @@ int main(void)
 
     init_rak3183_led();
     lorawan_init();
-	i2c_init();
+    i2c_init();
 
-    char character = 0;
+    uint8_t character = 0;
 
     while (1)
     {
         smtc_modem_run_engine();
 
-        character = uart_input();
-        if (character)
+        while (ringBufferGetChar(&rxRingBuffer, &character))
         {
-            am_hal_gpio_state_write(LED2, AM_HAL_GPIO_OUTPUT_TOGGLE);
+            // echo
+            am_util_stdio_printf("%c", character);
             process_serial_input(character);
         }
+
+        // character = uart_input();
+        // if (character)
+        // {
+        //     am_hal_gpio_state_write(LED2, AM_HAL_GPIO_OUTPUT_TOGGLE);
+        //     process_serial_input(character);
+        // }
         //
         // Go to Deep Sleep.
         //
@@ -296,38 +363,18 @@ int main(void)
     }
 }
 
-char uart_input(void)
+uint32_t uart_input(uint8_t *buf, uint32_t *len)
 {
-    static char pcStr;
-    uint32_t ui32BytesRread = 0;
     const am_hal_uart_transfer_t sUartRead =
         {
             .ui32Direction = AM_HAL_UART_READ,
-            .pui8Data = (uint8_t *)&pcStr,
-            .ui32NumBytes = 1,
+            .pui8Data = buf,
+            .ui32NumBytes = 32, // FIFO 最大一次32字节读取
             .ui32TimeoutMs = 0,
-            .pui32BytesTransferred = &ui32BytesRread,
+            .pui32BytesTransferred = len,
         };
 
-    CHECK_ERRORS(am_hal_uart_transfer(phUART, &sUartRead));
-    if (ui32BytesRread == 1)
-    {
-        // echo test
-        const am_hal_uart_transfer_t sUartWrite =
-            {
-                .ui32Direction = AM_HAL_UART_WRITE,
-                .pui8Data = (uint8_t *)&pcStr,
-                .ui32NumBytes = 1,
-                .ui32TimeoutMs = 0,
-                .pui32BytesTransferred = &ui32BytesRread,
-            };
+    am_hal_uart_transfer(phUART, &sUartRead);
 
-        CHECK_ERRORS(am_hal_uart_transfer(phUART, &sUartWrite));
-
-        return pcStr;
-    }
-    else
-    {
-        return 0;
-    }
+    return *(sUartRead.pui32BytesTransferred);
 }

@@ -948,7 +948,9 @@ void handle_njm(const AT_Command *cmd)
             return;
         }
 
-        lorawan_api_set_activation_mode( mode );
+        //和RUI保持一致  0:ABP 1:OTAA
+        if(!mode)
+        lorawan_api_set_activation_mode( !mode );
         
         
         lora_params.join_mode = mode;
@@ -1148,7 +1150,7 @@ AT_HandlerTable handler_table[] = {
     {"AT+TRX", handle_trx, "RF test rx continuously receive mode"},
     {"AT+TRXNOP", handle_trxnop, "RF test terminate an ongoing continuous rx mode"},
     {"AT+INTERVAL", handle_sendinterval, "Set the interval for reporting sensor data"} ,
-    //{"AT+TEST",handle_test,"Test command"}
+    {"AT+TEST",handle_test,"Test command"}
     //{"AT+COMPENSATION",handle_compensation, "Set the tiemr compensation"}
     };
 
@@ -1166,32 +1168,27 @@ AT_Command parse_AT_Command(const char *input)
         cmd.cmd[cmd_len] = '\0';
         cmd.params[params_len] = '\0';
 
-        //am_util_stdio_printf("cmd_len %d params_len %d\r\n",cmd_len,params_len);
 
-        // cmd.argc = 0;
-        // char params_copy[MAX_PARAM_LEN]; 
-        // strcpy(params_copy, cmd.params);
-        // char *token = strtok(params_copy, ":");
-        // am_util_stdio_printf("1token %s\r\n",token);
+        // 使用一个局部变量来分割参数，以保持cmd.params的完整性
+        char params_copy[MAX_PARAM_LEN + 1];
+        strcpy(params_copy, cmd.params);
 
-        // token = strtok(NULL, ":");
-        // am_util_stdio_printf("2token %s\r\n",token);
-        /* If not: The first time is to return the whole string */
-        //
-        //{
-            // while (token != NULL && cmd.argc < MAX_ARGV_SIZE) {
-            // strcpy(cmd.argv[cmd.argc], token);
-            // cmd.argc++;
-            // token = strtok(NULL, ":");
-            // am_util_stdio_printf("token %s\r\n",token);
-            //}  
-        //}
+        char *token = strtok(params_copy, ":");
+        int arg_index = 0;
+
+        while (token != NULL && arg_index < MAX_ARGV_SIZE) {
+            cmd.argv[arg_index++] = token;
+            token = strtok(NULL, ":");
+        }
+        cmd.argc = arg_index;
+
     }
     else
     {
         /* Without the = sign, the whole string is copied */
         strcpy(cmd.cmd, input);
         cmd.params[0] = '\0';
+        cmd.argc = 0;
     }
 
     return cmd;
