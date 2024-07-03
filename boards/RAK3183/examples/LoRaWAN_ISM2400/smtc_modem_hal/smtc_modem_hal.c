@@ -359,7 +359,7 @@ extern volatile int32_t board_delay_ms ;
 
 int8_t smtc_modem_hal_get_board_delay_ms( void )   //daniel
 {
-    return (board_delay_ms);   //This is an actual test value  �� very important
+    return (board_delay_ms);   //This is an actual test value  very important
 } 
 
 /* ------------ Trace management ------------*/

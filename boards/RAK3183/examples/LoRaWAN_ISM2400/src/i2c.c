@@ -46,7 +46,7 @@ void i2c_init()
 	am_hal_gpio_pinconfig(I2C_SDA, g_AM_BSP_GPIO_IOM2_SDA);
 	am_hal_gpio_pinconfig(I2C_SCL, g_AM_BSP_GPIO_IOM2_SCL);
 
-	am_util_stdio_printf("IIC initialize.\r\n");
+	//am_util_stdio_printf("IIC initialize.\r\n");
 	// Try to initialize RAK1904
 	RAK1904();
 	// Try to initialize RAK1901

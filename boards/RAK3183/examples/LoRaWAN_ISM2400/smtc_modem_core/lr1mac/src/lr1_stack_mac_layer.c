@@ -262,7 +262,7 @@ void lr1_stack_mac_tx_lora_launch_callback_for_rp( void* rp_void )
     // At this time only tcxo startup delay is remaining
     smtc_modem_hal_start_radio_tcxo( );
     smtc_modem_hal_assert( ral_set_tx( &( rp->radio->ral ) ) == RAL_STATUS_OK );
-    rp_stats_set_tx_timestamp( &rp->stats, smtc_modem_hal_get_time_in_ms( )); //daniel    ��Ҫ������ĵ�ʱ��?
+    rp_stats_set_tx_timestamp( &rp->stats, smtc_modem_hal_get_time_in_ms( )); //daniel    ��Ҫ������ĵ�ʱ��?
 }
 
 void lr1_stack_mac_tx_gfsk_launch_callback_for_rp( void* rp_void )

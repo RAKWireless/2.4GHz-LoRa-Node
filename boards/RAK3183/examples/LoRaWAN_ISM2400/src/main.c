@@ -331,13 +331,15 @@ int main(void)
     //
     // Print the banner.
     //
-    am_util_stdio_terminal_clear();
+    //am_util_stdio_terminal_clear();
 
     init_rak3183_led();
     lorawan_init();
     i2c_init();
 
     uint8_t character = 0;
+
+    am_util_stdio_printf("\r\nRAKwireless RAK3183\r\n");
 
     while (1)
     {
