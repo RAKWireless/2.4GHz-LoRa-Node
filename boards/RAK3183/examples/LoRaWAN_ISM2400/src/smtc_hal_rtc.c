@@ -43,7 +43,6 @@
 #include "am_mcu_apollo.h"
 #include "am_util.h"
 
-
 // clang-format on
 
 /*
@@ -51,63 +50,55 @@
  * --- PRIVATE TYPES -----------------------------------------------------------
  */
 
-static uint32_t seconds = 0;   
-static uint32_t milliseconds_div_10 = 0;    
+static uint32_t seconds = 0;
+static uint32_t milliseconds_div_10 = 0;
 static volatile bool wut_timer_irq_happened = false;
 
 void timer1_callback(void)
 {
-	 milliseconds_div_10++;
-	 if(milliseconds_div_10 == 10000)
-	 {
-		 //am_util_stdio_printf("second %d",seconds);
-		 seconds++;
-		 milliseconds_div_10 = 0;
-	 }
+	milliseconds_div_10++;
+	if (milliseconds_div_10 == 10000)
+	{
+		// am_util_stdio_printf("second %d",seconds);
+		seconds++;
+		milliseconds_div_10 = 0;
+	}
 }
 
-
-
-void hal_rtc_init( void )
+void hal_rtc_init(void)
 {
-  am_hal_ctimer_config_single(1, AM_HAL_CTIMER_BOTH,
-                                 AM_HAL_CTIMER_HFRC_3MHZ |
-                                 AM_HAL_CTIMER_FN_REPEAT |
-                                 AM_HAL_CTIMER_INT_ENABLE);
- 
-  am_hal_ctimer_int_enable(AM_HAL_CTIMER_INT_TIMERA0C0);
-	
-	NVIC_SetPriority(CTIMER_IRQn,0);
-  NVIC_EnableIRQ(CTIMER_IRQn); 
-	
-	float milliseconds = 0.1 ;  //100us
-  uint32_t period =  ((float )milliseconds/1000) * 3000000;
-	am_hal_ctimer_period_set(1, AM_HAL_CTIMER_BOTH,period - 1 , 0);
-  am_hal_ctimer_int_register(AM_HAL_CTIMER_INT_TIMERA1,(am_hal_ctimer_handler_t)timer1_callback);
-	
-	am_hal_ctimer_int_enable(AM_HAL_CTIMER_INT_TIMERA1);   // 
-	am_hal_ctimer_start(1, AM_HAL_CTIMER_BOTH); 
+	am_hal_ctimer_config_single(1, AM_HAL_CTIMER_BOTH,
+								AM_HAL_CTIMER_HFRC_3MHZ |
+									AM_HAL_CTIMER_FN_REPEAT |
+									AM_HAL_CTIMER_INT_ENABLE);
+
+	am_hal_ctimer_int_enable(AM_HAL_CTIMER_INT_TIMERA0C0);
+
+	NVIC_SetPriority(CTIMER_IRQn, 0);
+	NVIC_EnableIRQ(CTIMER_IRQn);
+
+	float milliseconds = 0.1; // 100us
+	uint32_t period = ((float)milliseconds / 1000) * 3000000;
+	am_hal_ctimer_period_set(1, AM_HAL_CTIMER_BOTH, period - 1, 0);
+	am_hal_ctimer_int_register(AM_HAL_CTIMER_INT_TIMERA1, (am_hal_ctimer_handler_t)timer1_callback);
+
+	am_hal_ctimer_int_enable(AM_HAL_CTIMER_INT_TIMERA1); //
+	am_hal_ctimer_start(1, AM_HAL_CTIMER_BOTH);
 }
 
-uint32_t hal_rtc_get_time_s( void )
+uint32_t hal_rtc_get_time_s(void)
 {
-    return seconds;
+	return seconds;
 }
 
-uint32_t hal_rtc_get_time_100us( void )
+uint32_t hal_rtc_get_time_100us(void)
 {
-    return (seconds *10000 + milliseconds_div_10);
+	return (seconds * 10000 + milliseconds_div_10);
 }
 
-
-uint32_t hal_rtc_get_time_ms( void )
+uint32_t hal_rtc_get_time_ms(void)
 {
-    return seconds * 1000 + ( milliseconds_div_10 / 10 );
+	return seconds * 1000 + (milliseconds_div_10 / 10);
 }
-
-
-
-
-
 
 /* --- EOF ------------------------------------------------------------------ */
