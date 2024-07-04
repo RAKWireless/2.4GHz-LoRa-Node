@@ -152,7 +152,10 @@ int handle_deveui(const AT_Command *cmd)
         ret = smtc_modem_set_deveui(STACK_ID, deveui_temp);
         if(SMTC_MODEM_RC_OK == ret)
         {
+            memcpy(lora_params.dev_eui, deveui_temp, sizeof(lora_params.dev_eui));
+            save_lora_params();
             return AT_OK;
+
         } else if (SMTC_MODEM_RC_BUSY == ret)
         {
             return AT_BUSY_ERROR;
@@ -160,11 +163,7 @@ int handle_deveui(const AT_Command *cmd)
         {
             return AT_ERROR;
         }
-        
 
-
-        memcpy(lora_params.dev_eui, deveui_temp, sizeof(lora_params.dev_eui));
-        save_lora_params();
     }
     else
     {
@@ -269,7 +268,7 @@ void handle_send(const AT_Command *cmd)
         return AT_PARAM_ERROR;
     }
 
-    
+
     // if (sscanf(cmd->params, "%d:%s", &port, data) != 2)
     // {
     //     am_util_stdio_printf("AT_PARAM_ERROR\r\n");
