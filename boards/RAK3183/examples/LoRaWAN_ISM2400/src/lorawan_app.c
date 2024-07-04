@@ -38,22 +38,22 @@ void data_lpp_uplink(void);
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
 	}
 #define USER_LORAWAN_APP_KEY                               \
-    {                                                      \
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    \
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
-    }
+	{                                                      \
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    \
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
+	}
 
 #define USER_LORAWAN_NWKSKEY                               \
-    {                                                      \
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    \
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
-    }
+	{                                                      \
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    \
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
+	}
 
 #define USER_LORAWAN_APPSKEY                               \
-    {                                                      \
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    \
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
-    }
+	{                                                      \
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    \
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
+	}
 
 #define MODEM_EXAMPLE_REGION SMTC_MODEM_REGION_WW2G4
 
@@ -65,18 +65,23 @@ void data_lpp_uplink(void);
 /**
  * @brief Stack credentials  default parameters
  */
+
+// SMTC_MODEM_CLASS_A = 0x00,  //!< Modem class A
+// SMTC_MODEM_CLASS_B = 0x01,  //!< Modem class B
+// SMTC_MODEM_CLASS_C = 0x02,  //!< Modem class C
+
 LoRaWAN_Params lora_params = {
-    .dev_eui = USER_LORAWAN_DEVICE_EUI,
-    .join_eui = USER_LORAWAN_JOIN_EUI,
-    .app_key = USER_LORAWAN_APP_KEY,
-    .devaddr = 0,
-    .appskey = USER_LORAWAN_APPSKEY,
-    .nwkskey = USER_LORAWAN_NWKSKEY,
-    .class = 0,
-    .dr = 0,
-    .confirm = 1,
-    .retry = 1,
-    .join_mode = 0,
+	.dev_eui = USER_LORAWAN_DEVICE_EUI,
+	.join_eui = USER_LORAWAN_JOIN_EUI,
+	.app_key = USER_LORAWAN_APP_KEY,
+	.devaddr = 0,
+	.appskey = USER_LORAWAN_APPSKEY,
+	.nwkskey = USER_LORAWAN_NWKSKEY,
+	.class = 0,
+	.dr = 0,
+	.confirm = 1,
+	.retry = 1,
+	.join_mode = 0,
 
 	.nwm = 1,
 	.frequency_hz = 2402000000,
@@ -85,8 +90,7 @@ LoRaWAN_Params lora_params = {
 	.bw = 3,
 	.cr = 0,
 	.preamble_size = 14,
-	.interval = 0
-};
+	.interval = 0};
 
 uint8_t rx_payload_size;
 uint8_t rx_payload[256];
@@ -114,15 +118,15 @@ void load_lora_params(void)
 {
 	hal_flash_read_buffer(ADDR_FLASH_AT_PARAM_CONTEXT, (uint8_t *)&lora_params, sizeof(lora_params));
 
-    if (lora_params.join_mode == 0xFF || lora_params.nwm == 0xFF)
-    {
-        /* Setting default parameters  todo: adding the crc parameter */
-        lora_params.devaddr = 0;
-        lora_params.class = 0;
-        lora_params.dr = 0;
-        lora_params.confirm = 1;
-        lora_params.retry = 1;
-        lora_params.join_mode = 0;
+	if (lora_params.join_mode == 0xFF || lora_params.nwm == 0xFF)
+	{
+		/* Setting default parameters  todo: adding the crc parameter */
+		lora_params.devaddr = 0;
+		lora_params.class = 0;
+		lora_params.dr = 0;
+		lora_params.confirm = 1;
+		lora_params.retry = 1;
+		lora_params.join_mode = 0;
 
 		lora_params.nwm = 1;
 		lora_params.frequency_hz = 2402000000;
@@ -132,7 +136,7 @@ void load_lora_params(void)
 		lora_params.cr = 0;
 		lora_params.preamble_size = 14;
 		lora_params.interval = 0;
-    }
+	}
 }
 
 static void get_event(void)
@@ -147,18 +151,18 @@ static void get_event(void)
 		// Read modem event
 		smtc_modem_get_event(&current_event, &event_pending_count);
 
-        switch (current_event.event_type)
-        {
-        case SMTC_MODEM_EVENT_RESET:
-            SMTC_HAL_TRACE_INFO("Event received: RESET\r\n");
+		switch (current_event.event_type)
+		{
+		case SMTC_MODEM_EVENT_RESET:
+			SMTC_HAL_TRACE_INFO("Event received: RESET\r\n");
 
 			/* The device reset is always in Lorawan mode */
-			if(lora_params.nwm == 0)
+			if (lora_params.nwm == 0)
 			{
 				smtc_modem_test_start();
 			}
 
-            /* If you add a parameter initialization here, the test mode won't work */
+			/* If you add a parameter initialization here, the test mode won't work */
 
 			// This code needs to be automatically connected to the network, so we need to set the parameters here, regardless of the test mode
 			// uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
@@ -184,8 +188,7 @@ static void get_event(void)
 			break;
 
 		case SMTC_MODEM_EVENT_JOINED:
-			SMTC_HAL_TRACE_INFO("Event received: JOINED\r\n");
-			SMTC_HAL_TRACE_INFO("Modem is now joined \r\n");
+			am_util_stdio_printf("+EVT:JOINED\r\n");
 
 			if (lora_params.interval > 0)
 				smtc_modem_alarm_start_timer(lora_params.interval);
@@ -193,18 +196,24 @@ static void get_event(void)
 			break;
 
 		case SMTC_MODEM_EVENT_TXDONE:
-			SMTC_HAL_TRACE_INFO("Event received: TXDONE\r\n");
-			SMTC_HAL_TRACE_INFO("Transmission done \r\n");
+			am_util_stdio_printf("+EVT:TX_DONE\r\n");
+
+			if(current_event.event_data.txdone.status == SMTC_MODEM_EVENT_TXDONE_CONFIRMED)
+			{
+				am_util_stdio_printf("+EVT:SEND_CONFIRMED_OK\r\n");
+			}else
+			{
+				am_util_stdio_printf("+EVT:SEND_CONFIRMED_FAILED\r\n");
+			}
 
 			break;
 
-        case SMTC_MODEM_EVENT_DOWNDATA:
-            SMTC_HAL_TRACE_INFO("Event received: DOWNDATA\r\n");
-            rx_payload_size = (uint8_t)current_event.event_data.downdata.length;
-            memcpy(rx_payload, current_event.event_data.downdata.data, rx_payload_size);
-            SMTC_HAL_TRACE_PRINTF("Data received on port %u\r\n", current_event.event_data.downdata.fport);
-            SMTC_HAL_TRACE_ARRAY("Received payload", rx_payload, rx_payload_size);
-
+		case SMTC_MODEM_EVENT_DOWNDATA:
+			SMTC_HAL_TRACE_INFO("Event received: DOWNDATA\r\n");
+			rx_payload_size = (uint8_t)current_event.event_data.downdata.length;
+			memcpy(rx_payload, current_event.event_data.downdata.data, rx_payload_size);
+			SMTC_HAL_TRACE_PRINTF("Data received on port %u\r\n", current_event.event_data.downdata.fport);
+			SMTC_HAL_TRACE_ARRAY("Received payload", rx_payload, rx_payload_size);
 
 		case SMTC_MODEM_EVENT_UPLOADDONE:
 			SMTC_HAL_TRACE_INFO("Event received: UPLOADDONE\r\n");
@@ -227,8 +236,7 @@ static void get_event(void)
 			break;
 
 		case SMTC_MODEM_EVENT_JOINFAIL:
-			SMTC_HAL_TRACE_INFO("Event received: JOINFAIL\r\n");
-			SMTC_HAL_TRACE_WARNING("Join request failed \r\n");
+			am_util_stdio_printf("+EVT:JOIN_FAILED_RX_TIMEOUT\r\n");
 			/* Stop joining the network after failure */
 			smtc_modem_leave_network(stack_id);
 
@@ -275,56 +283,58 @@ static void get_event(void)
 
 void lorawan_init()
 {
-    SMTC_HAL_TRACE_INFO("RAK LoRaWAN ISM2400 Example\r\n");
-    hal_spi_init(0, 0, 0, 0);
-    hal_rtc_init();
-    hal_lp_timer_init();
-    hal_mcu_disable_irq();
-    hal_mcu_init();
-    smtc_modem_init(&modem_radio, &get_event);
-    hal_mcu_enable_irq();
-    smtc_modem_set_region(STACK_ID, MODEM_EXAMPLE_REGION);
-    smtc_modem_set_tx_power_offset_db(STACK_ID, 0);
+	SMTC_HAL_TRACE_INFO("RAK LoRaWAN ISM2400 Example\r\n");
+	hal_spi_init(0, 0, 0, 0);
+	hal_rtc_init();
+	hal_lp_timer_init();
+	hal_mcu_disable_irq();
+	hal_mcu_init();
+	smtc_modem_init(&modem_radio, &get_event);
+	hal_mcu_enable_irq();
+	smtc_modem_set_region(STACK_ID, MODEM_EXAMPLE_REGION);
+	smtc_modem_set_tx_power_offset_db(STACK_ID, 0);
 
-    load_lora_params();
+	load_lora_params();
 
-	char* mode[2]={"P2P" , "LORAWAN"};
-	SMTC_HAL_TRACE_INFO("Work Mode %s\r\n",mode[lora_params.nwm]);
+	char *mode[2] = {"P2P", "LORAWAN"};
+	am_util_stdio_printf("Work Mode %s\r\n", mode[lora_params.nwm]);
 
-    smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
-    smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
-    smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
-
-    /* ABP mode */
-    if(lora_params.join_mode == 0)
-    {
+	/* ABP mode */
+	if (lora_params.join_mode == 0)
+	{
 		/* The ABP mode pass parameter is 1 */
 		lorawan_api_set_activation_mode(1);
 
-        int ret ;
-        SMTC_HAL_TRACE_INFO("ABP mode\r\n");
-        lorawan_api_devaddr_set(lora_params.devaddr);
-        ret = smtc_modem_crypto_set_key(SMTC_SE_NWK_S_ENC_KEY,lora_params.nwkskey);
-        if(ret)
-        {
-            SMTC_HAL_TRACE_ERROR("SMTC_SE_NWK_S_ENC_KEY ERROR\r\n");
-        }
-        ret = smtc_modem_crypto_set_key(SMTC_SE_APP_S_KEY,lora_params.appskey);
-        if(ret)
-        {
-            SMTC_HAL_TRACE_ERROR("SMTC_SE_APP_S_KEY ERROR\r\n");
-        }
-    }
+		int ret;
+		am_util_stdio_printf("ABP mode\r\n");
+		lorawan_api_devaddr_set(lora_params.devaddr);
+		ret = smtc_modem_crypto_set_key(SMTC_SE_NWK_S_ENC_KEY, lora_params.nwkskey);
+		if (ret)
+		{
+			SMTC_HAL_TRACE_ERROR("SMTC_SE_NWK_S_ENC_KEY ERROR\r\n");
+		}
+		ret = smtc_modem_crypto_set_key(SMTC_SE_APP_S_KEY, lora_params.appskey);
+		if (ret)
+		{
+			SMTC_HAL_TRACE_ERROR("SMTC_SE_APP_S_KEY ERROR\r\n");
+		}
+	}
+	else
+	{
+		smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
+		smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
+		smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
+		am_util_stdio_printf("OTAA mode\r\n");
+	}
 
-    uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
-    if (rc != SMTC_MODEM_RC_OK)
-    {
-        SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\r\n", rc);
-    }
+	uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
+	if (rc != SMTC_MODEM_RC_OK)
+	{
+		SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\r\n", rc);
+	}
 
-    lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);
-    smtc_modem_set_nb_trans(STACK_ID,lora_params.retry);
-            
+	lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);
+	smtc_modem_set_nb_trans(STACK_ID, lora_params.retry);
 }
 
 void data_lpp_uplink()
@@ -335,7 +345,7 @@ void data_lpp_uplink()
 	if (lis3dh_initialized == true)
 	{
 		RAK1904_func();
-		buffer[buff_idx++] = 1; // channel
+		buffer[buff_idx++] = 1;	   // channel
 		buffer[buff_idx++] = 0x71; // LPP
 
 		buffer[buff_idx++] = (val[0]) >> 8;
@@ -350,7 +360,7 @@ void data_lpp_uplink()
 	if (shtc3_initialized == true)
 	{
 		RAK1901_func();
-		buffer[buff_idx++] = 2; // channel
+		buffer[buff_idx++] = 2;	   // channel
 		buffer[buff_idx++] = 0x67; // LPP
 
 		buffer[buff_idx++] = (uint8_t)(val[3] >> 8);

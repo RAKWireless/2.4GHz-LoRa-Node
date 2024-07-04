@@ -327,7 +327,7 @@ int main(void)
     // Set the main print interface to use the UART print function we defined.
     //
     am_util_stdio_printf_init(uart_print);
-
+    am_util_stdio_printf("\r\nRAKwireless RAK3183\r\n");
     //
     // Print the banner.
     //
@@ -339,7 +339,7 @@ int main(void)
 
     uint8_t character = 0;
 
-    am_util_stdio_printf("\r\nRAKwireless RAK3183\r\n");
+    
 
     while (1)
     {

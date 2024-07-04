@@ -140,17 +140,29 @@ int handle_deveui(const AT_Command *cmd)
     }
     else if (strlen(cmd->argv[0]) == 16 && cmd->argc == 1) // Set instruction
     {
-        //参数是否是数字
+        
         uint8_t deveui_temp[8] = {0};
+        smtc_modem_return_code_t ret;
+
         if (hex_string_to_bytes(cmd->params, deveui_temp, sizeof(deveui_temp)) != 0)
         {
             return AT_PARAM_ERROR;
         }
 
-        if(SMTC_MODEM_RC_OK != smtc_modem_set_deveui(STACK_ID, deveui_temp))
+        ret = smtc_modem_set_deveui(STACK_ID, deveui_temp);
+        if(SMTC_MODEM_RC_OK == ret)
         {
-            return AT_PARAM_ERROR;
+            return AT_OK;
+        } else if (SMTC_MODEM_RC_BUSY == ret)
+        {
+            return AT_BUSY_ERROR;
+        } else
+        {
+            return AT_ERROR;
         }
+        
+
+
         memcpy(lora_params.dev_eui, deveui_temp, sizeof(lora_params.dev_eui));
         save_lora_params();
     }
@@ -231,58 +243,55 @@ void handle_appkey(const AT_Command *cmd)
 
 void handle_send(const AT_Command *cmd)
 {
+    int port , len;
+    uint8_t data[MAX_PARAM_LEN + 1];
 
-    int port;
-    char data[MAX_PARAM_LEN + 1];
-    if (sscanf(cmd->params, "%d:%s", &port, data) != 2)
+    if(cmd->argc != 2)
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-        return;
+        return AT_PARAM_ERROR;
     }
 
-    size_t len = strlen(data);
-    if (len % 2 != 0)
+    char* endptr;
+    port = strtol(cmd->argv[0], &endptr, 10);
+    if(port == 0)
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-        am_util_stdio_printf("Invalid hex value\r\n");
-        return;
+        return AT_PARAM_ERROR;
     }
-    unsigned char hex_data[256];
-    size_t count = 0;
-    for (size_t i = 0; i < len; i += 2)
+
+    if(strlen(cmd->argv[1])%2 != 0)
     {
-        unsigned int hex_value;
-        if (sscanf(data + i, "%02x", &hex_value) != 1)
-        {
-            am_util_stdio_printf("Failed to parse hex value\r\n");
-            return;
-        }
-        hex_data[count++] = (unsigned char)hex_value;
+        return AT_PARAM_ERROR;
     }
-    // am_util_stdio_printf("Sending data on port %d", port);
-    //  for (size_t i = 0; i < count; i++)
-    //  {
-    //      am_util_stdio_printf("%02x ", hex_data[i]);
-    //  }
-    //  am_util_stdio_printf("\r\n");
+
+    len = strlen(cmd->argv[1])/2;
+    if(hex_string_to_bytes(cmd->argv[1],data,len) == -1)
+    {
+        return AT_PARAM_ERROR;
+    }
+
+    
+    // if (sscanf(cmd->params, "%d:%s", &port, data) != 2)
+    // {
+    //     am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+    //     return;
+    // }
 
     if (lorawan_api_get_activation_mode() == ACTIVATION_MODE_OTAA)
     {
         if (is_joined() == true)
         {
-            g_confirm_status = 0;
-            smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, hex_data, count);
-            am_util_stdio_printf("OK\r\n");
+            smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, data, len);
+            return AT_OK;
         }
         else
         {
-            am_util_stdio_printf("Device not joined to the network\r\n");
+            return AT_NO_NETWORK_JOINED;
         }
     }
     else
     {
-        smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, hex_data, count);
-        am_util_stdio_printf("OK\r\n");
+        smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, data, len);
+        return AT_OK;
     }
 }
 
@@ -294,30 +303,23 @@ void handle_join(const AT_Command *cmd)
 {
     if (modem_get_test_mode_status() == true)
     {
-        am_util_stdio_printf("In test mode, please reset to exit RF test mode.\r\n");
-        return;
+        return AT_MODE_NO_SUPPORT;
     }
 
-    /* This part is mainly to make up for the problem of power-on without initialization parameters, which cannot be placed in reset events for P2P reasons */
-    // pre join
-
-    // uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
-    // memset(custom_datarate, lora_params.dr, SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
-    // smtc_modem_adr_set_profile(STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate);
-
-    /* to do */
-    // lorawan_api_dr_custom_set(custom_datarate);
-
-    // uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
-    // if (rc != SMTC_MODEM_RC_OK)
-    // {
-    //     SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\r\n", rc);
-    // }
-
-    // smtc_modem_set_nb_trans(STACK_ID,lora_params.retry);
-
-    am_util_stdio_printf("OK\r\n");
-    smtc_modem_join_network(STACK_ID);
+    smtc_modem_return_code_t ret;
+    ret = smtc_modem_join_network(STACK_ID);
+    if(ret == SMTC_MODEM_RC_OK)
+    {
+        return AT_OK;
+    }else if (ret == SMTC_MODEM_RC_BUSY)
+    {
+        return AT_BUSY_ERROR;
+    }
+    else
+    {
+        return AT_ERROR;
+    }
+    
 }
 
 //    SMTC_MODEM_CLASS_A = 0x00,  //!< Modem class A
@@ -1162,8 +1164,8 @@ AT_Command parse_AT_Command(const char *input)
         cmd.cmd[cmd_len] = '\0';
         cmd.params[params_len] = '\0';
 
-        // 使用一个局部变量来分割参数，以保持cmd.params的完整性
-        char params_copy[MAX_PARAM_LEN + 1];
+        // 使用一个局部变量来分割参数，以保持cmd.params的完整性  需要静态变量 保证内存安全性
+        static char params_copy[MAX_PARAM_LEN + 1];     
         strcpy(params_copy, cmd.params);
 
         char *token = strtok(params_copy, ":");
@@ -1251,7 +1253,6 @@ void process_serial_input(char c)
 
     if (i >= MAX_CMD_LEN + MAX_PARAM_LEN + 2) //+2 /r/n
     {
-
         i = 0;
         am_util_stdio_printf("ERROR: Input buffer overflow\r\n");
         return;
