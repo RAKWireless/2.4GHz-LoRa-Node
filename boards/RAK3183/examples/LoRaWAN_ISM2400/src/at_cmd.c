@@ -149,7 +149,7 @@ int handle_deveui(const AT_Command *cmd)
 
         if(SMTC_MODEM_RC_OK != smtc_modem_set_deveui(STACK_ID, deveui_temp))
         {
-            return AT_PARAM_ERROR;
+            return AT_ERROR;
         }
         memcpy(lora_params.dev_eui, deveui_temp, sizeof(lora_params.dev_eui));
         save_lora_params();
@@ -160,72 +160,75 @@ int handle_deveui(const AT_Command *cmd)
     }
 }
 
-void handle_joineui(const AT_Command *cmd)
+int handle_joineui(const AT_Command *cmd)
 {
-    if (strcmp(cmd->params, "?") == 0)
-    {
-
-        int i;
-        for (i = 0; i < 8; i++)
-        {
+    // Query instruction
+    if (strcmp(cmd->argv[0], "?") == 0 && cmd->argc == 1)
+    {        
+        am_util_stdio_printf("%s=", cmd->cmd);
+        for (int i = 0; i < 8; i++)
+        {            
             am_util_stdio_printf("%02X", lora_params.join_eui[i]);
         }
         am_util_stdio_printf("\r\n");
-        am_util_stdio_printf("OK\r\n");
+        return AT_OK;
     }
-    else if (strlen(cmd->params) == 16)
+    else if (strlen(cmd->argv[0]) == 16 && cmd->argc == 1)    
     {
-
-        uint8_t bytes[8] = {0};
-        if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
-        {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+        // 判断参数是否是数字
+        uint8_t joineui_temp[8] = {0};
+        if (hex_string_to_bytes(cmd->params, joineui_temp, sizeof(joineui_temp)) != 0)
+        {            
+            return AT_PARAM_ERROR;
         }
-        memcpy(lora_params.join_eui, bytes, sizeof(lora_params.join_eui));
-
-        am_util_stdio_printf("OK\r\n");
-        save_lora_params();
-
-        smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
+        // 判断参数是否可以配置成功
+        if(SMTC_MODEM_RC_OK != smtc_modem_set_joineui(STACK_ID, joineui_temp))
+        {
+            return AT_ERROR;
+        }
+        memcpy(lora_params.join_eui, joineui_temp, sizeof(lora_params.join_eui));
+        save_lora_params();        
     }
-    else
+    else    
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return AT_PARAM_ERROR;
     }
+    
 }
 
-void handle_appkey(const AT_Command *cmd)
+int handle_appkey(const AT_Command *cmd)
 {
-    if (strcmp(cmd->params, "?") == 0)
+    // 查询appkey
+    if (strcmp(cmd->argv[0], "?") == 0 && cmd->argc == 1)
     {
-
-        int i;
-        for (i = 0; i < 16; i++)
+        am_util_stdio_printf("%s=", cmd->cmd);
+        for (int i = 0; i < 16; i++)
         {
             am_util_stdio_printf("%02X", lora_params.app_key[i]);
         }
         am_util_stdio_printf("\r\n");
-        am_util_stdio_printf("OK\r\n");
+        return AT_OK;        
     }
-    else if (strlen(cmd->params) == 32)
+    else if (strlen(cmd->argv[0]) == 32 && cmd->argc == 1)
     {
-
-        uint8_t bytes[16] = {0};
-        if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
+        // 判断参数是否为十六进制数
+        uint8_t appkey_temp[16] = {0};
+        if(hex_string_to_bytes(cmd->params, appkey_temp, sizeof(appkey_temp)) != 0)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+            return AT_PARAM_ERROR;
         }
-        memcpy(lora_params.app_key, bytes, sizeof(lora_params.app_key));
-        am_util_stdio_printf("OK\r\n");
-        save_lora_params();
-
-        smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
+        // 设置参数
+        if (SMTC_MODEM_RC_OK != smtc_modem_set_nwkkey(STACK_ID, appkey_temp))
+        {
+            return AT_ERROR;
+        }
+        // 保存参数
+        memcpy(lora_params.app_key, appkey_temp, sizeof(lora_params.app_key));
+        save_lora_params();        
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return AT_PARAM_ERROR;
     }
 }
 
@@ -911,7 +914,7 @@ void handle_confirm(const AT_Command *cmd)
     }
 }
 
-void handle_test(const AT_Command *cmd)
+int handle_test(const AT_Command *cmd)
 {
     am_util_stdio_printf("AT_Command\r\n");
     am_util_stdio_printf("cmd->cmd %s\r\n", cmd->cmd);
@@ -924,46 +927,75 @@ void handle_test(const AT_Command *cmd)
     }
 
     am_util_stdio_printf("OK\r\n");
-    return;
+    return AT_OK;
 }
 
-void handle_njm(const AT_Command *cmd)
+int handle_njm(const AT_Command *cmd)
 {
-    uint8_t mode = 0;
-
-    if (strcmp(cmd->params, "?") == 0)
+    // query njm value
+    if (strcmp(cmd->argv[0], "?") == 0 && cmd->argc ==1)
+    {        
+        am_util_stdio_printf("%s=", cmd->cmd);
+        am_util_stdio_printf("%d\r\n", lora_params.join_mode);        
+        return AT_OK;
+    }    
+    else if (strlen(cmd->params) < 2 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", lora_params.join_mode);
-        am_util_stdio_printf("OK\r\n");
-        return;
-    }
-    else if (strlen(cmd->params) < 2) /* It is more appropriate to determine the number of parameters instead */
-    {
+        uint8_t mode = 0;
         mode = atoi(cmd->params);
-
+        // NJM大于1时，参数非法
         if (mode > 1)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
-        }
-
+            return AT_PARAM_ERROR;
+        }        
         // 和RUI保持一致  0:ABP 1:OTAA
         if (!mode)
             lorawan_api_set_activation_mode(!mode);
 
         lora_params.join_mode = mode;
-        save_lora_params();
-        am_util_stdio_printf("OK\r\n");
+        save_lora_params();        
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-    }
-    return;
+        return AT_PARAM_ERROR;
+    }    
 }
 
-void handle_devaddr(const AT_Command *cmd)
+int handle_devaddr(const AT_Command *cmd)
 {
+    // // query devaddr value
+    // if (strcmp(cmd->argv[0], "?") == 0 && cmd->argc == 1)
+    // {
+    //     am_util_stdio_printf("%s=", cmd->cmd);
+    //     for (int i = 0; i < 4; i++)
+    //     {
+    //         am_util_stdio_printf("%02X", lora_params.devaddr);
+    //     }
+    //     am_util_stdio_printf("\r\n");
+    //     return AT_OK;
+    // }
+    // else if (strlen(cmd->argv[0]) == 8 && cmd->argc == 1)
+    // {
+    //     uint8_t devaddr_temp[4] = {0};
+    //     // check is hex value
+    //     if (hex_string_to_bytes(cmd->params, devaddr_temp, sizeof(devaddr_temp)) != 0)
+    //     {
+    //         return AT_PARAM_ERROR;
+    //     }
+    //     // config value
+    //     // if (SMTC_MODEM_RC_OK != lorawan_api_devaddr_set(devaddr_temp))
+    //     // {            
+    //     // }
+    //     lorawan_api_devaddr_set(devaddr_temp);
+    //     memcpy(lora_params.devaddr, devaddr_temp, sizeof(lora_params.devaddr));
+    //     save_lora_params();
+    // }
+    // else
+    // {
+    //     return AT_PARAM_ERROR;
+    // }
+    
+    
     uint32_t devaddr = 0;
 
     if (strcmp(cmd->params, "?") == 0)
