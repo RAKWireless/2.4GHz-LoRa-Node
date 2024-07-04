@@ -2,6 +2,8 @@
 #define TX_RX_TEST_H
 #include "am_mcu_apollo.h"
 
+uint16_t crc16(const uint8_t *data, size_t length);
+
 typedef struct
 {
 	uint8_t dev_eui[8];
@@ -24,6 +26,7 @@ typedef struct
 	uint8_t bw;
 	uint8_t cr;
 	uint8_t preamble_size;
+	uint16_t crc;
 } LoRaWAN_Params;
 
 extern LoRaWAN_Params lora_params;
