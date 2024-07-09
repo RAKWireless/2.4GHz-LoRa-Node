@@ -94,6 +94,9 @@ void hal_spi_de_init( const uint32_t id );
  */
 uint16_t hal_spi_in_out( const uint32_t id, const uint16_t out_data );
 
+
+void hal_spi_sleep();
+
 #ifdef __cplusplus
 }
 #endif

@@ -101,4 +101,20 @@ uint32_t hal_rtc_get_time_ms(void)
 	return seconds * 1000 + (milliseconds_div_10 / 10);
 }
 
+
+void hal_rtc_stop(void)
+{
+    // 停止定时器
+    am_hal_ctimer_stop(1, AM_HAL_CTIMER_BOTH);
+
+    // 禁用定时器1的中断
+    am_hal_ctimer_int_disable(AM_HAL_CTIMER_INT_TIMERA1);
+
+    // 清除可能已挂起的中断（如果有）
+    am_hal_ctimer_int_clear(AM_HAL_CTIMER_INT_TIMERA1);
+
+    // 如果需要，也可以从NVIC中禁用中断
+    NVIC_DisableIRQ(CTIMER_IRQn);
+}
+
 /* --- EOF ------------------------------------------------------------------ */

@@ -308,13 +308,13 @@ void smtc_modem_hal_radio_irq_clear_pending( void )
 
 void smtc_modem_hal_start_radio_tcxo( void )
 {
-		hal_gpio_init_out(TXCO_POWER,1);
+	hal_gpio_init_out(TXCO_POWER,1);
     // put here the code that will start the tcxo if needed
 }
 
 void smtc_modem_hal_stop_radio_tcxo( void )
 {
-		// hal_gpio_init_out(2,0);
+    hal_gpio_init_out(TXCO_POWER,0);
     // put here the code that will stop the tcxo if needed
 }
 

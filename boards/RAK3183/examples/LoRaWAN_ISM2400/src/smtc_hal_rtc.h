@@ -123,6 +123,9 @@ void hal_rtc_wakeup_timer_stop( void );
  */
 bool hal_rtc_has_wut_irq_happened( void );
 
+
+void hal_rtc_stop(void);
+
 #ifdef __cplusplus
 }
 #endif

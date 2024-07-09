@@ -57,6 +57,7 @@
 #include "smtc_hal_lp_timer.h"
 #include "smtc_hal_mcu.h"
 #include "i2c.h"
+#include "smtc_hal_rtc.h"
 
 #define LED1 44
 #define LED2 45
@@ -273,12 +274,7 @@ int main(void)
     am_hal_cachectrl_config(&am_hal_cachectrl_defaults);
     am_hal_cachectrl_enable();
 
-    //
-    // Configure the board for low power operation.
-    //
-    // am_bsp_low_power_init();
-
-    am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_XTAL_START, 0);
+    // am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_XTAL_START, 0);
 
     //
     // Wait for 1 second for the 32KHz XTAL to startup and stabilize.
@@ -288,11 +284,8 @@ int main(void)
     //
     // Enable HFADJ.
     //
-    am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_HFADJ_ENABLE, 0);
+    // am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_HFADJ_ENABLE, 0);
 
-    //
-    // Initialize the printf interface for UART output.
-    //
     CHECK_ERRORS(am_hal_uart_initialize(0, &phUART));
 
     CHECK_ERRORS(am_hal_uart_power_control(phUART, AM_HAL_SYSCTRL_WAKE, false));
@@ -301,9 +294,6 @@ int main(void)
     CHECK_ERRORS(am_hal_uart_control(phUART, AM_HAL_UART_CONTROL_CLKSEL, &eUartClockSpeed));
     CHECK_ERRORS(am_hal_uart_configure(phUART, &g_sUartConfig));
 
-    //
-    // Enable the UART pins.
-    //
     const am_hal_gpio_pincfg_t g_AM_BSP_GPIO_COM_UART_TX0 =
         {
             .uFuncSel = AM_HAL_PIN_39_UART0TX,
@@ -312,56 +302,69 @@ int main(void)
     const am_hal_gpio_pincfg_t g_AM_BSP_GPIO_COM_UART_RX0 =
         {
             .uFuncSel = AM_HAL_PIN_40_UART0RX};
-    //
+
     am_hal_gpio_pinconfig(39, g_AM_BSP_GPIO_COM_UART_TX0);
     am_hal_gpio_pinconfig(40, g_AM_BSP_GPIO_COM_UART_RX0);
 
-    //
-    // Enable interrupts.
-    //
     NVIC_SetPriority(UART0_IRQn, 7);
     NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn));
-    am_hal_interrupt_master_enable();
 
-    //
-    // Set the main print interface to use the UART print function we defined.
-    //
     am_util_stdio_printf_init(uart_print);
     am_util_stdio_printf("\r\nRAKwireless RAK3183\r\n");
-    //
-    // Print the banner.
-    //
-    //am_util_stdio_terminal_clear();
+    am_hal_interrupt_master_enable();
+
 
     init_rak3183_led();
     lorawan_init();
-    i2c_init();
+    // i2c_init();   //低功耗先注释掉
 
     uint8_t character = 0;
+    uint32_t time;
 
-    
+    //
+    // Turn OFF unneeded flash
+    //
+    if (am_hal_pwrctrl_memory_enable(AM_HAL_PWRCTRL_MEM_FLASH_MIN))
+    {
+        while (1)
+            ;
+    }
+
+    // For optimal Deep Sleep current, configure cache to be powered-down in deepsleep:
+    am_hal_pwrctrl_memory_deepsleep_powerdown(AM_HAL_PWRCTRL_MEM_CACHE);
+
+    //
+    // Power down SRAM, only 32K SRAM retained
+    //
+    am_hal_pwrctrl_memory_deepsleep_powerdown(AM_HAL_PWRCTRL_MEM_SRAM_MAX);
+    am_hal_pwrctrl_memory_deepsleep_retain(AM_HAL_PWRCTRL_MEM_SRAM_32K_DTCM);
 
     while (1)
     {
-        smtc_modem_run_engine();
+        // uint32_t last_time ;
+        // time = smtc_modem_run_engine();
+        // if(last_time != time)
+        // am_util_stdio_printf("%d ms %d s\r\n", time, time/1000);
+        // last_time = time;
 
-        while (ringBufferGetChar(&rxRingBuffer, &character))
-        {
-            // echo
-            am_util_stdio_printf("%c", character);
-            process_serial_input(character);
-        }
-
-        // character = uart_input();
-        // if (character)
+        // while (ringBufferGetChar(&rxRingBuffer, &character))
         // {
-        //     am_hal_gpio_state_write(LED2, AM_HAL_GPIO_OUTPUT_TOGGLE);
+        //     // echo
+        //     am_util_stdio_printf("%c", character);
         //     process_serial_input(character);
         // }
-        //
-        // Go to Deep Sleep.
-        //
-        // am_hal_sysctrl_sleep(AM_HAL_SYSCTRL_SLEEP_DEEP);
+        //hal_rtc_stop();
+
+
+	    am_hal_iom_power_ctrl(phUART,AM_HAL_SYSCTRL_DEEPSLEEP,false);
+
+        am_hal_gpio_state_write(LED1, 0);
+        am_hal_gpio_state_write(LED2, 0);
+        am_hal_sysctrl_sleep(AM_HAL_SYSCTRL_SLEEP_DEEP);
+        am_hal_gpio_state_write(LED1, 1);
+        am_hal_gpio_state_write(LED2, 1);
+
+        am_hal_iom_power_ctrl(phUART,AM_HAL_SYSCTRL_WAKE,false);
     }
 }
 

@@ -126,7 +126,7 @@ void load_lora_params(void)
 	hal_flash_read_buffer(ADDR_FLASH_AT_PARAM_CONTEXT, (uint8_t *)&lora_params_temp, sizeof(lora_params_temp));
 
 	crc  = calculate_crc_for_lorawan_params(&lora_params_temp);
-	
+
 	if(lora_params_temp.crc != crc)
 	{
 		save_lora_params();
@@ -283,56 +283,59 @@ void lorawan_init()
 {
 	SMTC_HAL_TRACE_INFO("RAK LoRaWAN ISM2400 Example\r\n");
 	hal_spi_init(0, 0, 0, 0);
-	hal_rtc_init();
-	hal_lp_timer_init();
-	hal_mcu_disable_irq();
+	//hal_rtc_init();
+	//hal_lp_timer_init();
+	//hal_mcu_disable_irq();
 	hal_mcu_init();
+
 	smtc_modem_init(&modem_radio, &get_event);
-	hal_mcu_enable_irq();
-	smtc_modem_set_region(STACK_ID, MODEM_EXAMPLE_REGION);
-	smtc_modem_set_tx_power_offset_db(STACK_ID, 0);
+	smtc_modem_hal_stop_radio_tcxo( );
+	hal_spi_sleep();
+	//hal_mcu_enable_irq();
+	// smtc_modem_set_region(STACK_ID, MODEM_EXAMPLE_REGION);
+	// smtc_modem_set_tx_power_offset_db(STACK_ID, 0);
 
-	load_lora_params();
+	// load_lora_params();
 
-	char *mode[2] = {"P2P", "LORAWAN"};
-	am_util_stdio_printf("Work Mode %s\r\n", mode[lora_params.nwm]);
+	// char *mode[2] = {"P2P", "LORAWAN"};
+	// am_util_stdio_printf("Work Mode %s\r\n", mode[lora_params.nwm]);
 
-	/* ABP mode */
-	if (lora_params.join_mode == 0)
-	{
-		/* The ABP mode pass parameter is 1 */
-		lorawan_api_set_activation_mode(1);
+	// /* ABP mode */
+	// if (lora_params.join_mode == 0)
+	// {
+	// 	/* The ABP mode pass parameter is 1 */
+	// 	lorawan_api_set_activation_mode(1);
 
-		int ret;
-		am_util_stdio_printf("ABP mode\r\n");
-		lorawan_api_devaddr_set(lora_params.devaddr);
-		ret = smtc_modem_crypto_set_key(SMTC_SE_NWK_S_ENC_KEY, lora_params.nwkskey);
-		if (ret)
-		{
-			SMTC_HAL_TRACE_ERROR("SMTC_SE_NWK_S_ENC_KEY ERROR\r\n");
-		}
-		ret = smtc_modem_crypto_set_key(SMTC_SE_APP_S_KEY, lora_params.appskey);
-		if (ret)
-		{
-			SMTC_HAL_TRACE_ERROR("SMTC_SE_APP_S_KEY ERROR\r\n");
-		}
-	}
-	else
-	{
-		smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
-		smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
-		smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
-		am_util_stdio_printf("OTAA mode\r\n");
-	}
+	// 	int ret;
+	// 	am_util_stdio_printf("ABP mode\r\n");
+	// 	lorawan_api_devaddr_set(lora_params.devaddr);
+	// 	ret = smtc_modem_crypto_set_key(SMTC_SE_NWK_S_ENC_KEY, lora_params.nwkskey);
+	// 	if (ret)
+	// 	{
+	// 		SMTC_HAL_TRACE_ERROR("SMTC_SE_NWK_S_ENC_KEY ERROR\r\n");
+	// 	}
+	// 	ret = smtc_modem_crypto_set_key(SMTC_SE_APP_S_KEY, lora_params.appskey);
+	// 	if (ret)
+	// 	{
+	// 		SMTC_HAL_TRACE_ERROR("SMTC_SE_APP_S_KEY ERROR\r\n");
+	// 	}
+	// }
+	// else
+	// {
+	// 	smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
+	// 	smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
+	// 	smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
+	// 	am_util_stdio_printf("OTAA mode\r\n");
+	// }
 
-	uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
-	if (rc != SMTC_MODEM_RC_OK)
-	{
-		SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\r\n", rc);
-	}
+	// uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
+	// if (rc != SMTC_MODEM_RC_OK)
+	// {
+	// 	SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\r\n", rc);
+	// }
 
-	lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);
-	smtc_modem_set_nb_trans(STACK_ID, lora_params.retry);
+	// lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);
+	// smtc_modem_set_nb_trans(STACK_ID, lora_params.retry);
 }
 
 void data_lpp_uplink()

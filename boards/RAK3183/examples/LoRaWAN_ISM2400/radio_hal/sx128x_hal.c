@@ -175,10 +175,10 @@ static void sx128x_hal_wait_on_busy( void )
     while( hal_gpio_get_value( RADIO_BUSY_PIN ) == 1 )
     {
 	
-			hal_gpio_init_out(44 ,1 );
+		//hal_gpio_init_out(44 ,1 );
     }
 		
-		hal_gpio_init_out(44 ,0 );
+	//hal_gpio_init_out(44 ,0 );
 }
 
 static void sx128x_hal_check_device_ready( void )
