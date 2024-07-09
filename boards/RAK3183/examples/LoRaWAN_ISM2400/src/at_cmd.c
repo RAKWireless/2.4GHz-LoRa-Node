@@ -863,19 +863,23 @@ void handle_dr(const AT_Command *cmd)
     }
 }
 
-void handle_sendinterval(const AT_Command *cmd)
+int handle_sendinterval(const AT_Command *cmd)
 {
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%u\r\n", lora_params.interval);
-        am_util_stdio_printf("OK\r\n");
-        return;
+        am_util_stdio_printf("%s=%u\r\n", cmd->cmd, lora_params.interval);        
+        return AT_OK;
     }
-
-    lora_params.interval = atoi(cmd->params);
-    save_lora_params();
-    am_util_stdio_printf("OK\r\n");
-
+    else if (cmd->params > 0 && cmd->argc == 1)
+    {
+        lora_params.interval = atoi(cmd->params);
+        save_lora_params();
+        return AT_OK;
+    }
+    else
+    {
+        return AT_ERROR;
+    }
     if (lora_params.interval > 0)
         smtc_modem_alarm_start_timer(lora_params.interval);
 }
@@ -908,32 +912,34 @@ void handle_confirm_status(const AT_Command *cmd)
     }
 }
 
-void handle_confirm(const AT_Command *cmd)
+int handle_confirm(const AT_Command *cmd)
 {
-    uint8_t confirm = 0;
-
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", lora_params.confirm);
-        am_util_stdio_printf("OK\r\n");
-        return;
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, lora_params.confirm);        
+        return AT_OK;
     }
+    else if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
+    }    
     else if (strlen(cmd->params) == 1)
     {
-        confirm = atoi(cmd->params);
-        if (confirm > 1)
-        {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+        uint8_t confirm_temp = atoi(cmd->params);
+        if (confirm_temp > 1)
+        {            
+            return AT_PARAM_ERROR;
         }
-
-        lora_params.confirm = confirm;
-        save_lora_params();
-        am_util_stdio_printf("OK\r\n");
+        else
+        {
+            lora_params.confirm = confirm_temp;
+            save_lora_params();
+            return AT_OK;
+        }        
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return AT_ERROR;
     }
 }
 
