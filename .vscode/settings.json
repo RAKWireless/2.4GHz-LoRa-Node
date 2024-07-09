@@ -4,6 +4,8 @@
         "lr1mac_utilities.h": "c",
         "smtc_modem_hal_dbg_trace.h": "c",
         "lr1mac_config.h": "c",
-        "smtc_real_defs_str.h": "c"
+        "smtc_real_defs_str.h": "c",
+        "am_mcu_apollo.h": "c",
+        "stdint.h": "c"
     }
 }

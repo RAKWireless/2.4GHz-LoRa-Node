@@ -98,10 +98,10 @@ int hex_string_to_bytes(const char *str, uint8_t *bytes, size_t len)
     return 0;
 }
 
-void handle_version(const AT_Command *cmd)
+int handle_version(const AT_Command *cmd)
 {
-    am_util_stdio_printf("%s\r\n", VERSION);
-    am_util_stdio_printf("OK\r\n");
+    am_util_stdio_printf("%s=%s\r\n", cmd->cmd, VERSION);
+    return AT_OK;
 }
 
 void handle_reset(const AT_Command *cmd)
@@ -260,7 +260,7 @@ int handle_appkey(const AT_Command *cmd)
     }
 }
 
-void handle_send(const AT_Command *cmd)
+int handle_send(const AT_Command *cmd)
 {
     int port , len;
     uint8_t data[MAX_PARAM_LEN + 1];
@@ -318,7 +318,7 @@ void handle_tx_power(const AT_Command *cmd)
 {
 }
 
-void handle_join(const AT_Command *cmd)
+int handle_join(const AT_Command *cmd)
 {
     if (modem_get_test_mode_status() == true)
     {
@@ -344,67 +344,72 @@ void handle_join(const AT_Command *cmd)
 //    SMTC_MODEM_CLASS_A = 0x00,  //!< Modem class A
 //    SMTC_MODEM_CLASS_B = 0x01,  //!< Modem class B
 //    SMTC_MODEM_CLASS_C = 0x02,  //!< Modem class C
-void handle_class(const AT_Command *cmd)
-{
-    if (strcmp(cmd->params, "?") == 0)
+int handle_class(const AT_Command *cmd)
+{    
+    // at+class=1, AT_ERROR, 与old一致
+    // query class value
+    if (strcmp(cmd->argv[0], "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", lora_params.class);
-        am_util_stdio_printf("OK\r\n");
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, lora_params.class);
+        return AT_OK;
     }
-    else if (strlen(cmd->params) == 1)
+    // set class value
+    else if (strlen(cmd->params) == 1 && cmd->argc == 1)
     {
-
-        lora_params.class = atoi(cmd->params);
-        if (lora_params.class > 2)
+        uint8_t class_temp = atoi(cmd->params);
+        // am_util_stdio_printf("class_temp=%d\r\n", class_temp);
+        smtc_modem_return_code_t ret;
+        if (class_temp > 2)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+            return AT_PARAM_ERROR;
         }
-        if (SMTC_MODEM_RC_OK != smtc_modem_set_class(STACK_ID, lora_params.class))
+        ret = smtc_modem_set_class(STACK_ID, class_temp);
+        if (SMTC_MODEM_RC_OK == ret)
         {
-            am_util_stdio_printf("AT_ERROR\r\n");
-            return;
+            lora_params.class = class_temp;
+            save_lora_params();
+            return AT_OK;
         }
-        save_lora_params();
-        am_util_stdio_printf("OK\r\n");
-        return;
-    }
-    else
-    {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-    }
+        else if (SMTC_MODEM_RC_BUSY == ret)
+        {
+            return AT_BUSY_ERROR;
+        }        
+        else
+        {    
+            // am_util_stdio_printf("%d\r\n", ret);
+            return AT_ERROR;
+        }
+    }    
 }
 
-void handle_nwm(const AT_Command *cmd)
+int handle_nwm(const AT_Command *cmd)
 {
-    uint8_t nwm;
-
-    if (strcmp(cmd->params, "?") == 0)
+    // query nwm value
+    if (strcmp(cmd->argv[0], "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", lora_params.nwm);
-        am_util_stdio_printf("OK\r\n");
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, lora_params.nwm);
+        return AT_OK;
     }
-    else if (strlen(cmd->params) == 1)
+    // set nwm value
+    else if (strlen(cmd->params) == 1 && cmd->argc == 1)
     {
-
-        nwm = atoi(cmd->params);
-        if (nwm > 1)
+        uint8_t nwm_temp = atoi(cmd->params);        
+        if (nwm_temp > 1)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+            return AT_PARAM_ERROR;
         }
-
-        lora_params.nwm = nwm;
-        save_lora_params();
-        am_util_stdio_printf("OK\r\n");
-        NVIC_SystemReset();
-        return;
+        else
+        {
+            lora_params.nwm = nwm_temp;
+            save_lora_params();
+            NVIC_SystemReset();
+            return AT_OK;
+        }        
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-    }
-    // smtc_modem_test_start();
+        return AT_ERROR;
+    } 
 }
 
 void handle_freq(const AT_Command *cmd)
