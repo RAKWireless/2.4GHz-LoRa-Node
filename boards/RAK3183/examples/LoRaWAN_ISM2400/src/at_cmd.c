@@ -260,7 +260,7 @@ int handle_appkey(const AT_Command *cmd)
     }
 }
 
-void handle_send(const AT_Command *cmd)
+int handle_send(const AT_Command *cmd)
 {
     int port , len;
     uint8_t data[MAX_PARAM_LEN + 1];
@@ -318,7 +318,7 @@ void handle_tx_power(const AT_Command *cmd)
 {
 }
 
-void handle_join(const AT_Command *cmd)
+int handle_join(const AT_Command *cmd)
 {
     if (modem_get_test_mode_status() == true)
     {
@@ -1213,7 +1213,7 @@ int process_AT_Command(const char *input)
     if (strlen(cmd.cmd) == 0) // When the length of the AT command is 0, no processing is performed.
     {
         am_util_stdio_printf("\r\n");
-        return;
+        return ret;
     }
     //  end fix Hit Enter to return AT_ERROR
 
@@ -1238,6 +1238,8 @@ int process_AT_Command(const char *input)
     } else {
         am_util_stdio_printf("%s\r\n", atcmd_err_tbl[1]);
     }
+		
+		return ret;
 }
 
 void get_all_commands()

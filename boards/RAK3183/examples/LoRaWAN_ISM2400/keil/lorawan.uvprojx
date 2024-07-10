@@ -16,7 +16,7 @@
         <TargetCommonOption>
           <Device>AMA3B1KK-KBR</Device>
           <Vendor>Ambiq Micro</Vendor>
-          <PackID>AmbiqMicro.Apollo_DFP.1.3.0</PackID>
+          <PackID>AmbiqMicro.Apollo_DFP.1.4.1</PackID>
           <PackURL>https://download.ambiq.com/packs/</PackURL>
           <Cpu>IRAM(0x10000000,0x00060000) IROM(0x0000C000,0x000F4000) CPUTYPE("Cortex-M4") FPU2 CLOCK(48000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -595,6 +595,16 @@
               <FileName>i2c.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>rak1901.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\rak1901.c</FilePath>
+            </File>
+            <File>
+              <FileName>rak1904.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\rak1904.c</FilePath>
             </File>
           </Files>
         </Group>
