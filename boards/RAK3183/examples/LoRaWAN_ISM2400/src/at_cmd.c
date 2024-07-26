@@ -1224,7 +1224,7 @@ int process_AT_Command(const char *input)
     if (strlen(cmd.cmd) == 0) // When the length of the AT command is 0, no processing is performed.
     {
         am_util_stdio_printf("\r\n");
-        return;
+        return ret;
     }
     //  end fix Hit Enter to return AT_ERROR
 
@@ -1249,6 +1249,8 @@ int process_AT_Command(const char *input)
     } else {
         am_util_stdio_printf("%s\r\n", atcmd_err_tbl[1]);
     }
+		
+		return ret;
 }
 
 void get_all_commands()

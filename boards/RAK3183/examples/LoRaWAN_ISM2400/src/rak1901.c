@@ -48,7 +48,7 @@ static uint8_t _Address = 0x70;
  */
 uint32_t my_i2c_write(uint8_t slave_address, uint8_t *p_data, uint32_t length)
 {
-	if (!iom_slave_write(p_data, length, slave_address))
+	if (!iom_slave_write((uint32_t *)p_data, length, slave_address))
 	{
 		return I2C_ERROR;
 	}
@@ -65,7 +65,7 @@ uint32_t my_i2c_write(uint8_t slave_address, uint8_t *p_data, uint32_t length)
  */
 uint32_t my_i2c_read(uint8_t slave_address, uint8_t *p_data, uint32_t length)
 {
-	if (!iom_slave_read(p_data, length, slave_address))
+	if (!iom_slave_read((uint32_t *)p_data, length, slave_address))
 	{
 		return I2C_ERROR;
 	}
