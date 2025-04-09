@@ -1,6 +1,7 @@
 #include "at_cmd.h"
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "lorawan_app.h"
 #include "am_mcu_apollo.h"
 #include "am_util.h"
@@ -110,16 +111,31 @@ void handle_reset(const AT_Command *cmd)
     NVIC_SystemReset();
 }
 
-void handle_hwmodel(const AT_Command *cmd)
+int handle_hwmodel(const AT_Command *cmd)
 {
-    am_util_stdio_printf("rak3183\r\n");
-    am_util_stdio_printf("OK\r\n");
+    uint8_t temp_c = cmd->cmd[0];
+    // am_util_stdio_printf("cmd: %s\r\n", cmd->cmd);    
+    if(isupper(temp_c)){
+        am_util_stdio_printf("RAK3183\r\n");
+        return AT_OK;
+    }else{
+        am_util_stdio_printf("rak3183\r\n");
+        return AT_OK;
+    }
 }
 
-void handle_hwid(const AT_Command *cmd)
+int handle_hwid(const AT_Command *cmd)
 {
-    am_util_stdio_printf("apollo3 blue\r\n");
-    am_util_stdio_printf("OK\r\nn");
+    uint8_t temp_c = cmd->cmd[0];    
+    if(isupper(temp_c)){
+        am_util_stdio_printf("APOLLO3 BLUE\r\n");
+        return AT_OK;
+    }
+    else
+    {
+        am_util_stdio_printf("apollo3 blue\r\n");
+        return AT_OK;
+    }
 }
 
 int handle_deveui(const AT_Command *cmd)
@@ -863,19 +879,23 @@ void handle_dr(const AT_Command *cmd)
     }
 }
 
-void handle_sendinterval(const AT_Command *cmd)
+int handle_sendinterval(const AT_Command *cmd)
 {
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%u\r\n", lora_params.interval);
-        am_util_stdio_printf("OK\r\n");
-        return;
+        am_util_stdio_printf("%s=%u\r\n", cmd->cmd, lora_params.interval);        
+        return AT_OK;
     }
-
-    lora_params.interval = atoi(cmd->params);
-    save_lora_params();
-    am_util_stdio_printf("OK\r\n");
-
+    else if (cmd->params > 0 && cmd->argc == 1)
+    {
+        lora_params.interval = atoi(cmd->params);
+        save_lora_params();
+        return AT_OK;
+    }
+    else
+    {
+        return AT_ERROR;
+    }
     if (lora_params.interval > 0)
         smtc_modem_alarm_start_timer(lora_params.interval);
 }
@@ -908,32 +928,34 @@ void handle_confirm_status(const AT_Command *cmd)
     }
 }
 
-void handle_confirm(const AT_Command *cmd)
+int handle_confirm(const AT_Command *cmd)
 {
-    uint8_t confirm = 0;
-
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", lora_params.confirm);
-        am_util_stdio_printf("OK\r\n");
-        return;
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, lora_params.confirm);        
+        return AT_OK;
     }
+    else if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
+    }    
     else if (strlen(cmd->params) == 1)
     {
-        confirm = atoi(cmd->params);
-        if (confirm > 1)
-        {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+        uint8_t confirm_temp = atoi(cmd->params);
+        if (confirm_temp > 1)
+        {            
+            return AT_PARAM_ERROR;
         }
-
-        lora_params.confirm = confirm;
-        save_lora_params();
-        am_util_stdio_printf("OK\r\n");
+        else
+        {
+            lora_params.confirm = confirm_temp;
+            save_lora_params();
+            return AT_OK;
+        }        
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return AT_ERROR;
     }
 }
 
@@ -1017,25 +1039,23 @@ int handle_devaddr(const AT_Command *cmd)
     }
 }
 
-void handle_rety(const AT_Command *cmd)
+int handle_rety(const AT_Command *cmd)
 {
     uint8_t retry = 0;
     smtc_modem_return_code_t ret;
-
-    if (strcmp(cmd->params, "?") == 0)
-    {
-        am_util_stdio_printf("%d\r\n", lora_params.retry);
-        am_util_stdio_printf("OK\r\n");
-        return;
+    
+    if (strcmp(cmd->argv[0], "?") == 0 && cmd->argc == 1)
+    {        
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd,  lora_params.retry);
+        return AT_OK;
     }
     else if (strlen(cmd->params) < 3) /* It is more appropriate to determine the number of parameters instead */
     {
         retry = atoi(cmd->params);
 
         if (retry > 16 || retry < 0)
-        {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+        {            
+            return AT_PARAM_ERROR;
         }
 
         lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);
@@ -1043,19 +1063,21 @@ void handle_rety(const AT_Command *cmd)
         ret = smtc_modem_set_nb_trans(0, retry);
         if (ret != 0)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+            // am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+            return AT_PARAM_ERROR;
         }
 
         lora_params.retry = retry;
         save_lora_params();
-        am_util_stdio_printf("OK\r\n");
+        // am_util_stdio_printf("OK\r\n");
+        return AT_OK;
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        // am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return AT_PARAM_ERROR;
     }
-    return;
+    // return;
 }
 
 void handle_nwkskey(const AT_Command *cmd)
