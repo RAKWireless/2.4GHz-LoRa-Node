@@ -134,7 +134,27 @@ void load_lora_params(void)
 	{
 		memcpy(&lora_params,&lora_params_temp,sizeof(lora_params));
 	}
+}
 
+const char* get_window_str(smtc_modem_event_downdata_window_t window)
+{
+    switch (window)
+    {
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RX1:         return "RX1";
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RX2:         return "RX2";
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXC:         return "RXC";
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXC_MC_GRP0: return "RXC_MC_GRP0";
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXC_MC_GRP1: return "RXC_MC_GRP1";
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXC_MC_GRP2: return "RXC_MC_GRP2";
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXC_MC_GRP3: return "RXC_MC_GRP3";
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXB:         return "RXB";
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXB_MC_GRP0: return "RXB_MC_GRP0";
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXB_MC_GRP1: return "RXB_MC_GRP1";
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXB_MC_GRP2: return "RXB_MC_GRP2";
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXB_MC_GRP3: return "RXB_MC_GRP3";
+        case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXBEACON:    return "RXBEACON";
+        default:                                            return "UNKNOWN";
+    }
 }
 
 static void get_event(void)
@@ -152,7 +172,8 @@ static void get_event(void)
 		switch (current_event.event_type)
 		{
 		case SMTC_MODEM_EVENT_RESET:
-			SMTC_HAL_TRACE_INFO("Event received: RESET\r\n");
+			// SMTC_HAL_TRACE_INFO("Event received: RESET\r\n");
+			// am_util_stdio_printf("Event received: RESET\r\n");
 
 			/* The device reset is always in Lorawan mode */
 			if (lora_params.nwm == 0)
@@ -207,15 +228,27 @@ static void get_event(void)
 			break;
 
 		case SMTC_MODEM_EVENT_DOWNDATA:
-			SMTC_HAL_TRACE_INFO("Event received: DOWNDATA\r\n");
-			rx_payload_size = (uint8_t)current_event.event_data.downdata.length;
-			memcpy(rx_payload, current_event.event_data.downdata.data, rx_payload_size);
-			SMTC_HAL_TRACE_PRINTF("Data received on port %u\r\n", current_event.event_data.downdata.fport);
-			SMTC_HAL_TRACE_ARRAY("Received payload", rx_payload, rx_payload_size);
+			// 2025-4-9   delete SMTC_HAL_TRACE_INFO, use am_util_stdio_printf			
+			// am_util_stdio_printf("Event received: DOWNDATA\r\n");			
+			rx_payload_size = (uint8_t)current_event.event_data.downdata.length;			
+			memcpy(rx_payload, current_event.event_data.downdata.data, rx_payload_size);						
+			
+			am_util_stdio_printf("+EVT:%s:%d:%.2f:UNICAST:%u:",
+				get_window_str(current_event.event_data.downdata.window),
+				current_event.event_data.downdata.rssi - 64,
+				current_event.event_data.downdata.snr / 4.0f,
+				current_event.event_data.downdata.fport
+			);
+			// SMTC_HAL_TRACE_ARRAY("Received payload", rx_payload, rx_payload_size);
+			for (uint8_t i = 0; i < rx_payload_size; i++) {
+				am_util_stdio_printf("%02X", rx_payload[i]);
+			}
+			am_util_stdio_printf("\r\n");
+			break;
 
 		case SMTC_MODEM_EVENT_UPLOADDONE:
-			SMTC_HAL_TRACE_INFO("Event received: UPLOADDONE\r\n");
-
+			// SMTC_HAL_TRACE_INFO("Event received: UPLOADDONE\r\n");
+			am_util_stdio_printf("+EVT:UPLOADDONE\r\n");
 			break;
 
 		case SMTC_MODEM_EVENT_SETCONF:
@@ -281,7 +314,8 @@ static void get_event(void)
 
 void lorawan_init()
 {
-	SMTC_HAL_TRACE_INFO("RAK LoRaWAN ISM2400 Example\r\n");
+	// SMTC_HAL_TRACE_INFO("RAK LoRaWAN ISM2400 Example\r\n");
+	// am_util_stdio_printf("RAK LoRaWAN ISM2400 Example\r\n");
 	hal_spi_init(0, 0, 0, 0);
 	hal_rtc_init();
 	hal_lp_timer_init();
@@ -294,8 +328,8 @@ void lorawan_init()
 
 	load_lora_params();
 
-	char *mode[2] = {"P2P", "LORAWAN"};
-	am_util_stdio_printf("Work Mode %s\r\n", mode[lora_params.nwm]);
+	char *mode[2] = {"P2P", "LoRaWAN"};
+	am_util_stdio_printf("Current Work Mode: %s\r\n", mode[lora_params.nwm]);
 
 	/* ABP mode */
 	if (lora_params.join_mode == 0)
@@ -322,7 +356,7 @@ void lorawan_init()
 		smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
 		smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
 		smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
-		am_util_stdio_printf("OTAA mode\r\n");
+		// am_util_stdio_printf("OTAA mode\r\n");
 	}
 
 	uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);

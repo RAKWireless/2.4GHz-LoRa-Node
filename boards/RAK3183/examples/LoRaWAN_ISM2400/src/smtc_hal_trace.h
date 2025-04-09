@@ -69,6 +69,7 @@ extern "C" {
  */
 #define hal_trace_print_var(fmt, ...) am_util_stdio_printf(fmt, ##__VA_ARGS__)
 
+
 void hal_trace_print( const char* fmt, va_list argp );
 
 #ifdef __cplusplus

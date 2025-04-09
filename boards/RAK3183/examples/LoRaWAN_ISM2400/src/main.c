@@ -52,6 +52,7 @@
 
 #include "am_mcu_apollo.h"
 #include "am_util.h"
+#include "at_cmd.h"
 
 #include "smtc_hal_gpio.h"
 #include "smtc_hal_lp_timer.h"
@@ -328,6 +329,8 @@ int main(void)
     //
     am_util_stdio_printf_init(uart_print);
     am_util_stdio_printf("\r\nRAKwireless RAK3183\r\n");
+    am_util_stdio_printf("------------------------------------------------------\r\n");
+    am_util_stdio_printf("Version: %s\r\n", VERSION);
     //
     // Print the banner.
     //

@@ -57,7 +57,7 @@ extern "C" {
 
 // Sensible default values. Change in Makefile if needed
 #ifndef HAL_DBG_TRACE
-#define HAL_DBG_TRACE                               HAL_FEATURE_OFF
+#define HAL_DBG_TRACE                               HAL_FEATURE_ON
 #endif
 
 #ifndef HAL_DBG_TRACE_COLOR
@@ -137,16 +137,16 @@ extern "C" {
     #define SMTC_HAL_TRACE_ARRAY( msg, array, len )                                 \
     do                                                                              \
     {                                                                               \
-        SMTC_HAL_TRACE_PRINTF("%s - (%lu bytes):\n", msg, ( uint32_t )len );        \
+        SMTC_HAL_TRACE_PRINTF("%s - (%lu bytes):\r\n", msg, ( uint32_t )len );        \
         for( uint32_t i = 0; i < ( uint32_t )len; i++ )                             \
         {                                                                           \
             if( ( ( i % 16 ) == 0 ) && ( i > 0 ) )                                  \
             {                                                                       \
-                SMTC_HAL_TRACE_PRINTF("\n");                                        \
+                SMTC_HAL_TRACE_PRINTF("\r\n");                                        \
             }                                                                       \
             SMTC_HAL_TRACE_PRINTF( " %02X", array[i] );                             \
         }                                                                           \
-        SMTC_HAL_TRACE_PRINTF( "\n" );                                              \
+        SMTC_HAL_TRACE_PRINTF( "\r\n" );                                              \
     } while ( 0 );
 
     #define SMTC_HAL_TRACE_PACKARRAY( msg, array, len )                             \
