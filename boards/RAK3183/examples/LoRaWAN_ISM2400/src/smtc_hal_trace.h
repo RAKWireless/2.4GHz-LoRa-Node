@@ -68,11 +68,6 @@ extern "C" {
  * --- PUBLIC FUNCTIONS PROTOTYPES ---------------------------------------------
  */
 #define hal_trace_print_var(fmt, ...) am_util_stdio_printf(fmt, ##__VA_ARGS__)
-// #define hal_trace_print_var(fmt, ...)                                  \
-//     do{                                                                \
-//         am_util_stdio_printf(fmt, ##__VA_ARGS__);                      \
-//         am_util_stdio_printf("hal_trace_print_var is be called.\r\n"); \
-//     }while(0)
 
 
 void hal_trace_print( const char* fmt, va_list argp );
