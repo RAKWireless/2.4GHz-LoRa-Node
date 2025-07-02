@@ -29,6 +29,6 @@ typedef struct
 	uint16_t crc;
 } LoRaWAN_Params;
 
-extern LoRaWAN_Params lora_params;
+extern volatile LoRaWAN_Params lora_params;
 
 #endif

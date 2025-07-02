@@ -6,6 +6,7 @@
         "lr1mac_config.h": "c",
         "smtc_real_defs_str.h": "c",
         "am_mcu_apollo.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "smtc_modem_hal.h": "c"
     }
 }

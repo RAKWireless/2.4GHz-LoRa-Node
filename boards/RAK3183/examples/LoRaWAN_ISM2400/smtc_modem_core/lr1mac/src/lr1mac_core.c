@@ -364,7 +364,7 @@ lr1mac_states_t lr1mac_core_process( lr1_stack_mac_t* lr1_mac_obj )
     //                              STATE TXwait MAC
     //**********************************************************************************
     case LWPSTATE_TX_WAIT:
-        SMTC_MODEM_HAL_TRACE_MSG( " ." );
+        // SMTC_MODEM_HAL_TRACE_MSG( " ." );
         if( ( int32_t )( smtc_modem_hal_get_time_in_ms( ) - lr1_mac_obj->rtc_target_timer_ms ) > 0 )
         {
             lr1_mac_obj->lr1mac_state = LWPSTATE_SEND;  //@note the frame have already been prepare in Update Mac Layer

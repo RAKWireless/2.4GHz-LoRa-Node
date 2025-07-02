@@ -67,10 +67,10 @@ extern "C" {
  * -----------------------------------------------------------------------------
  * --- PUBLIC FUNCTIONS PROTOTYPES ---------------------------------------------
  */
-#define hal_trace_print_var(fmt, ...) am_util_stdio_printf(fmt, ##__VA_ARGS__)
 
-
-void hal_trace_print( const char* fmt, va_list argp );
+#define hal_trace_print_var(fmt, ...) am_util_stdio_printf("[%s:%d] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+void hal_trace_print_with_location(const char* file, int line, const char* fmt, va_list argp);
+#define hal_trace_print(fmt, argp) hal_trace_print_with_location(__FILE__, __LINE__, fmt, argp)
 
 #ifdef __cplusplus
 }

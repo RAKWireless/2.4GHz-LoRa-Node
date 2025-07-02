@@ -5,6 +5,17 @@ CONFIG := bin
 
 SHELL:=/bin/bash
 
+# Extract version from CHANGELOG.md directly
+CHANGELOG_FILE := ../../../../../CHANGELOG.md
+VERSION_CACHE_FILE := .version_cache
+
+# Extract version number using grep and sed
+AUTO_VERSION := $(shell grep -m1 "^# \[.*\]" $(CHANGELOG_FILE) 2>/dev/null | sed 's/^# \[\(.*\)\].*/v\1/' || echo "v1.0.0")
+
+# Check if version has changed
+CACHED_VERSION := $(shell cat $(VERSION_CACHE_FILE) 2>/dev/null || echo "")
+VERSION_CHANGED := $(shell [ "$(AUTO_VERSION)" != "$(CACHED_VERSION)" ] && echo "true" || echo "false")
+
 # Enable printing explicit commands with 'make VERBOSE=1'
 ifneq ($(VERBOSE),1)
 Q:=@
@@ -58,6 +69,7 @@ DEFINES+= -DRP2_101
 DEFINES+= -DREGION_WW2G4
 DEFINES+= -DWW2G4_SINGLE_DATARATE
 DEFINES+= -DAM_UTIL_FAULTISR_PRINT
+DEFINES+= -DVERSION=\"$(AUTO_VERSION)\"
 
 INCLUDES = -I../../../../../devices
 INCLUDES+= -I../../../../../utils
@@ -222,7 +234,23 @@ CPFLAGS = -Obinary
 ODFLAGS = -S
 
 #### Rules ####
-all: directories $(CONFIG)/$(TARGET).bin
+.PHONY: all clean directories version_info check_version
+
+all: check_version directories version_info $(CONFIG)/$(TARGET).bin
+
+# Check if version changed and force rebuild if needed
+check_version:
+	@if [ "$(VERSION_CHANGED)" = "true" ]; then \
+		echo "Version changed from '$(CACHED_VERSION)' to '$(AUTO_VERSION)' - forcing rebuild"; \
+		$(MAKE) clean > /dev/null 2>&1; \
+		echo "$(AUTO_VERSION)" > $(VERSION_CACHE_FILE); \
+	elif [ ! -f "$(VERSION_CACHE_FILE)" ]; then \
+		echo "First build with version: $(AUTO_VERSION)"; \
+		echo "$(AUTO_VERSION)" > $(VERSION_CACHE_FILE); \
+	fi
+
+version_info:
+	@echo "Building with version: $(AUTO_VERSION)"
 
 directories: $(CONFIG)
 
@@ -255,6 +283,10 @@ clean:
 #	    $(CONFIG)/$(TARGET).bin $(CONFIG)/$(TARGET).axf \
 #	    $(CONFIG)/$(TARGET).lst $(CONFIG)/$(TARGET).map
 	rm -rf bin
+	@if [ -f "$(VERSION_CACHE_FILE)" ]; then \
+		echo "Removing version cache file"; \
+		rm -f $(VERSION_CACHE_FILE); \
+	fi
 $(CONFIG)/%.d: ;
 
 ../../../../../mcu/apollo3/hal/gcc/bin/libam_hal.a:

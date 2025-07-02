@@ -364,11 +364,25 @@ int8_t smtc_modem_hal_get_board_delay_ms( void )   //daniel
 
 /* ------------ Trace management ------------*/
 
-void smtc_modem_hal_print_trace( const char* fmt, ... )
+void smtc_modem_hal_print_trace_internal( const char* file, int line, const char* fmt, ... )
 {
     va_list args;
     va_start( args, fmt );
-    hal_trace_print( fmt, args );
+    
+    char string[256];
+    char final_string[512];
+    
+    if (0 < vsprintf(string, fmt, args))
+    {
+        // 只显示文件名，不含路径
+        const char* filename = strrchr(file, '/');
+        filename = filename ? filename + 1 : file;
+        
+        snprintf(final_string, sizeof(final_string), "[%s:%d] %s", filename, line, string);
+        
+        extern void uart_print(char *pcStr);
+        uart_print(final_string);
+    }
     va_end( args );
 }
 

@@ -412,7 +412,10 @@ int8_t smtc_modem_hal_get_board_delay_ms( void );
  *
  * @param variadics arguments
  */
-void smtc_modem_hal_print_trace( const char* fmt, ... );
+void smtc_modem_hal_print_trace_internal( const char* file, int line, const char* fmt, ... );
+
+// 替换原函数为宏，自动传递文件名和行号
+#define smtc_modem_hal_print_trace(fmt, ...) smtc_modem_hal_print_trace_internal(__FILE__, __LINE__, fmt, ##__VA_ARGS__)
 
 #ifdef __cplusplus
 }

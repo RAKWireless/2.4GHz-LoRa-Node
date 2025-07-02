@@ -1,4 +1,12 @@
-# Changelog  
+# Changelog 
+
+# [1.1.0] 2025-7-2
+## Added  
+- Formatted AT commands
+- Standardized version management
+## Fixed  
+- Fixed logic for confirmation packets and retransmissions
+
 
 # [1.0.4.1] 2024-2-28
 ## Added  

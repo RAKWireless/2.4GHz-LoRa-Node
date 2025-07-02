@@ -83,12 +83,19 @@
 extern void
 uart_print(char *pcStr);
 
-void hal_trace_print( const char* fmt, va_list argp )
+void hal_trace_print_with_location(const char* file, int line, const char* fmt, va_list argp)
 {
     char string[PRINT_BUFFER_SIZE];
-    if( 0 < vsprintf( string, fmt, argp ) )  // build string
+    char final_string[PRINT_BUFFER_SIZE];
+    
+    if (0 < vsprintf(string, fmt, argp))  // build string
     {
-        uart_print(( char* ) string);
+        // 只显示文件名，不含路径
+        const char* filename = strrchr(file, '/');
+        filename = filename ? filename + 1 : file;
+        
+        snprintf(final_string, PRINT_BUFFER_SIZE, "[%s:%d] %s", filename, line, string);
+        uart_print(final_string);
     }
 }
 

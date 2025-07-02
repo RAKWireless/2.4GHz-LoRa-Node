@@ -67,16 +67,19 @@ static bool is_joined(void)
 
 int handle_join_status(const AT_Command *cmd)
 {
-    uint8_t status;
-    status = is_joined();
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", status);
-        am_util_stdio_printf("OK\r\n");
+        uint8_t status = is_joined();
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, status);
+        return AT_OK;
+    }
+    else if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
     }
     else
     {
-        am_util_stdio_printf("AT_ERROR\r\n");
+        return AT_ERROR;
     }
 }
 
@@ -428,224 +431,215 @@ int handle_nwm(const AT_Command *cmd)
     } 
 }
 
-void handle_freq(const AT_Command *cmd)
+int handle_freq(const AT_Command *cmd)
 {
-    uint32_t frequency_hz;
-
     if (lora_params.nwm == LORAWAN_MODE)
     {
-        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
-        return;
+        return AT_MODE_NO_SUPPORT;
     }
 
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%u\r\n", lora_params.frequency_hz);
-        am_util_stdio_printf("OK\r\n");
+        am_util_stdio_printf("%s=%u\r\n", cmd->cmd, lora_params.frequency_hz);
+        return AT_OK;
+    }
+    else if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
     }
     else if (strlen(cmd->params) == 10)
     {
-        frequency_hz = strtoul(cmd->params, NULL, 10);
-
-        // am_util_stdio_printf("frequency_hz %u  %s\r\n", frequency_hz,cmd->params);
-
+        uint32_t frequency_hz = strtoul(cmd->params, NULL, 10);
         if (frequency_hz > 2500000000 || frequency_hz < 2400000000)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+            return AT_PARAM_ERROR;
         }
-
         lora_params.frequency_hz = frequency_hz;
         save_lora_params();
-        am_util_stdio_printf("OK\r\n");
-        return;
+        return AT_OK;
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR cmd->params %d\r\n", cmd->params);
+        return AT_PARAM_ERROR;
     }
 }
 
-void handle_tx_power_dbm(const AT_Command *cmd)
+int handle_tx_power_dbm(const AT_Command *cmd)
 {
-    uint32_t power;
-
     if (lora_params.nwm == LORAWAN_MODE)
     {
-        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
-        return;
+        return AT_MODE_NO_SUPPORT;
     }
 
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", lora_params.tx_power_dbm);
-        am_util_stdio_printf("OK\r\n");
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, lora_params.tx_power_dbm);
+        return AT_OK;
+    }
+    else if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
     }
     else if (strlen(cmd->params) < 3)
     {
-
-        power = atoi(cmd->params);
+        uint32_t power = atoi(cmd->params);
         if (power > 13)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+            return AT_PARAM_ERROR;
         }
-
         lora_params.tx_power_dbm = power;
         save_lora_params();
-        am_util_stdio_printf("OK\r\n");
-        return;
+        return AT_OK;
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return AT_PARAM_ERROR;
     }
 }
 
-void handle_sf(const AT_Command *cmd)
+int handle_sf(const AT_Command *cmd)
 {
-    uint32_t sf;
-
     if (lora_params.nwm == LORAWAN_MODE)
     {
-        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
-        return;
+        return AT_MODE_NO_SUPPORT;
     }
 
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", lora_params.sf);
-        am_util_stdio_printf("OK\r\n");
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, lora_params.sf);
+        return AT_OK;
+    }
+    else if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
     }
     else if (strlen(cmd->params) < 3)
     {
-
-        sf = atoi(cmd->params);
+        uint32_t sf = atoi(cmd->params);
         if (sf > 8 || sf < 1)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+            return AT_PARAM_ERROR;
         }
-
         lora_params.sf = sf;
         save_lora_params();
-        am_util_stdio_printf("OK\r\n");
-        return;
+        return AT_OK;
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return AT_PARAM_ERROR;
     }
 }
 
-void handle_bw(const AT_Command *cmd)
+int handle_bw(const AT_Command *cmd)
 {
-    uint32_t bw;
-
     if (lora_params.nwm == LORAWAN_MODE)
     {
-        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
-        return;
+        return AT_MODE_NO_SUPPORT;
     }
 
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", lora_params.bw);
-        am_util_stdio_printf("OK\r\n");
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, lora_params.bw);
+        return AT_OK;
+    }
+    else if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
     }
     else if (strlen(cmd->params) == 1)
     {
-
-        bw = atoi(cmd->params);
+        uint32_t bw = atoi(cmd->params);
         if (bw > 6 || bw < 3)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+            return AT_PARAM_ERROR;
         }
-
         lora_params.bw = bw;
         save_lora_params();
-        am_util_stdio_printf("OK\r\n");
-        return;
+        return AT_OK;
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return AT_PARAM_ERROR;
     }
 }
 
-void handle_cr(const AT_Command *cmd)
+int handle_cr(const AT_Command *cmd)
 {
-    uint32_t cr;
-
     if (lora_params.nwm == LORAWAN_MODE)
     {
-        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
-        return;
+        return AT_MODE_NO_SUPPORT;
     }
 
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", lora_params.cr);
-        am_util_stdio_printf("OK\r\n");
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, lora_params.cr);
+        return AT_OK;
+    }
+    else if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
     }
     else if (strlen(cmd->params) == 1)
     {
-        cr = atoi(cmd->params);
+        uint32_t cr = atoi(cmd->params);
         if (cr > 3)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+            return AT_PARAM_ERROR;
         }
-
         lora_params.cr = cr;
         save_lora_params();
-        am_util_stdio_printf("OK\r\n");
-        return;
+        return AT_OK;
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return AT_PARAM_ERROR;
     }
 }
 
-void handle_preamble_size(const AT_Command *cmd)
+int handle_preamble_size(const AT_Command *cmd)
 {
-    uint32_t preamble;
-
     if (lora_params.nwm == LORAWAN_MODE)
     {
-        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
-        return;
+        return AT_MODE_NO_SUPPORT;
     }
 
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", lora_params.preamble_size);
-        am_util_stdio_printf("OK\r\n");
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, lora_params.preamble_size);
+        return AT_OK;
     }
-    else
+    else if (cmd->argc != 1)
     {
-        preamble = atoi(cmd->params);
+        return AT_PARAM_ERROR;
+    }
+    else if (strlen(cmd->params) > 0)
+    {
+        uint32_t preamble = atoi(cmd->params);
         lora_params.preamble_size = preamble;
         save_lora_params();
-        am_util_stdio_printf("OK\r\n");
-        return;
+        return AT_OK;
+    }
+    else
+    {
+        return AT_PARAM_ERROR;
     }
 }
 
-void handle_p2p_precv(const AT_Command *cmd)
+int handle_p2p_precv(const AT_Command *cmd)
 {
     if (lora_params.nwm == LORAWAN_MODE)
     {
-        am_util_stdio_printf("MODE_NOT_SUPPORT\r\n");
-        return;
+        return AT_MODE_NO_SUPPORT;
     }
 
-    uint32_t time;
-    time = atoi(cmd->params);
+    if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
+    }
 
-    if (time == 0 && cmd->params[0] != 0)
+    uint32_t time = atoi(cmd->params);
+
+    if (time == 0 && cmd->params[0] != '0')
     {
         smtc_modem_test_nop();
     }
@@ -658,7 +652,7 @@ void handle_p2p_precv(const AT_Command *cmd)
         /*to timer   smtc_modem_alarm_start_timer ERROR*/
         smtc_modem_test_rx_continuous(lora_params.frequency_hz, lora_params.sf, lora_params.bw, lora_params.cr);
     }
-    am_util_stdio_printf("OK\r\n");
+    return AT_OK;
 }
 
 void handle_p2p_send(const AT_Command *cmd)
@@ -851,31 +845,34 @@ void handle_trxnop(const AT_Command *cmd)
     smtc_modem_test_nop();
 }
 
-void handle_dr(const AT_Command *cmd)
+int handle_dr(const AT_Command *cmd)
 {
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", lora_params.dr);
-        am_util_stdio_printf("OK\r\n");
-        return;
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, lora_params.dr);
+        return AT_OK;
+    }
+    else if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
     }
     else if (strlen(cmd->params) == 1)
     {
-        lora_params.dr = atoi(cmd->params);
-        if (lora_params.dr > 5)
+        uint8_t dr = atoi(cmd->params);
+        if (dr > 5)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+            return AT_PARAM_ERROR;
         }
+        lora_params.dr = dr;
         uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
         memset(custom_datarate, lora_params.dr, SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
         smtc_modem_adr_set_profile(STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate);
         save_lora_params();
-        am_util_stdio_printf("OK\r\n");
+        return AT_OK;
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return AT_PARAM_ERROR;
     }
 }
 
@@ -900,31 +897,42 @@ int handle_sendinterval(const AT_Command *cmd)
         smtc_modem_alarm_start_timer(lora_params.interval);
 }
 
-void handle_compensation(const AT_Command *cmd)
+int handle_compensation(const AT_Command *cmd)
 {
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%d\r\n", board_delay_ms);
-        am_util_stdio_printf("OK\r\n");
-        return;
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, board_delay_ms);
+        return AT_OK;
     }
-
-    board_delay_ms = atoi(cmd->params);
-    // save_lora_params();
-    am_util_stdio_printf("OK\r\n");
-}
-
-void handle_confirm_status(const AT_Command *cmd)
-{
-    if (strcmp(cmd->params, "?") == 0)
+    else if (cmd->argc != 1)
     {
-        am_util_stdio_printf("%d\r\n", g_confirm_status);
-        am_util_stdio_printf("OK\r\n");
-        return;
+        return AT_PARAM_ERROR;
+    }
+    else if (strlen(cmd->params) > 0)
+    {
+        board_delay_ms = atoi(cmd->params);
+        return AT_OK;
     }
     else
     {
-        am_util_stdio_printf("AT_ERROR\r\n");
+        return AT_PARAM_ERROR;
+    }
+}
+
+int handle_confirm_status(const AT_Command *cmd)
+{
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
+    {
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, g_confirm_status);
+        return AT_OK;
+    }
+    else if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
+    }
+    else
+    {
+        return AT_ERROR;
     }
 }
 
@@ -1053,7 +1061,7 @@ int handle_rety(const AT_Command *cmd)
     {
         retry = atoi(cmd->params);
 
-        if (retry > 16 || retry < 0)
+        if (retry > 15 || retry < 1)
         {            
             return AT_PARAM_ERROR;
         }
@@ -1080,70 +1088,71 @@ int handle_rety(const AT_Command *cmd)
     // return;
 }
 
-void handle_nwkskey(const AT_Command *cmd)
+int handle_nwkskey(const AT_Command *cmd)
 {
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-
-        int i;
-        for (i = 0; i < 16; i++)
+        am_util_stdio_printf("%s=", cmd->cmd);
+        for (int i = 0; i < 16; i++)
         {
             am_util_stdio_printf("%02X", lora_params.nwkskey[i]);
         }
         am_util_stdio_printf("\r\n");
-        am_util_stdio_printf("OK\r\n");
+        return AT_OK;
+    }
+    else if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
     }
     else if (strlen(cmd->params) == 32)
     {
-
         uint8_t bytes[16] = {0};
         if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+            return AT_PARAM_ERROR;
         }
         memcpy(lora_params.nwkskey, bytes, sizeof(lora_params.nwkskey));
-        am_util_stdio_printf("OK\r\n");
         save_lora_params();
-
         smtc_modem_crypto_set_key(SMTC_SE_NWK_S_ENC_KEY, lora_params.nwkskey);
+        return AT_OK;
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return AT_PARAM_ERROR;
     }
 }
 
-void handle_appskey(const AT_Command *cmd)
+int handle_appskey(const AT_Command *cmd)
 {
-    if (strcmp(cmd->params, "?") == 0)
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        int i;
-        for (i = 0; i < 16; i++)
+        am_util_stdio_printf("%s=", cmd->cmd);
+        for (int i = 0; i < 16; i++)
         {
             am_util_stdio_printf("%02X", lora_params.appskey[i]);
         }
         am_util_stdio_printf("\r\n");
-        am_util_stdio_printf("OK\r\n");
+        return AT_OK;
+    }
+    else if (cmd->argc != 1)
+    {
+        return AT_PARAM_ERROR;
     }
     else if (strlen(cmd->params) == 32)
     {
-
         uint8_t bytes[16] = {0};
         if (hex_string_to_bytes(cmd->params, bytes, sizeof(bytes)) != 0)
         {
-            am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-            return;
+            return AT_PARAM_ERROR;
         }
         memcpy(lora_params.appskey, bytes, sizeof(lora_params.appskey));
-        am_util_stdio_printf("OK\r\n");
         save_lora_params();
-
         smtc_modem_crypto_set_key(SMTC_SE_APP_S_KEY, lora_params.appskey);
+        return AT_OK;
     }
     else
     {
-        am_util_stdio_printf("AT_PARAM_ERROR\r\n");
+        return AT_PARAM_ERROR;
     }
 }
 
@@ -1168,7 +1177,7 @@ AT_HandlerTable handler_table[] = {
     {"AT+CFS", handle_confirm_status, "Get the confirmation status of the last AT+SEND (0 = failure, 1 = success)"},
     {"AT+CLASS", handle_class, "Set/Get class (0-CLASSA 2-CLASSC)"},
     {"AT+DR", handle_dr, "Set/Get datarate (0-5)"},
-    {"AT+RETY", handle_rety, "Set/Get the number of retransmissions of Confirm packet data (1-15)"},
+    {"AT+RETY", handle_rety, "Set/Get the number of retransmissions of Confirm packet data (0-15)"},
     //{"AT+TXP", handle_tx_power, "get or set the transmitting power"},
 
     {"AT+NWM", handle_nwm, "get or set the network working mode (0 = P2P_LORA, 1 = LoRaWAN)"},

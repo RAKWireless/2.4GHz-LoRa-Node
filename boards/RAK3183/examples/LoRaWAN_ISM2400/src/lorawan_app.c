@@ -71,7 +71,7 @@ void data_lpp_uplink(void);
 // SMTC_MODEM_CLASS_C = 0x02,  //!< Modem class C
 static uint16_t calculate_crc_for_lorawan_params(const LoRaWAN_Params *params);
 
-LoRaWAN_Params lora_params = {
+volatile LoRaWAN_Params lora_params = {
 	.dev_eui = USER_LORAWAN_DEVICE_EUI,
 	.join_eui = USER_LORAWAN_JOIN_EUI,
 	.app_key = USER_LORAWAN_APP_KEY,
@@ -217,12 +217,21 @@ static void get_event(void)
 		case SMTC_MODEM_EVENT_TXDONE:
 			am_util_stdio_printf("+EVT:TX_DONE\r\n");
 
-			if(current_event.event_data.txdone.status == SMTC_MODEM_EVENT_TXDONE_CONFIRMED)
+			// 打印更详细的状态信息
+			switch(current_event.event_data.txdone.status)
 			{
-				am_util_stdio_printf("+EVT:SEND_CONFIRMED_OK\r\n");
-			}else
-			{
-				am_util_stdio_printf("+EVT:SEND_CONFIRMED_FAILED\r\n");
+				case SMTC_MODEM_EVENT_TXDONE_NOT_SENT:
+					am_util_stdio_printf("+EVT:TX_NOT_SENT\r\n");
+					break;
+				case SMTC_MODEM_EVENT_TXDONE_SENT:
+					am_util_stdio_printf("+EVT:TX_SENT_UNCONFIRMED\r\n");
+					break;
+				case SMTC_MODEM_EVENT_TXDONE_CONFIRMED:
+					am_util_stdio_printf("+EVT:TX_CONFIRMED_OK\r\n");
+					break;
+				default:
+					am_util_stdio_printf("+EVT:TX_UNKNOWN_STATUS:%d\r\n", current_event.event_data.txdone.status);
+					break;
 			}
 
 			break;
