@@ -37,17 +37,17 @@
  * --- DEPENDENCIES ------------------------------------------------------------
  */
 
-#include <stdint.h>   // C99 types
-#include <stdbool.h>  // bool type
+#include <stdint.h>  // C99 types
+#include <stdbool.h> // bool type
 
 #include "smtc_hal_lp_timer.h"
-//#include "smtc_hal_mcu.h"
+// #include "smtc_hal_mcu.h"
 #include "smtc_hal_gpio.h"
 #include "am_mcu_apollo.h"
 #include "am_util.h"
 
-#define LED1  44
-#define LED2	45
+#define LED1 44
+#define LED2 45
 /*
  * -----------------------------------------------------------------------------
  * --- PRIVATE MACROS-----------------------------------------------------------
@@ -68,7 +68,6 @@
  * --- PRIVATE VARIABLES -------------------------------------------------------
  */
 
-
 /*
  * -----------------------------------------------------------------------------
  * --- PRIVATE FUNCTIONS DECLARATION -------------------------------------------
@@ -78,49 +77,47 @@
  * -----------------------------------------------------------------------------
  * --- PUBLIC FUNCTIONS DEFINITION ---------------------------------------------
  */
- hal_lp_timer_irq_t my_tmr_irq ={ .context = NULL, .callback = NULL };
- 
+hal_lp_timer_irq_t my_tmr_irq = {.context = NULL, .callback = NULL};
+
 void test_timer0()
 {
-	 if(my_tmr_irq.callback != NULL)
-	 {
-			my_tmr_irq.callback(my_tmr_irq.context);
-	 }
-}	 
-
-
-void hal_lp_timer_init( void )
-{
-	am_hal_ctimer_config_single(0, AM_HAL_CTIMER_BOTH,
-                                 AM_HAL_CTIMER_HFRC_3MHZ |
-                                 AM_HAL_CTIMER_FN_REPEAT |
-                                 AM_HAL_CTIMER_INT_ENABLE);
- 
-  am_hal_ctimer_int_enable(AM_HAL_CTIMER_INT_TIMERA0C0);
- 
-  am_hal_interrupt_master_enable(); 
-
- 
+    if (my_tmr_irq.callback != NULL)
+    {
+        my_tmr_irq.callback(my_tmr_irq.context);
+    }
 }
 
-//void hal_lp_timer_start( const uint32_t milliseconds, const hal_lp_timer_irq_t* tmr_irq )
+void hal_lp_timer_init(void)
+{
+    am_hal_ctimer_config_single(0, AM_HAL_CTIMER_BOTH,
+                                AM_HAL_CTIMER_HFRC_3MHZ |
+                                    AM_HAL_CTIMER_FN_REPEAT |
+                                    AM_HAL_CTIMER_INT_ENABLE);
+
+    am_hal_ctimer_int_enable(AM_HAL_CTIMER_INT_TIMERA0C0);
+
+    NVIC_SetPriority(CTIMER_IRQn, 3);
+    am_hal_interrupt_master_enable();
+}
+
+// void hal_lp_timer_start( const uint32_t milliseconds, const hal_lp_timer_irq_t* tmr_irq )
 //{
 //	  if(tmr_irq != NULL)
 //			my_tmr_irq = *tmr_irq;
-//	 
-//	 
+//
+//
 //	  uint32_t period =  ((float )milliseconds/1000) * 3000000;
 
 //	  am_hal_ctimer_period_set(0, AM_HAL_CTIMER_BOTH,period - 1 , 0);
 
 //    am_hal_ctimer_int_register(AM_HAL_CTIMER_INT_TIMERA0C0,test_timer0);
-//	
-//		NVIC_EnableIRQ(CTIMER_IRQn); 
-//	
+//
+//		NVIC_EnableIRQ(CTIMER_IRQn);
+//
 //	  am_hal_ctimer_start(0, AM_HAL_CTIMER_BOTH);
 //}
 
-void hal_lp_timer_start(const uint32_t milliseconds, const hal_lp_timer_irq_t* tmr_irq)
+void hal_lp_timer_start(const uint32_t milliseconds, const hal_lp_timer_irq_t *tmr_irq)
 {
     if (tmr_irq != NULL)
         my_tmr_irq = *tmr_irq;
@@ -135,41 +132,39 @@ void hal_lp_timer_start(const uint32_t milliseconds, const hal_lp_timer_irq_t* t
     am_hal_ctimer_start(0, AM_HAL_CTIMER_BOTH);
 }
 
-void hal_lp_timer_stop( void )
+void hal_lp_timer_stop(void)
 {
     am_hal_ctimer_stop(0, AM_HAL_CTIMER_BOTH);
 }
 
-void hal_lp_timer_irq_enable( void )
+void hal_lp_timer_irq_enable(void)
 {
-	   
-     NVIC_EnableIRQ(CTIMER_IRQn);  
+
+    NVIC_EnableIRQ(CTIMER_IRQn);
 }
 
-void hal_lp_timer_irq_disable( void )
+void hal_lp_timer_irq_disable(void)
 {
-    NVIC_DisableIRQ(CTIMER_IRQn);  
+    NVIC_DisableIRQ(CTIMER_IRQn);
 }
 
-void am_ctimer_isr(void)  
+void am_ctimer_isr(void)
 {
-	
-  // Clear TimerA0 Interrupt.
-  uint32_t status = am_hal_ctimer_int_status_get(true);
-	
-	if(status & AM_HAL_CTIMER_INT_TIMERA0)
-	{
-		 am_hal_ctimer_int_clear(AM_HAL_CTIMER_INT_TIMERA0);
-		 am_hal_ctimer_int_service(status & AM_HAL_CTIMER_INT_TIMERA0);
-	}
-	
-	if(status & AM_HAL_CTIMER_INT_TIMERA1)
-	{
-		am_hal_ctimer_int_clear(AM_HAL_CTIMER_INT_TIMERA1);
-		am_hal_ctimer_int_service(status & AM_HAL_CTIMER_INT_TIMERA1);
-	}
 
- 
+    // Clear TimerA0 Interrupt.
+    uint32_t status = am_hal_ctimer_int_status_get(true);
+
+    if (status & AM_HAL_CTIMER_INT_TIMERA0)
+    {
+        am_hal_ctimer_int_clear(AM_HAL_CTIMER_INT_TIMERA0);
+        am_hal_ctimer_int_service(status & AM_HAL_CTIMER_INT_TIMERA0);
+    }
+
+    if (status & AM_HAL_CTIMER_INT_TIMERA1)
+    {
+        am_hal_ctimer_int_clear(AM_HAL_CTIMER_INT_TIMERA1);
+        am_hal_ctimer_int_service(status & AM_HAL_CTIMER_INT_TIMERA1);
+    }
 }
 
 /*

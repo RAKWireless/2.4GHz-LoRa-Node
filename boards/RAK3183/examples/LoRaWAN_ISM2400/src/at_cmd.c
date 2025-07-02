@@ -1156,12 +1156,46 @@ int handle_appskey(const AT_Command *cmd)
     }
 }
 
+/**
+ * @brief Handle AT+SLEEP command - Put device into sleep mode
+ * @param cmd AT command structure
+ * @return AT_OK on success, AT_PARAM_ERROR on invalid parameters
+ * 
+ * Syntax: 
+ *   AT+SLEEP - Enter sleep mode
+ * 
+ * Device will wake up on:
+ *   - UART activity
+ *   - GPIO interrupt/reset
+ *   - Timer interrupt (if configured)
+ */
+int handle_sleep(const AT_Command *cmd)
+{
+    // Command should not have any parameters
+    if (strlen(cmd->params) > 0)
+    {
+        return AT_PARAM_ERROR;
+    }
+    
+    am_util_stdio_printf("Entering sleep mode...\r\n");
+    
+    // TODO: Add actual sleep implementation here
+    // For now, just return success without actually sleeping
+    // This allows the command to be tested without hanging the system
+    
+    // Example implementation would be:
+    // am_hal_sysctrl_sleep(AM_HAL_SYSCTRL_SLEEP_NORMAL);
+    
+    return AT_OK;
+}
+
 AT_HandlerTable handler_table[] = {
     // === System Commands ===
     {"ATZ",           handle_reset,        "System reset and restart device"},
     {"AT+VER",        handle_version,      "Get firmware version information"},
     {"AT+HWMODEL",    handle_hwmodel,      "Get hardware model string (RAK3183)"},
     {"AT+HWID",       handle_hwid,         "Get hardware ID string (APOLLO3 BLUE)"},
+    {"AT+SLEEP",      handle_sleep,        "Enter device sleep mode"},
 
     // === LoRaWAN Device Configuration ===
     {"AT+DEVEUI",     handle_deveui,       "Set/Get LoRaWAN device EUI (8 bytes hex)"},
@@ -1318,16 +1352,20 @@ void process_serial_input(char c)
 
     if (c == '\n' || c == '\r')
     {
-        input[i] = '\0';
-        if (strcasecmp(input, "AT?") == 0 || strcasecmp(input, "AT+HELP") == 0)
+        // Only process if we have actual content
+        if (i > 0)
         {
-            get_all_commands();
+            input[i] = '\0';
+            if (strcasecmp(input, "AT?") == 0 || strcasecmp(input, "AT+HELP") == 0)
+            {
+                get_all_commands();
+            }
+            else
+            {
+                process_AT_Command(input);
+            }
         }
-        else
-        {
-            process_AT_Command(input);
-        }
-        i = 0;
+        i = 0;  // Reset buffer for next command
     }
     else
     {

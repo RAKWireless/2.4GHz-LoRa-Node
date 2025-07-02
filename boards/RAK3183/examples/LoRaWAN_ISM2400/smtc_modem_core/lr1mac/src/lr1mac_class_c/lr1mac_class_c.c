@@ -50,6 +50,7 @@
 #include "smtc_real.h"
 
 #include "smtc_modem_crypto.h"
+#include "am_util_delay.h"
 
 /*
  * -----------------------------------------------------------------------------
@@ -313,6 +314,8 @@ static void lr1mac_class_c_rp_callback( lr1mac_class_c_t* class_c_obj )
 
     if( class_c_obj->started == true )
     {
+        // Add a small delay before restarting Class C to avoid radio planner conflicts
+        // am_util_delay_ms(10);
         lr1mac_class_c_launch( class_c_obj );
     }
 }

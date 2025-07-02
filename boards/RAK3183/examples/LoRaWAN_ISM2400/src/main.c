@@ -145,9 +145,9 @@ const am_hal_uart_config_t g_sUartConfig =
 
 static uint32_t uart_input(uint8_t *buf, uint32_t *len);
 static void init_rak3183_led(void);
-static void uart_print(char *pcStr);
 static void error_handler(uint32_t ui32ErrorStatus);
 
+void uart_print(char *pcStr);
 /* ================================================================================================
  * RING BUFFER MANAGEMENT
  * ================================================================================================ */
@@ -240,7 +240,7 @@ void am_uart_isr(void)
  * @brief Print string via UART
  * @param pcStr Null-terminated string to print
  */
-static void uart_print(char *pcStr)
+void uart_print(char *pcStr)
 {
     uint32_t ui32StrLen = 0;
     uint32_t ui32BytesWritten = 0;

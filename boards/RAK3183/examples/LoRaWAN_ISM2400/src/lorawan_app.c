@@ -392,6 +392,8 @@ void lorawan_init(void)
     uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
     if (rc != SMTC_MODEM_RC_OK) {
         SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\r\n", rc);
+    } else {
+        SMTC_HAL_TRACE_INFO("Device class set to: %d\r\n", lora_params.class);
     }
 
     // Configure data rate strategy and retransmission count
