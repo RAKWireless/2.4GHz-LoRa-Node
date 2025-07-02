@@ -1,3 +1,16 @@
+/**
+ * @file lorawan_app.c
+ * @brief LoRaWAN application implementation for RAK3183
+ * @version 1.1.0
+ * @date 2025-07-02
+ * 
+ * This file contains the main LoRaWAN application logic including:
+ * - Parameter management and flash storage
+ * - Event handling and processing
+ * - Sensor data collection and transmission
+ * - Device initialization and configuration
+ */
+
 #include "lorawan_app.h"
 #include "am_mcu_apollo.h"
 #include "am_util.h"
@@ -22,80 +35,66 @@
 #include "i2c.h"
 #include "at_cmd.h"
 
+/* ================================================================================================
+ * CONSTANTS AND DEFINITIONS
+ * ================================================================================================ */
+
 #define ADDR_FLASH_AT_PARAM_CONTEXT (AM_HAL_FLASH_INSTANCE_SIZE + (4 * AM_HAL_FLASH_PAGE_SIZE))
 #define APP_TX_DUTYCYCLE (7)
-
-void data_lpp_uplink(void);
-/**
- * @brief LoRaWAN User credentials
- */
-#define USER_LORAWAN_DEVICE_EUI                        \
-	{                                                  \
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
-	}
-#define USER_LORAWAN_JOIN_EUI                          \
-	{                                                  \
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
-	}
-#define USER_LORAWAN_APP_KEY                               \
-	{                                                      \
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    \
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
-	}
-
-#define USER_LORAWAN_NWKSKEY                               \
-	{                                                      \
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    \
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
-	}
-
-#define USER_LORAWAN_APPSKEY                               \
-	{                                                      \
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    \
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 \
-	}
-
 #define MODEM_EXAMPLE_REGION SMTC_MODEM_REGION_WW2G4
-
-/**
- * Stack id value (multistacks modem is not yet available)
- */
 #define STACK_ID 0
 
 /**
- * @brief Stack credentials  default parameters
+ * @brief Default LoRaWAN credentials (all zeros - should be configured via AT commands)
  */
+#define USER_LORAWAN_DEVICE_EUI    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+#define USER_LORAWAN_JOIN_EUI      {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+#define USER_LORAWAN_APP_KEY       {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+#define USER_LORAWAN_NWKSKEY       {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+#define USER_LORAWAN_APPSKEY       {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-// SMTC_MODEM_CLASS_A = 0x00,  //!< Modem class A
-// SMTC_MODEM_CLASS_B = 0x01,  //!< Modem class B
-// SMTC_MODEM_CLASS_C = 0x02,  //!< Modem class C
-static uint16_t calculate_crc_for_lorawan_params(const LoRaWAN_Params *params);
+/* ================================================================================================
+ * GLOBAL VARIABLES
+ * ================================================================================================ */
 
+/**
+ * @brief LoRaWAN parameters with default values
+ * @note These parameters are stored in flash and can be modified via AT commands
+ */
 volatile LoRaWAN_Params lora_params = {
-	.dev_eui = USER_LORAWAN_DEVICE_EUI,
-	.join_eui = USER_LORAWAN_JOIN_EUI,
-	.app_key = USER_LORAWAN_APP_KEY,
-	.devaddr = 0,
-	.appskey = USER_LORAWAN_APPSKEY,
-	.nwkskey = USER_LORAWAN_NWKSKEY,
-	.class = 0,
-	.dr = 0,
-	.confirm = 1,
-	.retry = 1,
-	.join_mode = 1,
+    .dev_eui        = USER_LORAWAN_DEVICE_EUI,
+    .join_eui       = USER_LORAWAN_JOIN_EUI,
+    .app_key        = USER_LORAWAN_APP_KEY,
+    .devaddr        = 0,
+    .appskey        = USER_LORAWAN_APPSKEY,
+    .nwkskey        = USER_LORAWAN_NWKSKEY,
+    .class          = 0,        // Class A
+    .dr             = 0,        // Data Rate 0
+    .confirm        = 1,        // Confirmed uplinks enabled
+    .retry          = 1,        // 1 retransmission
+    .join_mode      = 1,        // OTAA mode
+    .nwm            = 1,        // LoRaWAN mode
+    .frequency_hz   = 2402000000,
+    .tx_power_dbm   = 10,
+    .sf             = 1,
+    .bw             = 3,
+    .cr             = 0,
+    .preamble_size  = 14,
+    .interval       = 0         // No automatic transmission
+};
 
-	.nwm = 1,
-	.frequency_hz = 2402000000,
-	.tx_power_dbm = 10,
-	.sf = 1,
-	.bw = 3,
-	.cr = 0,
-	.preamble_size = 14,
-	.interval = 0};
-
+/**
+ * @brief Received payload buffer and size
+ */
 uint8_t rx_payload_size;
 uint8_t rx_payload[256];
 
+/**
+ * @brief Radio abstraction layer instance
+ */
 #if defined(SX128X)
 const ralf_t modem_radio = RALF_SX128X_INSTANTIATE(NULL);
 #elif defined(SX126X)
@@ -106,40 +105,68 @@ const ralf_t modem_radio = RALF_LR11XX_INSTANTIATE(NULL);
 #error "Please select radio board.."
 #endif
 
+/* ================================================================================================
+ * PRIVATE FUNCTION DECLARATIONS
+ * ================================================================================================ */
+
+static uint16_t calculate_crc_for_lorawan_params(const LoRaWAN_Params *params);
+static void get_event(void);
+static const char* get_window_str(smtc_modem_event_downdata_window_t window);
+
+/* ================================================================================================
+ * PARAMETER MANAGEMENT FUNCTIONS
+ * ================================================================================================ */
+
+/**
+ * @brief Save LoRaWAN parameters to flash memory
+ * @note Calculates CRC and writes parameters to flash for persistence
+ */
 void save_lora_params(void)
 {
-	uint16_t crc ;
-	crc = calculate_crc_for_lorawan_params(&lora_params);
-	lora_params.crc = crc;
+    uint16_t crc = calculate_crc_for_lorawan_params(&lora_params);
+    lora_params.crc = crc;
 
-	//am_util_stdio_printf("save crc %04x\r\n",lora_params.crc);
-
-	hal_flash_erase_page(ADDR_FLASH_AT_PARAM_CONTEXT, 1);
-	hal_flash_write_buffer(ADDR_FLASH_AT_PARAM_CONTEXT, (uint8_t *)&lora_params, sizeof(lora_params));
-	uint8_t stack_id = STACK_ID;
+    // Erase flash page and write new parameters
+    hal_flash_erase_page(ADDR_FLASH_AT_PARAM_CONTEXT, 1);
+    hal_flash_write_buffer(ADDR_FLASH_AT_PARAM_CONTEXT, (uint8_t *)&lora_params, sizeof(lora_params));
 }
 
+/**
+ * @brief Load LoRaWAN parameters from flash memory
+ * @note Validates CRC and loads parameters, saves default if CRC check fails
+ */
 void load_lora_params(void)
 {
-	uint16_t crc ;
-	LoRaWAN_Params lora_params_temp;
-	hal_flash_read_buffer(ADDR_FLASH_AT_PARAM_CONTEXT, (uint8_t *)&lora_params_temp, sizeof(lora_params_temp));
+    uint16_t crc;
+    LoRaWAN_Params lora_params_temp;
+    
+    // Read parameters from flash
+    hal_flash_read_buffer(ADDR_FLASH_AT_PARAM_CONTEXT, (uint8_t *)&lora_params_temp, sizeof(lora_params_temp));
 
-	crc  = calculate_crc_for_lorawan_params(&lora_params_temp);
-	
-	if(lora_params_temp.crc != crc)
-	{
-		save_lora_params();
-	} else
-	{
-		memcpy(&lora_params,&lora_params_temp,sizeof(lora_params));
-	}
+    // Validate CRC
+    crc = calculate_crc_for_lorawan_params(&lora_params_temp);
+    
+    if (lora_params_temp.crc != crc) {
+        // CRC mismatch - save default parameters
+        save_lora_params();
+    } else {
+        // CRC valid - use loaded parameters
+        memcpy(&lora_params, &lora_params_temp, sizeof(lora_params));
+    }
 }
 
-const char* get_window_str(smtc_modem_event_downdata_window_t window)
+/* ================================================================================================
+ * UTILITY FUNCTIONS
+ * ================================================================================================ */
+
+/**
+ * @brief Convert downlink window enum to string
+ * @param window Downlink window type
+ * @return String representation of the window type
+ */
+static const char* get_window_str(smtc_modem_event_downdata_window_t window)
 {
-    switch (window)
-    {
+    switch (window) {
         case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RX1:         return "RX1";
         case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RX2:         return "RX2";
         case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXC:         return "RXC";
@@ -153,277 +180,287 @@ const char* get_window_str(smtc_modem_event_downdata_window_t window)
         case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXB_MC_GRP2: return "RXB_MC_GRP2";
         case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXB_MC_GRP3: return "RXB_MC_GRP3";
         case SMTC_MODEM_EVENT_DOWNDATA_WINDOW_RXBEACON:    return "RXBEACON";
-        default:                                            return "UNKNOWN";
+        default:                                           return "UNKNOWN";
     }
 }
 
+/* ================================================================================================
+ * EVENT HANDLING FUNCTIONS
+ * ================================================================================================ */
+
+/**
+ * @brief Process LoRaWAN modem events
+ * @note This function is called by the modem when events occur
+ */
 static void get_event(void)
 {
-	smtc_modem_event_t current_event;
-	uint8_t event_pending_count;
-	uint8_t stack_id = STACK_ID;
+    smtc_modem_event_t current_event;
+    uint8_t event_pending_count;
+    uint8_t stack_id = STACK_ID;
 
-	// Continue to read modem event until all event has been processed
-	do
-	{
-		// Read modem event
-		smtc_modem_get_event(&current_event, &event_pending_count);
+    // Process all pending events
+    do {
+        // Read modem event
+        smtc_modem_get_event(&current_event, &event_pending_count);
 
-		switch (current_event.event_type)
-		{
-		case SMTC_MODEM_EVENT_RESET:
-			// SMTC_HAL_TRACE_INFO("Event received: RESET\r\n");
-			// am_util_stdio_printf("Event received: RESET\r\n");
+        switch (current_event.event_type) {
+            case SMTC_MODEM_EVENT_RESET:
+                // Handle modem reset - enter test mode if P2P mode is selected
+                if (lora_params.nwm == 0) {
+                    smtc_modem_test_start();
+                }
+                break;
 
-			/* The device reset is always in Lorawan mode */
-			if (lora_params.nwm == 0)
-			{
-				smtc_modem_test_start();
-			}
+            case SMTC_MODEM_EVENT_ALARM:
+                SMTC_HAL_TRACE_INFO("Event received: ALARM\r\n");
+                // Restart timer and send sensor data if interval is configured
+                if (lora_params.interval > 0) {
+                    smtc_modem_alarm_start_timer(lora_params.interval);
+                }
+                data_lpp_uplink();
+                break;
 
-			/* If you add a parameter initialization here, the test mode won't work */
+            case SMTC_MODEM_EVENT_JOINED:
+                am_util_stdio_printf("+EVT:JOINED\r\n");
+                // Start automatic transmission timer if configured
+                if (lora_params.interval > 0) {
+                    smtc_modem_alarm_start_timer(lora_params.interval);
+                }
+                break;
 
-			// This code needs to be automatically connected to the network, so we need to set the parameters here, regardless of the test mode
-			// uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
-			// memset(custom_datarate, lora_params.dr, SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
-			// smtc_modem_adr_set_profile(STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate);
+            case SMTC_MODEM_EVENT_TXDONE:
+                am_util_stdio_printf("+EVT:TX_DONE\r\n");
+                // Report detailed transmission status
+                switch (current_event.event_data.txdone.status) {
+                    case SMTC_MODEM_EVENT_TXDONE_NOT_SENT:
+                        am_util_stdio_printf("+EVT:TX_NOT_SENT\r\n");
+                        break;
+                    case SMTC_MODEM_EVENT_TXDONE_SENT:
+                        if (lora_params.confirm == 1) {
+                            am_util_stdio_printf("+EVT:SEND_CONFIRMED_FAILED\r\n");
+                        }
+                        break;
+                    case SMTC_MODEM_EVENT_TXDONE_CONFIRMED:
+                        am_util_stdio_printf("+EVT:SEND_CONFIRMED_OK\r\n");
+                        break;
+                    default:
+                        am_util_stdio_printf("+EVT:SEND_UNKNOWN_STATUS:%d\r\n", 
+                                           current_event.event_data.txdone.status);
+                        break;
+                }
+                break;
 
-			// uint8_t rc = smtc_modem_set_class(stack_id, lora_params.class);
-			// if (rc != SMTC_MODEM_RC_OK)
-			// {
-			//     SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\r\n", rc);
-			// }
+            case SMTC_MODEM_EVENT_DOWNDATA:
+                // Handle received downlink data
+                rx_payload_size = (uint8_t)current_event.event_data.downdata.length;
+                memcpy(rx_payload, current_event.event_data.downdata.data, rx_payload_size);
 
-			// Schedule a Join LoRaWAN network
-			// smtc_modem_join_network(stack_id);
-			break;
+                // Format and print downlink information
+                am_util_stdio_printf("+EVT:%s:%d:%.2f:UNICAST:%u:",
+                    get_window_str(current_event.event_data.downdata.window),
+                    current_event.event_data.downdata.rssi - 64,
+                    current_event.event_data.downdata.snr / 4.0f,
+                    current_event.event_data.downdata.fport
+                );
+                
+                // Print payload in hexadecimal format
+                for (uint8_t i = 0; i < rx_payload_size; i++) {
+                    am_util_stdio_printf("%02X", rx_payload[i]);
+                }
+                am_util_stdio_printf("\r\n");
+                break;
 
-		case SMTC_MODEM_EVENT_ALARM:
-			SMTC_HAL_TRACE_INFO("Event received: ALARM\r\n");
+            case SMTC_MODEM_EVENT_UPLOADDONE:
+                am_util_stdio_printf("+EVT:UPLOADDONE\r\n");
+                break;
 
-			if (lora_params.interval > 0)
-				smtc_modem_alarm_start_timer(lora_params.interval);
-			data_lpp_uplink();
-			break;
+            case SMTC_MODEM_EVENT_SETCONF:
+                SMTC_HAL_TRACE_INFO("Event received: SETCONF\r\n");
+                break;
 
-		case SMTC_MODEM_EVENT_JOINED:
-			am_util_stdio_printf("+EVT:JOINED\r\n");
+            case SMTC_MODEM_EVENT_MUTE:
+                SMTC_HAL_TRACE_INFO("Event received: MUTE\r\n");
+                break;
 
-			if (lora_params.interval > 0)
-				smtc_modem_alarm_start_timer(lora_params.interval);
+            case SMTC_MODEM_EVENT_STREAMDONE:
+                SMTC_HAL_TRACE_INFO("Event received: STREAMDONE\r\n");
+                break;
 
-			break;
+            case SMTC_MODEM_EVENT_JOINFAIL:
+                am_util_stdio_printf("+EVT:JOIN_FAILED_RX_TIMEOUT\r\n");
+                // Leave network after join failure
+                smtc_modem_leave_network(stack_id);
+                break;
 
-		case SMTC_MODEM_EVENT_TXDONE:
-			am_util_stdio_printf("+EVT:TX_DONE\r\n");
+            case SMTC_MODEM_EVENT_TIME:
+                SMTC_HAL_TRACE_INFO("Event received: TIME\r\n");
+                break;
 
-			// 打印更详细的状态信息
-			switch(current_event.event_data.txdone.status)
-			{
-				case SMTC_MODEM_EVENT_TXDONE_NOT_SENT:
-					am_util_stdio_printf("+EVT:TX_NOT_SENT\r\n");
-					break;
-				case SMTC_MODEM_EVENT_TXDONE_SENT:
-					if(lora_params.confirm == 1)
-					{
-						am_util_stdio_printf("+EVT:SEND_CONFIRMED_FAILED\r\n");
-					}
-					break;
-				case SMTC_MODEM_EVENT_TXDONE_CONFIRMED:
-					am_util_stdio_printf("+EVT:SEND_CONFIRMED_OK\r\n");
-					break;
-				default:
-					am_util_stdio_printf("+EVT:SEND_UNKNOWN_STATUS:%d\r\n", current_event.event_data.txdone.status);
-					break;
-			}
+            case SMTC_MODEM_EVENT_TIMEOUT_ADR_CHANGED:
+                SMTC_HAL_TRACE_INFO("Event received: TIMEOUT_ADR_CHANGED\r\n");
+                break;
 
-			break;
+            case SMTC_MODEM_EVENT_NEW_LINK_ADR:
+                SMTC_HAL_TRACE_INFO("Event received: NEW_LINK_ADR\r\n");
+                break;
 
-		case SMTC_MODEM_EVENT_DOWNDATA:
-			// 2025-4-9   delete SMTC_HAL_TRACE_INFO, use am_util_stdio_printf			
-			// am_util_stdio_printf("Event received: DOWNDATA\r\n");			
-			rx_payload_size = (uint8_t)current_event.event_data.downdata.length;			
-			memcpy(rx_payload, current_event.event_data.downdata.data, rx_payload_size);						
-			
-			am_util_stdio_printf("+EVT:%s:%d:%.2f:UNICAST:%u:",
-				get_window_str(current_event.event_data.downdata.window),
-				current_event.event_data.downdata.rssi - 64,
-				current_event.event_data.downdata.snr / 4.0f,
-				current_event.event_data.downdata.fport
-			);
-			// SMTC_HAL_TRACE_ARRAY("Received payload", rx_payload, rx_payload_size);
-			for (uint8_t i = 0; i < rx_payload_size; i++) {
-				am_util_stdio_printf("%02X", rx_payload[i]);
-			}
-			am_util_stdio_printf("\r\n");
-			break;
+            case SMTC_MODEM_EVENT_LINK_CHECK:
+                SMTC_HAL_TRACE_INFO("Event received: LINK_CHECK\r\n");
+                break;
 
-		case SMTC_MODEM_EVENT_UPLOADDONE:
-			// SMTC_HAL_TRACE_INFO("Event received: UPLOADDONE\r\n");
-			am_util_stdio_printf("+EVT:UPLOADDONE\r\n");
-			break;
+            case SMTC_MODEM_EVENT_ALMANAC_UPDATE:
+                SMTC_HAL_TRACE_INFO("Event received: ALMANAC_UPDATE\r\n");
+                break;
 
-		case SMTC_MODEM_EVENT_SETCONF:
-			SMTC_HAL_TRACE_INFO("Event received: SETCONF\r\n");
+            case SMTC_MODEM_EVENT_USER_RADIO_ACCESS:
+                SMTC_HAL_TRACE_INFO("Event received: USER_RADIO_ACCESS\r\n");
+                break;
 
-			break;
+            case SMTC_MODEM_EVENT_CLASS_B_PING_SLOT_INFO:
+                SMTC_HAL_TRACE_INFO("Event received: CLASS_B_PING_SLOT_INFO\r\n");
+                break;
 
-		case SMTC_MODEM_EVENT_MUTE:
-			SMTC_HAL_TRACE_INFO("Event received: MUTE\r\n");
+            case SMTC_MODEM_EVENT_CLASS_B_STATUS:
+                SMTC_HAL_TRACE_INFO("Event received: CLASS_B_STATUS\r\n");
+                break;
 
-			break;
-
-		case SMTC_MODEM_EVENT_STREAMDONE:
-			SMTC_HAL_TRACE_INFO("Event received: STREAMDONE\r\n");
-
-			break;
-
-		case SMTC_MODEM_EVENT_JOINFAIL:
-			am_util_stdio_printf("+EVT:JOIN_FAILED_RX_TIMEOUT\r\n");
-			/* Stop joining the network after failure */
-			smtc_modem_leave_network(stack_id);
-
-			break;
-
-		case SMTC_MODEM_EVENT_TIME:
-			SMTC_HAL_TRACE_INFO("Event received: TIME\r\n");
-			break;
-
-		case SMTC_MODEM_EVENT_TIMEOUT_ADR_CHANGED:
-			SMTC_HAL_TRACE_INFO("Event received: TIMEOUT_ADR_CHANGED\r\n");
-			break;
-
-		case SMTC_MODEM_EVENT_NEW_LINK_ADR:
-			SMTC_HAL_TRACE_INFO("Event received: NEW_LINK_ADR\r\n");
-			break;
-
-		case SMTC_MODEM_EVENT_LINK_CHECK:
-			SMTC_HAL_TRACE_INFO("Event received: LINK_CHECK\r\n");
-			break;
-
-		case SMTC_MODEM_EVENT_ALMANAC_UPDATE:
-			SMTC_HAL_TRACE_INFO("Event received: ALMANAC_UPDATE\r\n");
-			break;
-
-		case SMTC_MODEM_EVENT_USER_RADIO_ACCESS:
-			SMTC_HAL_TRACE_INFO("Event received: USER_RADIO_ACCESS\r\n");
-			break;
-
-		case SMTC_MODEM_EVENT_CLASS_B_PING_SLOT_INFO:
-			SMTC_HAL_TRACE_INFO("Event received: CLASS_B_PING_SLOT_INFO\r\n");
-			break;
-
-		case SMTC_MODEM_EVENT_CLASS_B_STATUS:
-			SMTC_HAL_TRACE_INFO("Event received: CLASS_B_STATUS\r\n");
-			break;
-
-		default:
-			SMTC_HAL_TRACE_ERROR("Unknown event %u\r\n", current_event.event_type);
-			break;
-		}
-	} while (event_pending_count > 0);
+            default:
+                SMTC_HAL_TRACE_ERROR("Unknown event %u\r\n", current_event.event_type);
+                break;
+        }
+    } while (event_pending_count > 0);
 }
 
-void lorawan_init()
+/* ================================================================================================
+ * INITIALIZATION FUNCTIONS
+ * ================================================================================================ */
+
+/**
+ * @brief Initialize LoRaWAN application
+ * @note Sets up hardware, modem, and configures parameters from flash
+ */
+void lorawan_init(void)
 {
-	// SMTC_HAL_TRACE_INFO("RAK LoRaWAN ISM2400 Example\r\n");
-	// am_util_stdio_printf("RAK LoRaWAN ISM2400 Example\r\n");
-	hal_spi_init(0, 0, 0, 0);
-	hal_rtc_init();
-	hal_lp_timer_init();
-	hal_mcu_disable_irq();
-	hal_mcu_init();
-	smtc_modem_init(&modem_radio, &get_event);
-	hal_mcu_enable_irq();
-	smtc_modem_set_region(STACK_ID, MODEM_EXAMPLE_REGION);
-	smtc_modem_set_tx_power_offset_db(STACK_ID, 0);
+    // Initialize hardware peripherals
+    hal_spi_init(0, 0, 0, 0);
+    hal_rtc_init();
+    hal_lp_timer_init();
+    
+    // Initialize modem with radio and event handler
+    hal_mcu_disable_irq();
+    hal_mcu_init();
+    smtc_modem_init(&modem_radio, &get_event);
+    hal_mcu_enable_irq();
+    
+    // Configure modem region and power offset
+    smtc_modem_set_region(STACK_ID, MODEM_EXAMPLE_REGION);
+    smtc_modem_set_tx_power_offset_db(STACK_ID, 0);
 
-	load_lora_params();
+    // Load parameters from flash
+    load_lora_params();
 
-	char *mode[2] = {"P2P", "LoRaWAN"};
-	am_util_stdio_printf("Current Work Mode: %s\r\n", mode[lora_params.nwm]);
+    // Display current working mode
+    char *mode[2] = {"P2P", "LoRaWAN"};
+    am_util_stdio_printf("Current Work Mode: %s\r\n", mode[lora_params.nwm]);
 
-	/* ABP mode */
-	if (lora_params.join_mode == 0)
-	{
-		/* The ABP mode pass parameter is 1 */
-		lorawan_api_set_activation_mode(1);
+    // Configure activation mode based on join mode
+    if (lora_params.join_mode == 0) {
+        // ABP mode configuration
+        lorawan_api_set_activation_mode(1);  // ABP mode parameter is 1
+        am_util_stdio_printf("ABP mode\r\n");
+        
+        // Set device address and session keys
+        lorawan_api_devaddr_set(lora_params.devaddr);
+        
+        int ret = smtc_modem_crypto_set_key(SMTC_SE_NWK_S_ENC_KEY, lora_params.nwkskey);
+        if (ret) {
+            SMTC_HAL_TRACE_ERROR("SMTC_SE_NWK_S_ENC_KEY ERROR\r\n");
+        }
+        
+        ret = smtc_modem_crypto_set_key(SMTC_SE_APP_S_KEY, lora_params.appskey);
+        if (ret) {
+            SMTC_HAL_TRACE_ERROR("SMTC_SE_APP_S_KEY ERROR\r\n");
+        }
+    } else {
+        // OTAA mode configuration
+        smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
+        smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
+        smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
+    }
 
-		int ret;
-		am_util_stdio_printf("ABP mode\r\n");
-		lorawan_api_devaddr_set(lora_params.devaddr);
-		ret = smtc_modem_crypto_set_key(SMTC_SE_NWK_S_ENC_KEY, lora_params.nwkskey);
-		if (ret)
-		{
-			SMTC_HAL_TRACE_ERROR("SMTC_SE_NWK_S_ENC_KEY ERROR\r\n");
-		}
-		ret = smtc_modem_crypto_set_key(SMTC_SE_APP_S_KEY, lora_params.appskey);
-		if (ret)
-		{
-			SMTC_HAL_TRACE_ERROR("SMTC_SE_APP_S_KEY ERROR\r\n");
-		}
-	}
-	else
-	{
-		smtc_modem_set_deveui(STACK_ID, lora_params.dev_eui);
-		smtc_modem_set_joineui(STACK_ID, lora_params.join_eui);
-		smtc_modem_set_nwkkey(STACK_ID, lora_params.app_key);
-		// am_util_stdio_printf("OTAA mode\r\n");
-	}
+    // Set device class
+    uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
+    if (rc != SMTC_MODEM_RC_OK) {
+        SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\r\n", rc);
+    }
 
-	uint8_t rc = smtc_modem_set_class(STACK_ID, lora_params.class);
-	if (rc != SMTC_MODEM_RC_OK)
-	{
-		SMTC_HAL_TRACE_WARNING("smtc_modem_set_class failed: rc=(%d)\r\n", rc);
-	}
-
-	lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);
-	smtc_modem_set_nb_trans(STACK_ID, lora_params.retry);
+    // Configure data rate strategy and retransmission count
+    lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);
+    smtc_modem_set_nb_trans(STACK_ID, lora_params.retry);
 }
 
-void data_lpp_uplink()
+/* ================================================================================================
+ * DATA TRANSMISSION FUNCTIONS
+ * ================================================================================================ */
+
+/**
+ * @brief Collect sensor data and send LoRaWAN uplink
+ * @note Uses Cayenne LPP format for sensor data encoding
+ */
+void data_lpp_uplink(void)
 {
-	uint8_t buff_idx = 0;
-	int8_t buffer[24] = {0};
+    uint8_t buff_idx = 0;
+    int8_t buffer[24] = {0};
 
-	if (lis3dh_initialized == true)
-	{
-		RAK1904_func();
-		buffer[buff_idx++] = 1;	   // channel
-		buffer[buff_idx++] = 0x71; // LPP
+    // Add accelerometer data if available (LIS3DH sensor)
+    if (lis3dh_initialized == true) {
+        RAK1904_func();
+        buffer[buff_idx++] = 1;      // Channel 1
+        buffer[buff_idx++] = 0x71;   // LPP Accelerometer type
 
-		buffer[buff_idx++] = (val[0]) >> 8;
-		buffer[buff_idx++] = val[0];
+        // X-axis data (16-bit)
+        buffer[buff_idx++] = (val[0]) >> 8;
+        buffer[buff_idx++] = val[0];
 
-		buffer[buff_idx++] = (val[1]) >> 8;
-		buffer[buff_idx++] = (val[1]);
+        // Y-axis data (16-bit)
+        buffer[buff_idx++] = (val[1]) >> 8;
+        buffer[buff_idx++] = (val[1]);
 
-		buffer[buff_idx++] = (val[2]) >> 8;
-		buffer[buff_idx++] = (val[2]);
-	}
-	if (shtc3_initialized == true)
-	{
-		RAK1901_func();
-		buffer[buff_idx++] = 2;	   // channel
-		buffer[buff_idx++] = 0x67; // LPP
+        // Z-axis data (16-bit)
+        buffer[buff_idx++] = (val[2]) >> 8;
+        buffer[buff_idx++] = (val[2]);
+    }
 
-		buffer[buff_idx++] = (uint8_t)(val[3] >> 8);
-		buffer[buff_idx++] = (uint8_t)val[3];
+    // Add temperature and humidity data if available (SHTC3 sensor)
+    if (shtc3_initialized == true) {
+        RAK1901_func();
+        
+        // Temperature data
+        buffer[buff_idx++] = 2;      // Channel 2
+        buffer[buff_idx++] = 0x67;   // LPP Temperature type
+        buffer[buff_idx++] = (uint8_t)(val[3] >> 8);
+        buffer[buff_idx++] = (uint8_t)val[3];
 
-		buffer[buff_idx++] = 2;	   // channel
-		buffer[buff_idx++] = 0x68; // LPP
+        // Humidity data
+        buffer[buff_idx++] = 2;      // Channel 2
+        buffer[buff_idx++] = 0x68;   // LPP Humidity type
+        buffer[buff_idx++] = (uint8_t)(val[4]);
+    }
 
-		buffer[buff_idx++] = (uint8_t)(val[4]);
-	}
-
-	if (buff_idx != 0)
-	{
-		smtc_modem_request_uplink(STACK_ID, 1, true, buffer, buff_idx);
-	}
+    // Send data if any sensor data was collected
+    if (buff_idx != 0) {
+        smtc_modem_request_uplink(STACK_ID, 1, true, buffer, buff_idx);
+    }
 }
 
+/* ================================================================================================
+ * CRC CALCULATION FUNCTIONS
+ * ================================================================================================ */
 
 
+/**
+ * @brief CRC16 lookup table for fast calculation
+ */
 static const uint16_t crc16_table[256] = {
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7, 
     0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF, 
@@ -459,19 +496,29 @@ static const uint16_t crc16_table[256] = {
     0x6E17, 0x7E36, 0x4E55, 0x5E74, 0x2E93, 0x3EB2, 0x0ED1, 0x1EF0
 };
 
+/**
+ * @brief Calculate CRC16 checksum
+ * @param data Pointer to data buffer
+ * @param length Length of data in bytes
+ * @return Calculated CRC16 value
+ */
 uint16_t crc16(const uint8_t *data, size_t length)
 {
-    uint16_t crc = 0xFFFF; // 初始化CRC寄存器
+    uint16_t crc = 0xFFFF; // Initialize CRC register
 
-    while (length--)
-    {
+    while (length--) {
         crc = (crc << 8) ^ crc16_table[((crc >> 8) ^ *data++) & 0xFF];
     }
 
     return crc;
 }
 
-
-uint16_t calculate_crc_for_lorawan_params(const LoRaWAN_Params *params) {
+/**
+ * @brief Calculate CRC for LoRaWAN parameters structure
+ * @param params Pointer to LoRaWAN parameters structure
+ * @return Calculated CRC16 value (excludes the CRC field itself)
+ */
+static uint16_t calculate_crc_for_lorawan_params(const LoRaWAN_Params *params) 
+{
     return crc16((const uint8_t *)params, sizeof(LoRaWAN_Params) - sizeof(params->crc));
 }

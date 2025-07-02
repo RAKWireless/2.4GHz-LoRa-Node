@@ -1061,7 +1061,7 @@ int handle_rety(const AT_Command *cmd)
     {
         retry = atoi(cmd->params);
 
-        if (retry > 15 || retry < 1)
+        if (retry > 15 || retry < 0)
         {            
             return AT_PARAM_ERROR;
         }
@@ -1157,48 +1157,53 @@ int handle_appskey(const AT_Command *cmd)
 }
 
 AT_HandlerTable handler_table[] = {
+    // === System Commands ===
+    {"ATZ",           handle_reset,        "System reset and restart device"},
+    {"AT+VER",        handle_version,      "Get firmware version information"},
+    {"AT+HWMODEL",    handle_hwmodel,      "Get hardware model string (RAK3183)"},
+    {"AT+HWID",       handle_hwid,         "Get hardware ID string (APOLLO3 BLUE)"},
 
-    {"ATZ", handle_reset, "Reset device"},
-    {"AT+VER", handle_version, "Get firmware version"},
-    {"AT+HWMODEL", handle_hwmodel, "Get the string of the hardware model"},
-    {"AT+HWID", handle_hwid, "Get the string of the hardware ID"},
+    // === LoRaWAN Device Configuration ===
+    {"AT+DEVEUI",     handle_deveui,       "Set/Get LoRaWAN device EUI (8 bytes hex)"},
+    {"AT+JOINEUI",    handle_joineui,      "Set/Get LoRaWAN join/application EUI (8 bytes hex)"},
+    {"AT+APPKEY",     handle_appkey,       "Set/Get LoRaWAN application key (16 bytes hex)"},
+    {"AT+DEVADDR",    handle_devaddr,      "Set/Get LoRaWAN device address (4 bytes hex)"},
+    {"AT+NWKSKEY",    handle_nwkskey,      "Set/Get LoRaWAN network session key (16 bytes hex)"},
+    {"AT+APPSKEY",    handle_appskey,      "Set/Get LoRaWAN application session key (16 bytes hex)"},
+    {"AT+NJM",        handle_njm,          "Set/Get LoRaWAN join mode (0=ABP, 1=OTAA)"},
 
-    {"AT+DEVEUI", handle_deveui, "Set/Get device EUI"},
-    {"AT+JOINEUI", handle_joineui, "Set/Get join EUI"},
-    {"AT+APPKEY", handle_appkey, "Set/Get application key"},
-    {"AT+DEVADDR", handle_devaddr, "Get or set the device address (4 bytes in hex)"},
-    {"AT+NWKSKEY", handle_nwkskey, "Get or set the network session key (16 bytes in hex)"},
-    {"AT+APPSKEY", handle_appskey, "Get or set the application session key (16 bytes in hex)"},
-    {"AT+NJM", handle_njm, "get or set the network join mode (0 = ABP, 1 = OTAA)"},
-    {"AT+JOIN", handle_join, "Join network"},
-    {"AT+NJS", handle_join_status, "get the join status (0 = not joined, 1 = joined)"},
-    {"AT+SEND", handle_send, "Send data to server"},
-    {"AT+CFM", handle_confirm, "Set/Get comfirm mode"},
-    {"AT+CFS", handle_confirm_status, "Get the confirmation status of the last AT+SEND (0 = failure, 1 = success)"},
-    {"AT+CLASS", handle_class, "Set/Get class (0-CLASSA 2-CLASSC)"},
-    {"AT+DR", handle_dr, "Set/Get datarate (0-5)"},
-    {"AT+RETY", handle_rety, "Set/Get the number of retransmissions of Confirm packet data (0-15)"},
-    //{"AT+TXP", handle_tx_power, "get or set the transmitting power"},
+    // === LoRaWAN Network Operations ===
+    {"AT+JOIN",       handle_join,         "Join LoRaWAN network"},
+    {"AT+NJS",        handle_join_status,  "Get LoRaWAN join status (0=not joined, 1=joined)"},
+    {"AT+SEND",       handle_send,         "Send LoRaWAN uplink data (port:hex_data)"},
+    {"AT+CFM",        handle_confirm,      "Set/Get LoRaWAN confirm mode (0=unconfirmed, 1=confirmed)"},
+    {"AT+CFS",        handle_confirm_status, "Get last transmission confirmation status (0=failed, 1=success)"},
+    {"AT+CLASS",      handle_class,        "Set/Get LoRaWAN device class (0=Class A, 2=Class C)"},
+    {"AT+DR",         handle_dr,           "Set/Get LoRaWAN data rate (0-5)"},
+    {"AT+RETY",       handle_rety,         "Set/Get LoRaWAN retransmission count (0-15)"},
 
-    {"AT+NWM", handle_nwm, "get or set the network working mode (0 = P2P_LORA, 1 = LoRaWAN)"},
-    {"AT+PFREQ", handle_freq, "configure P2P Frequency (2400000000 - 2500000000)"},
-    {"AT+PTP", handle_tx_power_dbm, "configure P2P TX power (Max 13)"},
-    {"AT+PSF", handle_sf, "configure P2P Spreading Factor (1-8 SF5-SF12)"},
-    {"AT+PBW", handle_bw, "configure P2P Bandwidth (3-BW200 4-BW400 5-BW-800 6-BW1600)"},
-    {"AT+PCR", handle_cr, "configure P2P Code Rate (0-CR4/5 1-CR4/6 2-CR4/7 3-CR4/8)"},
-    {"AT+PPL", handle_preamble_size, "configure P2P Preamble Length"},
-    {"AT+PSEND", handle_p2p_send, "send data in P2P mode"},
-    {"AT+PRECV", handle_p2p_precv, "continuous receive P2P mode (AT+PRECV=0 exit receive mode)"},
+    // === Working Mode Configuration ===
+    {"AT+NWM",        handle_nwm,          "Set/Get network working mode (0=P2P, 1=LoRaWAN)"},
+    //{"AT+INTERVAL",   handle_sendinterval, "Set/Get automatic transmission interval (seconds)"},
 
-    {"AT+TCONF", handle_p2p, "Set/Get RF test config\r\nExample :\r\nAT+TCONF=2403000000:13:1:3:0:10 \r\nfrequency_hz 2403000000\r\ntx_power_dbm 13\r\nsf 1-8 SF5-SF12\r\nbw 3-BW200 4-BW400 5-BW-800 6-BW1600\r\n"
-                             "cr 0-CR4/5 1-CR4/6 2-CR4/7 3-CR4/8\r\n"
-                             "preamble_size 10\r\n"},
-    {"AT+TTX", handle_psend, "RF test tx,Example AT+TTX=1122BBCC"},
-    {"AT+TRX", handle_trx, "RF test rx continuously receive mode"},
-    {"AT+TRXNOP", handle_trxnop, "RF test terminate an ongoing continuous rx mode"},
-    {"AT+INTERVAL", handle_sendinterval, "Set the interval for reporting sensor data"},
-    {"AT+TEST", handle_test, "Test command"}
-    //{"AT+COMPENSATION",handle_compensation, "Set the tiemr compensation"}
+    // === P2P Mode Configuration ===
+    {"AT+PFREQ",      handle_freq,         "Set/Get P2P frequency (2400000000-2500000000 Hz)"},
+    {"AT+PTP",        handle_tx_power_dbm, "Set/Get P2P TX power (0-13 dBm)"},
+    {"AT+PSF",        handle_sf,           "Set/Get P2P spreading factor (1-8: SF5-SF12)"},
+    {"AT+PBW",        handle_bw,           "Set/Get P2P bandwidth (3=200kHz, 4=400kHz, 5=800kHz, 6=1600kHz)"},
+    {"AT+PCR",        handle_cr,           "Set/Get P2P coding rate (0=4/5, 1=4/6, 2=4/7, 3=4/8)"},
+    {"AT+PPL",        handle_preamble_size, "Set/Get P2P preamble length"},
+    {"AT+PSEND",      handle_p2p_send,     "Send P2P data packet (hex string)"},
+    {"AT+PRECV",      handle_p2p_precv,    "Start/Stop P2P continuous receive (0=stop, others=start)"},
+
+    // === RF Test Commands ===
+    {"AT+TCONF",      handle_p2p,          "Set/Get RF test configuration (freq:power:sf:bw:cr:preamble)"},
+    {"AT+TTX",        handle_psend,        "RF test: transmit packet (hex data)"},
+    {"AT+TRX",        handle_trx,          "RF test: start continuous receive mode"},
+    {"AT+TRXNOP",     handle_trxnop,       "RF test: stop continuous receive mode"},
+
+    // === Debug and Test ===
+    {"AT+TEST",       handle_test,         "Debug command for testing AT parser"}
 };
 
 AT_Command parse_AT_Command(const char *input)
