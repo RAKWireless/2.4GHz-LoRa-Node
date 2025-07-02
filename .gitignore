@@ -2,3 +2,9 @@ boards/RAK3183/examples/LoRaWAN_ISM2400/keil/bin/
 boards/RAK3183/examples/LoRaWAN_ISM2400/keil/lorawan.uvguix*
 boards/RAK3183/examples/LoRaWAN_ISM2400/keil/Listings/
 bin
+
+# Windows Zone.Identifier files (security metadata from downloads)
+*:Zone.Identifier
+
+# Version cache files
+.version_cache
