@@ -58,7 +58,7 @@ extern "C" {
 
 // Sensible default values. Change in Makefile if needed
 #ifndef MODEM_HAL_DBG_TRACE
-#define MODEM_HAL_DBG_TRACE                               MODEM_HAL_FEATURE_ON
+#define MODEM_HAL_DBG_TRACE                               MODEM_HAL_FEATURE_OFF
 #endif
 
 #ifndef MODEM_HAL_DBG_TRACE_COLOR

@@ -224,13 +224,16 @@ static void get_event(void)
 					am_util_stdio_printf("+EVT:TX_NOT_SENT\r\n");
 					break;
 				case SMTC_MODEM_EVENT_TXDONE_SENT:
-					am_util_stdio_printf("+EVT:TX_SENT_UNCONFIRMED\r\n");
+					if(lora_params.confirm == 1)
+					{
+						am_util_stdio_printf("+EVT:SEND_CONFIRMED_FAILED\r\n");
+					}
 					break;
 				case SMTC_MODEM_EVENT_TXDONE_CONFIRMED:
-					am_util_stdio_printf("+EVT:TX_CONFIRMED_OK\r\n");
+					am_util_stdio_printf("+EVT:SEND_CONFIRMED_OK\r\n");
 					break;
 				default:
-					am_util_stdio_printf("+EVT:TX_UNKNOWN_STATUS:%d\r\n", current_event.event_data.txdone.status);
+					am_util_stdio_printf("+EVT:SEND_UNKNOWN_STATUS:%d\r\n", current_event.event_data.txdone.status);
 					break;
 			}
 
