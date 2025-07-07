@@ -242,6 +242,13 @@ static void get_event(void)
                         break;
                     case SMTC_MODEM_EVENT_TXDONE_CONFIRMED:
                         am_util_stdio_printf("+EVT:SEND_CONFIRMED_OK\r\n");
+
+                        int16_t snr = lorawan_api_last_snr_get();
+                        int16_t rssi = lorawan_api_last_rssi_get();
+                        am_util_stdio_printf("+EVT:ACK_RECEIVED:RSSI=%d:SNR=%.1f\r\n", 
+                                           rssi ,
+                                           snr / 1.0f);
+
                         break;
                     default:
                         am_util_stdio_printf("+EVT:SEND_UNKNOWN_STATUS:%d\r\n", 

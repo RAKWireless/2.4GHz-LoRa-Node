@@ -73,7 +73,7 @@ void hal_rtc_init(void)
 									AM_HAL_CTIMER_INT_ENABLE);
 
 	am_hal_ctimer_int_enable(AM_HAL_CTIMER_INT_TIMERA0C0);
-
+	NVIC_SetPriority(CTIMER_IRQn, 3);	
 	NVIC_EnableIRQ(CTIMER_IRQn);
 
 	float milliseconds = 0.1; // 100us
