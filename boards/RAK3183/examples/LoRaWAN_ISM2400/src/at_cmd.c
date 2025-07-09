@@ -307,19 +307,25 @@ int handle_send(const AT_Command *cmd)
         return AT_PARAM_ERROR;
     }
 
-
-    // if (sscanf(cmd->params, "%d:%s", &port, data) != 2)
-    // {
-    //     am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-    //     return;
-    // }
+    //am_util_stdio_printf("debug:lora_params.confirm %d\r\n",lora_params.confirm);
 
     if (lorawan_api_get_activation_mode() == ACTIVATION_MODE_OTAA)
     {
         if (is_joined() == true)
         {
-            smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, data, len);
-            return AT_OK;
+            smtc_modem_return_code_t ret = smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, data, len);
+            if (ret == SMTC_MODEM_RC_OK)
+            {
+                return AT_OK;
+            }
+            else if (ret == SMTC_MODEM_RC_BUSY)
+            {
+                return AT_BUSY_ERROR;
+            }
+            else
+            {
+                return AT_ERROR;
+            }
         }
         else
         {
@@ -328,8 +334,19 @@ int handle_send(const AT_Command *cmd)
     }
     else
     {
-        smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, data, len);
-        return AT_OK;
+        smtc_modem_return_code_t ret = smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, data, len);
+        if (ret == SMTC_MODEM_RC_OK)
+        {
+            return AT_OK;
+        }
+        else if (ret == SMTC_MODEM_RC_BUSY)
+        {
+            return AT_BUSY_ERROR;
+        }
+        else
+        {
+            return AT_ERROR;
+        }
     }
 }
 

@@ -294,8 +294,8 @@ static uint32_t uart_input(uint8_t *buf, uint32_t *len)
  */
 static void init_rak3183_led(void)
 {
-    hal_gpio_init_out(LED1, 1); // LED1 off (active low)
-    hal_gpio_init_out(LED2, 1); // LED2 off (active low)
+    hal_gpio_init_out(LED1, 0); // LED1 off (active low)
+    hal_gpio_init_out(LED2, 0); // LED2 off (active low)
 }
 
 /**

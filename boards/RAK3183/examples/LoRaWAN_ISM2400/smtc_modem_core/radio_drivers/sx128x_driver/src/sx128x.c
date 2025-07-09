@@ -42,7 +42,7 @@
 #include "sx128x_hal.h"
 #include "sx128x_regs.h"
 #include "sx128x.h"
-
+#include "am_util.h" 
 /*
  * -----------------------------------------------------------------------------
  * --- PRIVATE MACROS-----------------------------------------------------------
@@ -663,6 +663,8 @@ sx128x_status_t sx128x_set_tx_params( const void* context, const int8_t pwr_in_d
     {
         return SX128X_STATUS_ERROR;
     }
+
+    //am_util_stdio_printf("[pwr_in_dbm = %d]\r\n", pwr_in_dbm);
 
     const uint8_t buf[SX128X_SIZE_SET_TX_PARAMS] = {
         SX128X_SET_TX_PARAMS,
