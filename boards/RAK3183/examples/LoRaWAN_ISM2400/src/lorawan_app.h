@@ -18,6 +18,7 @@ typedef struct
 	uint32_t interval; 
 	uint8_t retry;
 	uint8_t join_mode;
+	uint8_t join_dr;        // Join Data Rate (255=use default distribution)
 
 	uint8_t nwm; 
 	uint32_t frequency_hz;

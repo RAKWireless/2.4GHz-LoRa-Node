@@ -974,6 +974,13 @@ int handle_confirm(const AT_Command *cmd)
         else
         {
             lora_params.confirm = confirm_temp;
+            if(lora_params.confirm == 0)
+            {
+                smtc_modem_set_nb_trans(STACK_ID,1);
+            }else
+            {
+                smtc_modem_set_nb_trans(STACK_ID,lora_params.retry);
+            }
             save_lora_params();
             return AT_OK;
         }        
@@ -1078,7 +1085,7 @@ int handle_rety(const AT_Command *cmd)
     {
         retry = atoi(cmd->params);
 
-        if (retry > 15 || retry < 0)
+        if (retry > 15 || retry < 1)
         {            
             return AT_PARAM_ERROR;
         }

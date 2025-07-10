@@ -60,7 +60,7 @@ extern "C" {
 #define JOIN_ACCEPT_DELAY1_WW2G4           (5)             // define in seconds
 #define JOIN_ACCEPT_DELAY2_WW2G4           (6)             // define in seconds
 #define RECEIVE_DELAY1_WW2G4               (1)             // define in seconds
-#define TX_POWER_EIRP_WW2G4                (10)            // define in dbm
+#define TX_POWER_EIRP_WW2G4                (15)            // define in dbm     协议栈减去两个2dbm
 #define MAX_TX_POWER_IDX_WW2G4             (7)             // index ex LinkADRReq
 #define ADR_ACK_LIMIT_WW2G4                (64)
 #define ADR_ACK_DELAY_WW2G4                (32)
@@ -229,7 +229,7 @@ static const uint8_t JOIN_DR_DISTRIBUTION_WW2G4[] = { 1, 2, 3, 4, 4, 6, 0, 0 };
  * DR6:   0%,
  * DR7:   0%
  */
-static const uint8_t DEFAULT_DR_DISTRIBUTION_WW2G4[] = { 1, 0, 0, 0, 0, 0, 0, 0 };
+static const uint8_t DEFAULT_DR_DISTRIBUTION_WW2G4[] = { 0, 0, 1, 0, 0, 0, 0, 0 };
 
 /*
  * -----------------------------------------------------------------------------

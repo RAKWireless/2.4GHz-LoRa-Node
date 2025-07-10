@@ -1923,14 +1923,23 @@ static void dev_status_parser( lr1_stack_mac_t* lr1_mac )
     SMTC_MODEM_HAL_TRACE_MSG( "Receive a dev status req\r\n" );
     lr1_mac->nwk_payload_index += DEV_STATUS_REQ_SIZE;
 
-    if( lr1_mac->nwk_payload_index <= lr1_mac->nwk_payload_size )
+    // if( lr1_mac->nwk_payload_index <= lr1_mac->nwk_payload_size )
+    // {
+    //     lr1_mac->tx_fopts_data[lr1_mac->tx_fopts_length]     = DEV_STATUS_ANS;  // copy Cid
+    //     lr1_mac->tx_fopts_data[lr1_mac->tx_fopts_length + 1] = smtc_modem_hal_get_battery_level( );
+    //     lr1_mac->tx_fopts_data[lr1_mac->tx_fopts_length + 2] =
+    //         ( lr1_mac->rp->radio_params[my_hook_id].rx.lora_pkt_status.snr_pkt_in_db ) & 0x3F;
+    //     lr1_mac->tx_fopts_length += DEV_STATUS_ANS_SIZE;
+    // }
+
+    if( ( lr1_mac->tx_fopts_lengthsticky + DEV_STATUS_ANS_SIZE ) <= 15 )
     {
-        lr1_mac->tx_fopts_data[lr1_mac->tx_fopts_length]     = DEV_STATUS_ANS;  // copy Cid
-        lr1_mac->tx_fopts_data[lr1_mac->tx_fopts_length + 1] = smtc_modem_hal_get_battery_level( );
-        lr1_mac->tx_fopts_data[lr1_mac->tx_fopts_length + 2] =
-            ( lr1_mac->rp->radio_params[my_hook_id].rx.lora_pkt_status.snr_pkt_in_db ) & 0x3F;
-        lr1_mac->tx_fopts_length += DEV_STATUS_ANS_SIZE;
+        lr1_mac->tx_fopts_datasticky[lr1_mac->tx_fopts_lengthsticky]     = DEV_STATUS_ANS;
+        lr1_mac->tx_fopts_datasticky[lr1_mac->tx_fopts_lengthsticky + 1] = smtc_modem_hal_get_battery_level( );
+        lr1_mac->tx_fopts_datasticky[lr1_mac->tx_fopts_lengthsticky + 2] =( lr1_mac->rp->radio_params[my_hook_id].rx.lora_pkt_status.snr_pkt_in_db ) & 0x3F;
+        lr1_mac->tx_fopts_lengthsticky += DEV_STATUS_ANS_SIZE;
     }
+        
 }
 /**********************************************************************************************************************/
 /*                                                 Private NWK MANAGEMENTS :
