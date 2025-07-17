@@ -95,6 +95,7 @@ void hal_trace_print_with_location(const char* file, int line, const char* fmt, 
         filename = filename ? filename + 1 : file;
         
         snprintf(final_string, PRINT_BUFFER_SIZE, "[%s:%d] %s", filename, line, string);
+        //snprintf(final_string, PRINT_BUFFER_SIZE, "%s", string);
         uart_print(final_string);
     }
 }

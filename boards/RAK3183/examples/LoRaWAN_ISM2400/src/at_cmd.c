@@ -307,19 +307,25 @@ int handle_send(const AT_Command *cmd)
         return AT_PARAM_ERROR;
     }
 
-
-    // if (sscanf(cmd->params, "%d:%s", &port, data) != 2)
-    // {
-    //     am_util_stdio_printf("AT_PARAM_ERROR\r\n");
-    //     return;
-    // }
+    //am_util_stdio_printf("debug:lora_params.confirm %d\r\n",lora_params.confirm);
 
     if (lorawan_api_get_activation_mode() == ACTIVATION_MODE_OTAA)
     {
         if (is_joined() == true)
         {
-            smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, data, len);
-            return AT_OK;
+            smtc_modem_return_code_t ret = smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, data, len);
+            if (ret == SMTC_MODEM_RC_OK)
+            {
+                return AT_OK;
+            }
+            else if (ret == SMTC_MODEM_RC_BUSY)
+            {
+                return AT_BUSY_ERROR;
+            }
+            else
+            {
+                return AT_ERROR;
+            }
         }
         else
         {
@@ -328,8 +334,19 @@ int handle_send(const AT_Command *cmd)
     }
     else
     {
-        smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, data, len);
-        return AT_OK;
+        smtc_modem_return_code_t ret = smtc_modem_request_uplink(STACK_ID, port, lora_params.confirm, data, len);
+        if (ret == SMTC_MODEM_RC_OK)
+        {
+            return AT_OK;
+        }
+        else if (ret == SMTC_MODEM_RC_BUSY)
+        {
+            return AT_BUSY_ERROR;
+        }
+        else
+        {
+            return AT_ERROR;
+        }
     }
 }
 
@@ -880,21 +897,21 @@ int handle_sendinterval(const AT_Command *cmd)
 {
     if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1)
     {
-        am_util_stdio_printf("%s=%u\r\n", cmd->cmd, lora_params.interval);        
+        am_util_stdio_printf("%s=%u\r\n", cmd->cmd, lora_params.auto_send_interval_sec);
         return AT_OK;
     }
-    else if (cmd->params > 0 && cmd->argc == 1)
+    else if (cmd->argc == 1)
     {
-        lora_params.interval = atoi(cmd->params);
+        int val = atoi(cmd->params);
+        if (val < 1 || val > 86400) { // 合理范围：1秒~24小时
+            return AT_PARAM_ERROR;
+        }
+        lora_params.auto_send_interval_sec = val;
         save_lora_params();
+        am_util_stdio_printf("%s:%d\r\n", cmd->cmd, val);
         return AT_OK;
     }
-    else
-    {
-        return AT_ERROR;
-    }
-    if (lora_params.interval > 0)
-        smtc_modem_alarm_start_timer(lora_params.interval);
+    return AT_PARAM_ERROR;
 }
 
 int handle_compensation(const AT_Command *cmd)
@@ -957,6 +974,8 @@ int handle_confirm(const AT_Command *cmd)
         else
         {
             lora_params.confirm = confirm_temp;
+            smtc_modem_set_nb_trans(STACK_ID,lora_params.retry);
+            
             save_lora_params();
             return AT_OK;
         }        
@@ -1061,7 +1080,7 @@ int handle_rety(const AT_Command *cmd)
     {
         retry = atoi(cmd->params);
 
-        if (retry > 15 || retry < 0)
+        if (retry > 15 || retry < 1)
         {            
             return AT_PARAM_ERROR;
         }
@@ -1189,6 +1208,25 @@ int handle_sleep(const AT_Command *cmd)
     return AT_OK;
 }
 
+// 处理AT+RANGETEST指令，设置/查询range test模式使能
+int handle_rangetest(const AT_Command *cmd)
+{
+    if (strcmp(cmd->params, "?") == 0 && cmd->argc == 1) {
+        am_util_stdio_printf("%s=%d\r\n", cmd->cmd, lora_params.range_test_enabled);
+        return AT_OK;
+    } else if (cmd->argc == 1) {
+        int val = atoi(cmd->params);
+        if (val != 0 && val != 1) {
+            return AT_PARAM_ERROR;
+        }
+        lora_params.range_test_enabled = val;
+        save_lora_params();
+        am_util_stdio_printf("%s:%s\r\n", cmd->cmd, val ? "ENABLED" : "DISABLED");
+        return AT_OK;
+    }
+    return AT_PARAM_ERROR;
+}
+
 AT_HandlerTable handler_table[] = {
     // === System Commands ===
     {"ATZ",           handle_reset,        "System reset and restart device"},
@@ -1204,6 +1242,7 @@ AT_HandlerTable handler_table[] = {
     {"AT+DEVADDR",    handle_devaddr,      "Set/Get LoRaWAN device address (4 bytes hex)"},
     {"AT+NWKSKEY",    handle_nwkskey,      "Set/Get LoRaWAN network session key (16 bytes hex)"},
     {"AT+APPSKEY",    handle_appskey,      "Set/Get LoRaWAN application session key (16 bytes hex)"},
+    {"AT+RANGETEST",  handle_rangetest,    "Set/Get range test mode (0=disabled, 1=enabled)"},
     {"AT+NJM",        handle_njm,          "Set/Get LoRaWAN join mode (0=ABP, 1=OTAA)"},
 
     // === LoRaWAN Network Operations ===
@@ -1215,6 +1254,7 @@ AT_HandlerTable handler_table[] = {
     {"AT+CLASS",      handle_class,        "Set/Get LoRaWAN device class (0=Class A, 2=Class C)"},
     {"AT+DR",         handle_dr,           "Set/Get LoRaWAN data rate (0-5)"},
     {"AT+RETY",       handle_rety,         "Set/Get LoRaWAN retransmission count (0-15)"},
+    {"AT+SENDINTVL",  handle_sendinterval,   "Set/Get auto send interval (seconds)"},
 
     // === Working Mode Configuration ===
     {"AT+NWM",        handle_nwm,          "Set/Get network working mode (0=P2P, 1=LoRaWAN)"},

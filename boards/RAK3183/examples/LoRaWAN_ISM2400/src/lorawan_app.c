@@ -38,11 +38,24 @@
 /* ================================================================================================
  * CONSTANTS AND DEFINITIONS
  * ================================================================================================ */
+#define LED1 44                     ///< LED1 GPIO pin number
+#define LED2 45                     ///< LED2 GPIO pin number
 
 #define ADDR_FLASH_AT_PARAM_CONTEXT (AM_HAL_FLASH_INSTANCE_SIZE + (4 * AM_HAL_FLASH_PAGE_SIZE))
-#define APP_TX_DUTYCYCLE (7)
 #define MODEM_EXAMPLE_REGION SMTC_MODEM_REGION_WW2G4
 #define STACK_ID 0
+
+/**
+ * @brief Auto-send configuration
+ */
+#define AUTO_SEND_PACKET_COUNT 100     // 自动发送包的总数
+#define AUTO_JOIN_RETRY_INTERVAL 10     // 入网重试间隔（秒）
+
+/**
+ * @brief Range test configuration
+ * Range test mode is now configurable via AT+RANGETEST command
+ */
+#define RANGE_TEST_PAYLOAD_SIZE 100     // Range test包大小（字节）
 
 /**
  * @brief Default LoRaWAN credentials (all zeros - should be configured via AT commands)
@@ -65,25 +78,35 @@
  * @note These parameters are stored in flash and can be modified via AT commands
  */
 volatile LoRaWAN_Params lora_params = {
-    .dev_eui        = USER_LORAWAN_DEVICE_EUI,
-    .join_eui       = USER_LORAWAN_JOIN_EUI,
-    .app_key        = USER_LORAWAN_APP_KEY,
-    .devaddr        = 0,
-    .appskey        = USER_LORAWAN_APPSKEY,
-    .nwkskey        = USER_LORAWAN_NWKSKEY,
-    .class          = 0,        // Class A
-    .dr             = 0,        // Data Rate 0
-    .confirm        = 1,        // Confirmed uplinks enabled
-    .retry          = 1,        // 1 retransmission
-    .join_mode      = 1,        // OTAA mode
-    .nwm            = 1,        // LoRaWAN mode
-    .frequency_hz   = 2402000000,
-    .tx_power_dbm   = 10,
-    .sf             = 1,
-    .bw             = 3,
-    .cr             = 0,
-    .preamble_size  = 14,
-    .interval       = 0         // No automatic transmission
+    .dev_eui                = USER_LORAWAN_DEVICE_EUI, // 8 bytes
+    .join_eui               = USER_LORAWAN_JOIN_EUI,   // 8 bytes
+    .app_key                = USER_LORAWAN_APP_KEY,    // 16 bytes
+    .nwkskey                = USER_LORAWAN_NWKSKEY,    // 16 bytes
+    .appskey                = USER_LORAWAN_APPSKEY,    // 16 bytes
+    .devaddr                = 0,
+
+    .class                  = 0,
+    .dr                     = 2,
+    .confirm                = 1,
+    .retry                  = 7,
+
+    .interval               = 0,
+
+    .join_mode              = 1,
+    .nwm                    = 1,
+    .range_test_enabled     = 0,
+    .tx_power_dbm           = 13,
+
+    .frequency_hz           = 2402000000,
+
+    .sf                     = 1,
+    .bw                     = 3,
+    .cr                     = 0,
+    .preamble_size          = 14,
+
+    .auto_send_interval_sec = 5,
+
+    .crc                    = 0
 };
 
 /**
@@ -91,6 +114,23 @@ volatile LoRaWAN_Params lora_params = {
  */
 uint8_t rx_payload_size;
 uint8_t rx_payload[256];
+
+/**
+ * @brief Auto-send state management
+ */
+static struct {
+    bool auto_send_enabled;           // 是否启用自动发送
+    uint16_t packets_sent;           // 已发送包数量
+    uint16_t target_packet_count;    // 目标发送包数量
+    bool network_joined;             // 网络加入状态
+    bool auto_join_enabled;          // 是否启用自动入网
+} auto_send_state = {
+    .auto_send_enabled = true,       // 上电自动启用
+    .packets_sent = 0,
+    .target_packet_count = AUTO_SEND_PACKET_COUNT,
+    .network_joined = false,
+    .auto_join_enabled = true        // 上电自动入网
+};
 
 /**
  * @brief Radio abstraction layer instance
@@ -112,6 +152,13 @@ const ralf_t modem_radio = RALF_LR11XX_INSTANTIATE(NULL);
 static uint16_t calculate_crc_for_lorawan_params(const LoRaWAN_Params *params);
 static void get_event(void);
 static const char* get_window_str(smtc_modem_event_downdata_window_t window);
+static void range_test_uplink(void);
+static void led_init(void);
+static void led_on(uint8_t led_pin);
+static void led_off(uint8_t led_pin);
+static void led_blink(uint8_t led_pin, uint32_t duration_ms);
+
+
 
 /* ================================================================================================
  * PARAMETER MANAGEMENT FUNCTIONS
@@ -143,13 +190,23 @@ void load_lora_params(void)
     // Read parameters from flash
     hal_flash_read_buffer(ADDR_FLASH_AT_PARAM_CONTEXT, (uint8_t *)&lora_params_temp, sizeof(lora_params_temp));
 
+    // Print first 16 bytes of loaded struct for debug
+    //am_util_stdio_printf("[DEBUG] Loaded lora_params_temp (first 16 bytes): ");
+    // for (int i = 0; i < 16; i++) {
+    //     am_util_stdio_printf("%02X ", ((uint8_t*)&lora_params_temp)[i]);
+    // }
+    // am_util_stdio_printf("\r\n");
+
     // Validate CRC
     crc = calculate_crc_for_lorawan_params(&lora_params_temp);
+    //am_util_stdio_printf("[DEBUG] lora_params_temp.crc: 0x%04X, calculated CRC: 0x%04X\r\n", lora_params_temp.crc, crc);
     
     if (lora_params_temp.crc != crc) {
+        am_util_stdio_printf("[DEBUG] CRC mismatch, loading defaults and saving to flash.\r\n");
         // CRC mismatch - save default parameters
         save_lora_params();
     } else {
+        //am_util_stdio_printf("[DEBUG] CRC valid, using loaded parameters.\r\n");
         // CRC valid - use loaded parameters
         memcpy(&lora_params, &lora_params_temp, sizeof(lora_params));
     }
@@ -208,28 +265,110 @@ static void get_event(void)
                 // Handle modem reset - enter test mode if P2P mode is selected
                 if (lora_params.nwm == 0) {
                     smtc_modem_test_start();
+                } else {
+                    // LoRaWAN模式，重置发送计数器并开始自动入网
+                    auto_send_state.packets_sent = 0;
+                    auto_send_state.network_joined = false;
+                    
+                if (lora_params.range_test_enabled) {
+                    // Range Test模式：启用自动发送和自动入网
+                    am_util_stdio_printf("+EVT:RESET:AUTO_SEND_ENABLED:%d_PACKETS\r\n", 
+                                       auto_send_state.target_packet_count);
+                    
+                    // 如果启用自动入网，开始入网流程
+                    if (auto_send_state.auto_join_enabled && lora_params.join_mode == 1) {
+                        smtc_modem_join_network(STACK_ID);
+                        am_util_stdio_printf("+EVT:JOIN_STARTED\r\n");
+                    }
+                } else {
+                    // 传感器数据模式：禁用自动发送和自动入网
+                    auto_send_state.auto_send_enabled = false;
+                    auto_send_state.auto_join_enabled = false;
+                }
                 }
                 break;
 
             case SMTC_MODEM_EVENT_ALARM:
                 SMTC_HAL_TRACE_INFO("Event received: ALARM\r\n");
-                // Restart timer and send sensor data if interval is configured
-                if (lora_params.interval > 0) {
-                    smtc_modem_alarm_start_timer(lora_params.interval);
+                
+                if (lora_params.range_test_enabled) {
+                    // Range Test模式：检查是否需要继续自动发送或重试入网
+                    if (auto_send_state.auto_send_enabled && 
+                        auto_send_state.network_joined &&
+                        auto_send_state.packets_sent < auto_send_state.target_packet_count) {
+                        
+                        // 发送数据包 - Range Test模式
+                        range_test_uplink();
+                        auto_send_state.packets_sent++;
+                        
+                        am_util_stdio_printf("+EVT:AUTO_SEND:PACKET_%d_OF_%d\r\n", 
+                                           auto_send_state.packets_sent, 
+                                           auto_send_state.target_packet_count);
+                        
+                    } else if (auto_send_state.auto_join_enabled && 
+                              !auto_send_state.network_joined && 
+                              lora_params.join_mode == 1) {
+                        
+                        // 重试入网
+                        smtc_modem_join_network(STACK_ID);
+                        am_util_stdio_printf("+EVT:JOIN_RETRY\r\n");
+                    }
                 }
-                data_lpp_uplink();
                 break;
 
             case SMTC_MODEM_EVENT_JOINED:
                 am_util_stdio_printf("+EVT:JOINED\r\n");
-                // Start automatic transmission timer if configured
-                if (lora_params.interval > 0) {
-                    smtc_modem_alarm_start_timer(lora_params.interval);
+
+                //测试发现重传必须在入网之后设置才会生效
+                lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);
+                smtc_modem_set_nb_trans(STACK_ID, lora_params.retry);
+
+                led_blink(LED1, 1000);
+                /* 发送一个空包 */
+                // uint8_t empty_payload[1] = {0};
+                // smtc_modem_request_uplink(STACK_ID, 1, 0, empty_payload, 0);
+                // am_util_stdio_printf("+EVT:JOINED:SEND_EMPTY_PACKET\r\n");
+                
+                // 打印当前确认和重传参数
+                am_util_stdio_printf("+EVT:JOIN_CONFIG:CONFIRM=%d:RETRY=%d\r\n", 
+                                   lora_params.confirm, lora_params.retry);
+                
+                if (lora_params.range_test_enabled) {
+                    auto_send_state.network_joined = true;
+                    // Range Test模式：入网后启动定时器，按正常间隔发送
+                    if (auto_send_state.auto_send_enabled && 
+                        auto_send_state.packets_sent < auto_send_state.target_packet_count) {
+                        
+                        am_util_stdio_printf("+EVT:AUTO_SEND_STARTING:INTERVAL_%dSEC:TARGET_%d_PACKETS\r\n", 
+                                           lora_params.auto_send_interval_sec, auto_send_state.target_packet_count);
+                        
+                        // 启动正常间隔定时器
+                        smtc_modem_alarm_start_timer(lora_params.auto_send_interval_sec);
+                    }
+                } else {
+                    // 传感器数据模式：入网成功，但不启动自动发送
+                    //am_util_stdio_printf("+EVT:JOINED:SENSOR_MODE:NO_AUTO_SEND\r\n");
                 }
+                // } else if (lora_params.interval > 0) {
+                //     // 传统的间隔发送模式
+                //     smtc_modem_alarm_start_timer(lora_params.interval);
+                // }
                 break;
 
             case SMTC_MODEM_EVENT_TXDONE:
                 am_util_stdio_printf("+EVT:TX_DONE\r\n");
+
+                // 检查是否已达到目标包数
+                if (auto_send_state.packets_sent >= auto_send_state.target_packet_count) {
+                    auto_send_state.auto_send_enabled = false;
+                    am_util_stdio_printf("+EVT:AUTO_SEND_COMPLETED:TOTAL_%d_PACKETS\r\n", 
+                                           auto_send_state.packets_sent);
+                } else {
+                    // 重新启动定时器继续发送
+                    smtc_modem_alarm_start_timer(lora_params.auto_send_interval_sec);
+                }
+
+                led_blink(LED1, 100);
                 // Report detailed transmission status
                 switch (current_event.event_data.txdone.status) {
                     case SMTC_MODEM_EVENT_TXDONE_NOT_SENT:
@@ -242,6 +381,14 @@ static void get_event(void)
                         break;
                     case SMTC_MODEM_EVENT_TXDONE_CONFIRMED:
                         am_util_stdio_printf("+EVT:SEND_CONFIRMED_OK\r\n");
+                        // 发送数据包，LED2闪烁200ms
+                        led_blink(LED2, 100);
+                        int16_t snr = lorawan_api_last_snr_get();
+                        int16_t rssi = lorawan_api_last_rssi_get();
+                        am_util_stdio_printf("+EVT:ACK_RECEIVED:RSSI=%d:SNR=%.1f\r\n", 
+                                           rssi ,
+                                           snr / 1.0f);
+
                         break;
                     default:
                         am_util_stdio_printf("+EVT:SEND_UNKNOWN_STATUS:%d\r\n", 
@@ -288,8 +435,15 @@ static void get_event(void)
 
             case SMTC_MODEM_EVENT_JOINFAIL:
                 am_util_stdio_printf("+EVT:JOIN_FAILED_RX_TIMEOUT\r\n");
+   
                 // Leave network after join failure
                 smtc_modem_leave_network(stack_id);
+                
+                // If range test mode is enabled and auto join is enabled, set retry timer
+                if (lora_params.range_test_enabled && auto_send_state.auto_join_enabled && lora_params.join_mode == 1) {
+                    am_util_stdio_printf("+EVT:JOIN_RETRY_IN_%d_SECONDS\r\n", AUTO_JOIN_RETRY_INTERVAL);
+                    smtc_modem_alarm_start_timer(AUTO_JOIN_RETRY_INTERVAL);
+                }
                 break;
 
             case SMTC_MODEM_EVENT_TIME:
@@ -346,6 +500,9 @@ void lorawan_init(void)
     hal_rtc_init();
     hal_lp_timer_init();
     
+    // Initialize LEDs
+    led_init();
+    
     // Initialize modem with radio and event handler
     hal_mcu_disable_irq();
     hal_mcu_init();
@@ -354,7 +511,7 @@ void lorawan_init(void)
     
     // Configure modem region and power offset
     smtc_modem_set_region(STACK_ID, MODEM_EXAMPLE_REGION);
-    smtc_modem_set_tx_power_offset_db(STACK_ID, 0);
+    smtc_modem_set_tx_power_offset_db(STACK_ID, lora_params.tx_power_dbm);
 
     // Load parameters from flash
     load_lora_params();
@@ -362,6 +519,13 @@ void lorawan_init(void)
     // Display current working mode
     char *mode[2] = {"P2P", "LoRaWAN"};
     am_util_stdio_printf("Current Work Mode: %s\r\n", mode[lora_params.nwm]);
+    
+    // 显示测试模式
+    // if (lora_params.range_test_enabled) {
+    //     am_util_stdio_printf("Test Mode: Range Test (10-byte packets, 0-99 counter)\r\n");
+    // } else {
+    //     am_util_stdio_printf("Test Mode: Sensor Data Mode (Cayenne LPP)\r\n");
+    // }
 
     // Configure activation mode based on join mode
     if (lora_params.join_mode == 0) {
@@ -398,60 +562,112 @@ void lorawan_init(void)
 
     // Configure data rate strategy and retransmission count
     lorawan_api_dr_strategy_set(USER_DR_DISTRIBUTION);
-    smtc_modem_set_nb_trans(STACK_ID, lora_params.retry);
+    uint8_t custom_datarate[SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH] = {0};
+    memset(custom_datarate, lora_params.dr, SMTC_MODEM_CUSTOM_ADR_DATA_LENGTH);
+    smtc_modem_adr_set_profile(STACK_ID, SMTC_MODEM_ADR_PROFILE_CUSTOM, custom_datarate);
+
+    smtc_modem_set_crystal_error_ppm(40000);
 }
 
-/* ================================================================================================
- * DATA TRANSMISSION FUNCTIONS
- * ================================================================================================ */
+// /* ================================================================================================
+//  * DATA TRANSMISSION FUNCTIONS
+//  * ================================================================================================ */
+
+// /**
+//  * @brief Collect sensor data and send LoRaWAN uplink
+//  * @note Uses Cayenne LPP format for sensor data encoding
+//  */
+// void data_lpp_uplink(void)
+// {
+//     uint8_t buff_idx = 0;
+//     int8_t buffer[24] = {0};
+
+//     // 添加包计数器作为第一个数据（Channel 0，Digital Input）
+//     if (auto_send_state.auto_send_enabled) {
+//         buffer[buff_idx++] = 0;      // Channel 0
+//         buffer[buff_idx++] = 0x00;   // LPP Digital Input type
+//         buffer[buff_idx++] = auto_send_state.packets_sent + 1; // 当前包序号（从1开始）
+//     }
+
+//     // Add accelerometer data if available (LIS3DH sensor)
+//     if (lis3dh_initialized == true) {
+//         RAK1904_func();
+//         buffer[buff_idx++] = 1;      // Channel 1
+//         buffer[buff_idx++] = 0x71;   // LPP Accelerometer type
+
+//         // X-axis data (16-bit)
+//         buffer[buff_idx++] = (val[0]) >> 8;
+//         buffer[buff_idx++] = val[0];
+
+//         // Y-axis data (16-bit)
+//         buffer[buff_idx++] = (val[1]) >> 8;
+//         buffer[buff_idx++] = (val[1]);
+
+//         // Z-axis data (16-bit)
+//         buffer[buff_idx++] = (val[2]) >> 8;
+//         buffer[buff_idx++] = (val[2]);
+//     }
+
+//     // Add temperature and humidity data if available (SHTC3 sensor)
+//     if (shtc3_initialized == true) {
+//         RAK1901_func();
+        
+//         // Temperature data
+//         buffer[buff_idx++] = 2;      // Channel 2
+//         buffer[buff_idx++] = 0x67;   // LPP Temperature type
+//         buffer[buff_idx++] = (uint8_t)(val[3] >> 8);
+//         buffer[buff_idx++] = (uint8_t)val[3];
+
+//         // Humidity data
+//         buffer[buff_idx++] = 2;      // Channel 2
+//         buffer[buff_idx++] = 0x68;   // LPP Humidity type
+//         buffer[buff_idx++] = (uint8_t)(val[4]);
+//     }
+
+//     // 如果没有传感器数据但有包计数器，确保至少发送包计数器
+//     if (buff_idx == 0 && auto_send_state.auto_send_enabled) {
+//         buffer[buff_idx++] = 0;      // Channel 0
+//         buffer[buff_idx++] = 0x00;   // LPP Digital Input type
+//         buffer[buff_idx++] = auto_send_state.packets_sent + 1; // 当前包序号
+//     }
+
+//     // Send data if any data was collected
+//     if (buff_idx != 0) {
+//         smtc_modem_request_uplink(STACK_ID, 1, true, buffer, buff_idx);
+//     }
+// }
 
 /**
- * @brief Collect sensor data and send LoRaWAN uplink
- * @note Uses Cayenne LPP format for sensor data encoding
+ * @brief Send range test uplink packet
+ * @note Sends fixed 100-byte payload with packet counter from 0 to 99
  */
-void data_lpp_uplink(void)
+static void range_test_uplink(void)
 {
-    uint8_t buff_idx = 0;
-    int8_t buffer[24] = {0};
+    uint8_t buffer[RANGE_TEST_PAYLOAD_SIZE] = {0};  // 初始化为全0
+    uint8_t packet_counter = auto_send_state.packets_sent; // 从0开始计数
+    
+    if (lora_params.range_test_enabled) {
+        // 构建100字节的range test payload
+        buffer[0] = 0x52;                           // 'R' - Range test identifier
+        buffer[1] = 0x41;                           // 'A' - Range test identifier  
+        buffer[2] = 0x4B;                           // 'K' - Range test identifier
+        buffer[3] = (uint8_t)(packet_counter);      // 包计数器（0-99）
+        buffer[4] = (uint8_t)(packet_counter >> 8); // 包计数器高字节（预留）
+        buffer[5] = (uint8_t)(lora_params.auto_send_interval_sec);        // 上传间隔（秒）低字节
+        buffer[6] = (uint8_t)(lora_params.auto_send_interval_sec >> 8);   // 上传间隔（秒）高字节
+        // buffer[7-99] 保持为0（由初始化自动设置）
 
-    // Add accelerometer data if available (LIS3DH sensor)
-    if (lis3dh_initialized == true) {
-        RAK1904_func();
-        buffer[buff_idx++] = 1;      // Channel 1
-        buffer[buff_idx++] = 0x71;   // LPP Accelerometer type
-
-        // X-axis data (16-bit)
-        buffer[buff_idx++] = (val[0]) >> 8;
-        buffer[buff_idx++] = val[0];
-
-        // Y-axis data (16-bit)
-        buffer[buff_idx++] = (val[1]) >> 8;
-        buffer[buff_idx++] = (val[1]);
-
-        // Z-axis data (16-bit)
-        buffer[buff_idx++] = (val[2]) >> 8;
-        buffer[buff_idx++] = (val[2]);
-    }
-
-    // Add temperature and humidity data if available (SHTC3 sensor)
-    if (shtc3_initialized == true) {
-        RAK1901_func();
-        
-        // Temperature data
-        buffer[buff_idx++] = 2;      // Channel 2
-        buffer[buff_idx++] = 0x67;   // LPP Temperature type
-        buffer[buff_idx++] = (uint8_t)(val[3] >> 8);
-        buffer[buff_idx++] = (uint8_t)val[3];
-
-        // Humidity data
-        buffer[buff_idx++] = 2;      // Channel 2
-        buffer[buff_idx++] = 0x68;   // LPP Humidity type
-        buffer[buff_idx++] = (uint8_t)(val[4]);
-    }
-
-    // Send data if any sensor data was collected
-    if (buff_idx != 0) {
-        smtc_modem_request_uplink(STACK_ID, 1, true, buffer, buff_idx);
+        if(lora_params.confirm)
+        {
+            smtc_modem_request_uplink(STACK_ID, 1, true, buffer, RANGE_TEST_PAYLOAD_SIZE);
+        }
+        else
+        {
+            smtc_modem_set_nb_trans(STACK_ID, 1);
+            smtc_modem_request_uplink(STACK_ID, 1, false, buffer, RANGE_TEST_PAYLOAD_SIZE);
+        }
+        am_util_stdio_printf("\r\n+RANGE_TEST:PACKET_%d", packet_counter);
+        am_util_stdio_printf("\r\n");
     }
 }
 
@@ -524,3 +740,58 @@ static uint16_t calculate_crc_for_lorawan_params(const LoRaWAN_Params *params)
 {
     return crc16((const uint8_t *)params, sizeof(LoRaWAN_Params) - sizeof(params->crc));
 }
+
+/* ================================================================================================
+ * LED CONTROL FUNCTIONS
+ * ================================================================================================ */
+
+/**
+ * @brief Initialize LED GPIO pins
+ */
+static void led_init(void)
+{
+    // Configure LED1 pin as output
+    am_hal_gpio_pinconfig(LED1, g_AM_HAL_GPIO_OUTPUT);
+    am_hal_gpio_state_write(LED1, AM_HAL_GPIO_OUTPUT_CLEAR); // Turn off initially
+    
+    // Configure LED2 pin as output  
+    am_hal_gpio_pinconfig(LED2, g_AM_HAL_GPIO_OUTPUT);
+    am_hal_gpio_state_write(LED2, AM_HAL_GPIO_OUTPUT_CLEAR); // Turn off initially
+}
+
+/**
+ * @brief Turn on LED
+ * @param led_pin GPIO pin number of the LED
+ */
+static void led_on(uint8_t led_pin)
+{
+    am_hal_gpio_state_write(led_pin, AM_HAL_GPIO_OUTPUT_SET);
+}
+
+/**
+ * @brief Turn off LED
+ * @param led_pin GPIO pin number of the LED
+ */
+static void led_off(uint8_t led_pin)
+{
+    am_hal_gpio_state_write(led_pin, AM_HAL_GPIO_OUTPUT_CLEAR);
+}
+
+/**
+ * @brief Blink LED for specified duration
+ * @param led_pin GPIO pin number of the LED
+ * @param duration_ms Duration in milliseconds to keep LED on
+ */
+static void led_blink(uint8_t led_pin, uint32_t duration_ms)
+{
+    // Turn on LED
+    led_on(led_pin);
+    
+    // Simple delay (blocking) - for non-blocking, would need timer
+    am_util_delay_ms(duration_ms);
+    
+    // Turn off LED
+    led_off(led_pin);
+}
+
+

@@ -4,6 +4,8 @@
 ## Added  
 - Formatted AT commands
 - Standardized version management
+- Added distance test mode
+- Added distance test GUI script
 ## Fixed  
 - Fixed logic for confirmation packets and retransmissions
 
